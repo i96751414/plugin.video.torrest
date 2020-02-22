@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.torrest" name="Torrest" provider-name="i96751414" version="0.0.1">
+    <requires>
+        <import addon="xbmc.python" version="2.24.0"/>
+        <import addon="xbmc.addon" version="16.0.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="navigation.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.service" library="service.py" start="login"/>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <license>See https://github.com/i96751414/plugin.video.torrest/blob/master/LICENSE</license>
+        <source>https://github.com/i96751414/plugin.video.torrest</source>
+        <summary lang="en">Torrest on Kodi</summary>
+        <description lang="en">Torrest is a service with a rest API which allows torrent streaming.</description>
+        <platform>all</platform>
+        <news>
+        </news>
+        <assets>
+            <icon>icon.png</icon>
+            <screenshot>resources/images/screenshot-1.png</screenshot>
+            <screenshot>resources/images/screenshot-2.png</screenshot>
+            <screenshot>resources/images/screenshot-3.png</screenshot>
+        </assets>
+    </extension>
+</addon>
