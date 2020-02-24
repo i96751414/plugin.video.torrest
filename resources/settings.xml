@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <!-- General -->
+    <category label="30000">
+        <!-- Service Port -->
+        <setting id="port" type="number" label="30001" default="8080"/>
+    </category>
+</settings>

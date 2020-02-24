@@ -7,7 +7,7 @@ import threading
 from typing import Optional
 
 from lib.os_platform import PLATFORM, System
-from lib.utils import bytes_to_str
+from lib.utils import bytes_to_str, string_types
 
 
 def android_get_current_app_id():
@@ -52,6 +52,10 @@ class Daemon(object):
             os.chmod(self._path, st.st_mode | stat.S_IEXEC)
 
     def start_daemon(self, port=8080, settings="settings.json"):
+        if not isinstance(port, int):
+            raise ValueError("port must be an integer")
+        if not isinstance(settings, string_types) or not settings:
+            raise ValueError("settings must be a non empty string")
         if self._p is not None:
             raise ValueError("daemon already running")
         logging.info("Starting daemon on port %s with settings '%s'", port, settings)
@@ -89,8 +93,8 @@ class Daemon(object):
         self._logger.join()
         self._logger = None
 
-    def start(self, level=logging.INFO):
-        self.start_daemon()
+    def start(self, port=8080, settings="settings.json", level=logging.INFO):
+        self.start_daemon(port=port, settings=settings)
         self.start_logger(level=level)
 
     def stop(self):

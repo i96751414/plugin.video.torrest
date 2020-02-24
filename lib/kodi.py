@@ -9,6 +9,7 @@ ADDON = xbmcaddon.Addon()
 ADDON_PATH = ADDON.getAddonInfo("path")
 ADDON_NAME = ADDON.getAddonInfo("name")
 ADDON_ID = ADDON.getAddonInfo("id")
+ADDON_DATA = xbmc.translatePath(ADDON.getAddonInfo("profile"))
 
 if PY3:
     def translate(text):
@@ -18,6 +19,8 @@ if PY3:
 else:
     # noinspection PyUnresolvedReferences
     ADDON_PATH = ADDON_PATH.decode("utf-8")
+    # noinspection PyUnresolvedReferences
+    ADDON_DATA = ADDON_DATA.decode("utf-8")
 
 
     def translate(text):
@@ -57,7 +60,7 @@ class KodiLogHandler(logging.StreamHandler):
         pass
 
 
-def set_logger(name=None, level=logging.DEBUG):
+def set_logger(name=None, level=logging.INFO):
     logger = logging.getLogger(name)
     logger.addHandler(KodiLogHandler())
     logger.setLevel(level)
