@@ -52,16 +52,12 @@ def get_platform():
 
 
 def dump_platform():
-    p = "system: {}\nrelease: {}\nmachine: {}\narchitecture: {}\n".format(
+    return "system: {}\nrelease: {}\nmachine: {}\narchitecture: {}\n".format(
         platform.system(), platform.release(), platform.machine(), platform.architecture())
-    try:
-        p += "p: {}".format(get_platform())
-    except Exception as e:
-        p += "exception: {}".format(e)
-    return p
 
 
 try:
     PLATFORM = get_platform()
 except Exception as _e:
     logging.fatal(_e)
+    logging.fatal(dump_platform())
