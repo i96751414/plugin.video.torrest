@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -13,6 +14,44 @@ from lib.utils import bytes_to_str, string_types
 def android_get_current_app_id():
     with open("/proc/{:d}/cmdline".format(os.getpid())) as fp:
         return fp.read().rstrip("\0")
+
+
+class DefaultDaemonLogger(threading.Thread):
+    def __init__(self, fd, default_level=logging.INFO):
+        super(DefaultDaemonLogger, self).__init__()
+        self.daemon = True
+        self._fd = fd
+        self._default_level = default_level
+
+    def _get_level_and_message(self, line):
+        return self._default_level, line.rstrip("\r\n")
+
+    def run(self):
+        for line in iter(self._fd.readline, self._fd.read(0)):
+            logging.log(*self._get_level_and_message(bytes_to_str(line)))
+
+
+class DaemonLogger(DefaultDaemonLogger):
+    levels_mapping = {
+        "ERRO": logging.ERROR,
+        "WARN": logging.WARNING,
+        "DEBU": logging.DEBUG,
+        "NOTI": logging.INFO,
+        "INFO": logging.INFO,
+    }
+
+    tag_regex = re.compile("\x1b\\[\\d+m")
+    level_regex = re.compile("^(?:{})*({})".format(tag_regex.pattern, "|".join(levels_mapping)))
+
+    def _get_level_and_message(self, line):
+        m = self.level_regex.search(line)
+        if m:
+            line = self.tag_regex.sub("", line[len(m.group(0)):].lstrip(" "))
+            level = self.levels_mapping[m.group(1)]
+        else:
+            level = self._default_level
+
+        return level, line.rstrip("\r\n")
 
 
 class Daemon(object):
@@ -37,7 +76,7 @@ class Daemon(object):
             self._path = os.path.join(self._dir, self._name)
 
         self._p = None  # type: Optional[subprocess.Popen]
-        self._logger = None  # type: Optional[threading.Thread]
+        self._logger = None  # type: Optional[DaemonLogger]
 
     @staticmethod
     def _get_sha1(path):
@@ -71,19 +110,13 @@ class Daemon(object):
                 logging.info("Daemon already terminated")
             self._p = None
 
-    @staticmethod
-    def _logger_job(fd, level=logging.INFO):
-        for line in iter(fd.readline, fd.read(0)):
-            logging.log(level, bytes_to_str(line).rstrip("\r\n"))
-
     def start_logger(self, level=logging.INFO):
         if self._logger is not None:
             raise ValueError("logger was already started")
         if self._p is None:
             raise ValueError("no process to log")
         logging.info("Starting daemon logger")
-        self._logger = threading.Thread(target=self._logger_job, args=(self._p.stdout, level))
-        self._logger.daemon = True
+        self._logger = DaemonLogger(self._p.stdout, default_level=level)
         self._logger.start()
 
     def stop_logger(self):
