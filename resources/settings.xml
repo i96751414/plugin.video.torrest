@@ -2,7 +2,38 @@
 <settings>
     <!-- General -->
     <category label="30000">
-        <!-- Service Port -->
         <setting id="port" type="number" label="30001" default="8080"/>
+        <setting id="timeout" type="number" label="30002" default="20"/>
+        <setting id="migrated" type="bool" visible="false" default="false"/>
+    </category>
+    <category label="BitTorrent">
+        <setting id="s:download_path" type="folder" source="auto" option="writeable" label="30010"/>
+        <setting id="s:connections_limit" type="number" label="30011" default="0"/>
+        <setting id="s:buffer_size" type="number" label="30012" default="20971520"/>
+        <setting id="s:listen_port" type="number" label="30013" default="6889"/>
+        <setting id="s:listen_interfaces" type="text" label="30014" default=""/>
+        <setting id="s:outgoing_interfaces" type="text" label="30015" default=""/>
+        <setting id="s:disable_dht" type="bool" label="30016" default="false"/>
+        <setting id="s:disable_upnp" type="bool" label="30017" default="false"/>
+        <setting id="s:user_agent" type="enum" label="30018"
+                 lvalues="30019|30020|30021|30022|30023|30024|30025|30026|30027|30028|30029|30030"/>
+        <setting id="s:session_save" type="slider" label="30031" option="int" range="10,10,120" default="30"/>
+        <setting id="s:tuned_storage" type="bool" label="30032" default="false"/>
+        <setting id="s:limit_after_buffering" type="bool" label="30033" default="false"/>
+        <setting id="s:max_download_rate" type="number" label="30034" default="0"/>
+        <setting id="s:max_upload_rate" type="number" label="30035" default="0"/>
+        <setting id="s:share_ratio_limit" type="number" label="30036" default="0"/>
+        <setting id="s:seed_time_ratio_limit" type="number" label="30037" default="0"/>
+        <setting id="s:seed_time_limit" type="number" label="30038" default="0"/>
+        <setting id="s:encryption_policy" type="enum" label="30039" lvalues="30040|30041|30042"/>
+    </category>
+    <!-- Proxy -->
+    <category label="30043">
+        <setting id="s:proxy:type" type="enum" label="30044" default="0"
+                 lvalues="30041|30045|30046|30047|30048|30049|30050"/>
+        <setting id="s:proxy:hostname" type="text" label="30051" default="" visible="!eq(-1,0)"/>
+        <setting id="s:proxy:port" type="number" label="30052" default="1080" visible="!eq(-2,0)"/>
+        <setting id="s:proxy:username" type="text" label="30053" default="" visible="!eq(-3,0)"/>
+        <setting id="s:proxy:password" type="text" label="30054" default="" option="hidden" visible="!eq(-4,0)"/>
     </category>
 </settings>

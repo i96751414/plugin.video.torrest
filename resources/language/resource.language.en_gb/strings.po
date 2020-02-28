@@ -17,10 +17,208 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+# Settings
 msgctxt "#30000"
 msgid "General"
 msgstr ""
 
 msgctxt "#30001"
 msgid "Service Port"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Daemon start timeout"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Download Path"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Connections Limit"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Buffer Size"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Listen Port"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Listen Interfaces"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Outgoing Interfaces"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Disable DHT"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Disable UPNP"
+msgstr ""
+
+msgctxt "#30018"
+msgid "User-Agent"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Default"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Libtorrent"
+msgstr ""
+
+msgctxt "#30021"
+msgid "LibtorrentRasterbar 1.1.0"
+msgstr ""
+
+msgctxt "#30022"
+msgid "BitTorrent 7.5.0"
+msgstr ""
+
+msgctxt "#30023"
+msgid "BitTorrent 7.4.3"
+msgstr ""
+
+msgctxt "#30024"
+msgid "uTorrent 3.4.9"
+msgstr ""
+
+msgctxt "#30025"
+msgid "uTorrent 3.2.0"
+msgstr ""
+
+msgctxt "#30026"
+msgid "uTorrent 2.2.1"
+msgstr ""
+
+msgctxt "#30027"
+msgid "Transmission 2.92"
+msgstr ""
+
+msgctxt "#30028"
+msgid "Deluge 1.3.6.0"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Deluge 1.3.12.0"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Vuze 5.7.3.0"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Session Save"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Tuned Storage"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Limit After Buffering"
+msgstr ""
+
+msgctxt "#30034"
+msgid "Max Download Rate"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Max Upload Rate"
+msgstr ""
+
+msgctxt "#30036"
+msgid "Share Ratio Limit"
+msgstr ""
+
+msgctxt "#30037"
+msgid "Seed Time Ratio Limit"
+msgstr ""
+
+msgctxt "#30038"
+msgid "Seed Time Limit"
+msgstr ""
+
+msgctxt "#30039"
+msgid "Encryption Policy"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Enabled"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Disabled"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Forced"
+msgstr ""
+
+msgctxt "#30043"
+msgid "Proxy"
+msgstr ""
+
+msgctxt "#30044"
+msgid "Proxy Type"
+msgstr ""
+
+msgctxt "#30045"
+msgid "SOCKS4"
+msgstr ""
+
+msgctxt "#30046"
+msgid "SOCKS5"
+msgstr ""
+
+msgctxt "#30047"
+msgid "SOCKS5 Password"
+msgstr ""
+
+msgctxt "#30048"
+msgid "HTTP"
+msgstr ""
+
+msgctxt "#30049"
+msgid "HTTP Password"
+msgstr ""
+
+msgctxt "#30050"
+msgid "i2p"
+msgstr ""
+
+msgctxt "#30051"
+msgid "Host"
+msgstr ""
+
+msgctxt "#30052"
+msgid "Port"
+msgstr ""
+
+msgctxt "#30053"
+msgid "Login"
+msgstr ""
+
+msgctxt "#30054"
+msgid "Password"
+msgstr ""
+
+# Service
+msgctxt "#30100"
+msgid "Torrest - first run"
+msgstr ""
+
+msgctxt "#30101"
+msgid "Please set the download path so you can properly use Torrest. Feel free to also change any other settings."
+msgstr ""
+
+msgctxt "#30102"
+msgid "Error..."
 msgstr ""

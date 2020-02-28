@@ -61,3 +61,7 @@ try:
 except Exception as _e:
     logging.fatal(_e)
     logging.fatal(dump_platform())
+
+
+def get_platform_arch():
+    return "{}_{}".format(PLATFORM.system.value, PLATFORM.arch.value)

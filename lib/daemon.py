@@ -33,6 +33,7 @@ class DefaultDaemonLogger(threading.Thread):
 
 class DaemonLogger(DefaultDaemonLogger):
     levels_mapping = {
+        "CRIT": logging.CRITICAL,
         "ERRO": logging.ERROR,
         "WARN": logging.WARNING,
         "DEBU": logging.DEBUG,
@@ -120,11 +121,10 @@ class Daemon(object):
         self._logger.start()
 
     def stop_logger(self):
-        if self._logger is None:
-            raise ValueError("logger is already stopped")
-        logging.info("Stopping daemon logger")
-        self._logger.join()
-        self._logger = None
+        if self._logger is not None:
+            logging.info("Stopping daemon logger")
+            self._logger.join()
+            self._logger = None
 
     def start(self, port=8080, settings="settings.json", level=logging.INFO):
         self.start_daemon(port=port, settings=settings)
