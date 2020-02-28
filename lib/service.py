@@ -34,7 +34,7 @@ class DaemonMonitor(xbmc.Monitor):
         return kodi.get_int_setting("port")
 
     def start(self):
-        self._daemon.start(port=self._port, settings=self._settings_path, level=logging.INFO)
+        self._daemon.start("-port", str(self._port), "-settings", self._settings_path, level=logging.INFO)
 
     def stop(self):
         self._daemon.stop()
@@ -48,7 +48,7 @@ class DaemonMonitor(xbmc.Monitor):
             try:
                 self._request("get", "")
                 if notification:
-                    xbmcgui.Dialog().notification("Torrest", "Torrest daemon started", kodi.ADDON_ICON)
+                    kodi.notification("Torrest daemon started")
                 return
             except requests.exceptions.ConnectionError:
                 time.sleep(0.5)
@@ -105,13 +105,17 @@ class DaemonMonitor(xbmc.Monitor):
         self.stop()
 
 
+@kodi.once("migrated")
+def handle_first_run():
+    logging.info("Handling first run")
+    xbmcgui.Dialog().ok(kodi.translate(30100), kodi.translate(30101))
+    kodi.open_settings()
+
+
 def run():
     kodi.set_logger(level=logging.INFO)
-    if not kodi.get_boolean_setting("migrated"):
-        kodi.set_setting("migrated", "true")
-        xbmcgui.Dialog().ok(kodi.translate(30100), kodi.translate(30101))
-        kodi.open_settings()
     with DaemonMonitor() as monitor:
         monitor.wait(timeout=kodi.get_int_setting("timeout"), notification=True)
         monitor.update_kodi_settings()
+        handle_first_run()
         monitor.waitForAbort()

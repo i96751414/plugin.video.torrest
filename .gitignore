@@ -2,4 +2,4 @@
 *.pyo
 *.pyc
 __pycache__
-torrest*
+bin

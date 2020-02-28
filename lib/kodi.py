@@ -1,9 +1,11 @@
 import logging
 import os
+from functools import wraps
 from xml.etree import ElementTree
 
 import xbmc
 import xbmcaddon
+import xbmcgui
 
 from lib.utils import PY3
 
@@ -30,6 +32,10 @@ else:
 
     def translate(*args, **kwargs):
         return ADDON.getLocalizedString(*args, **kwargs).encode("utf-8")
+
+
+def notification(message, heading=ADDON_NAME, icon=ADDON_ICON, time=5000, sound=True):
+    xbmcgui.Dialog().notification(heading, message, icon, time, sound)
 
 
 def get_all_settings_spec():
@@ -82,7 +88,7 @@ def set_settings_dict(settings_dict, prefix="", separator=":"):
         if isinstance(v, dict):
             set_settings_dict(v, prefix=setting_id, separator=separator)
         else:
-            set_setting(setting_id, setting_to_str(v))
+            set_any_setting(setting_id, v)
 
 
 def get_boolean_setting(setting):
@@ -97,10 +103,28 @@ def get_float_setting(setting):
     return float(get_setting(setting))
 
 
-def setting_to_str(value):
+def set_boolean_setting(setting, value):
+    set_setting(setting, "true" if value else "false")
+
+
+def set_any_setting(setting, value):
     if isinstance(value, bool):
-        return "true" if value else "false"
-    return str(value)
+        set_boolean_setting(setting, value)
+    else:
+        set_setting(setting, str(value))
+
+
+def once(setting, default=False):
+    def decorator(function):
+        @wraps(function)
+        def wrapper(*args, **kwargs):
+            if get_boolean_setting(setting) == default:
+                set_boolean_setting(setting, not default)
+                return function(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 class KodiLogHandler(logging.StreamHandler):
