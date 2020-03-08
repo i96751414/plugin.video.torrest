@@ -7,14 +7,14 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 
-from lib.utils import PY3
+from lib.utils import PY3, str_to_unicode
 
 ADDON = xbmcaddon.Addon()
-ADDON_PATH = ADDON.getAddonInfo("path")
 ADDON_NAME = ADDON.getAddonInfo("name")
 ADDON_ID = ADDON.getAddonInfo("id")
-ADDON_ICON = ADDON.getAddonInfo("icon")
-ADDON_DATA = xbmc.translatePath(ADDON.getAddonInfo("profile"))
+ADDON_PATH = str_to_unicode(ADDON.getAddonInfo("path"))
+ADDON_ICON = str_to_unicode(ADDON.getAddonInfo("icon"))
+ADDON_DATA = str_to_unicode(xbmc.translatePath(ADDON.getAddonInfo("profile")))
 
 set_setting = ADDON.setSetting
 get_setting = ADDON.getSetting
@@ -23,13 +23,6 @@ open_settings = ADDON.openSettings
 if PY3:
     translate = ADDON.getLocalizedString
 else:
-    # noinspection PyUnresolvedReferences
-    ADDON_PATH = ADDON_PATH.decode("utf-8")
-    # noinspection PyUnresolvedReferences
-    ADDON_DATA = ADDON_DATA.decode("utf-8")
-    # noinspection PyUnresolvedReferences
-    ADDON_ICON = ADDON_ICON.decode("utf-8")
-
     def translate(*args, **kwargs):
         return ADDON.getLocalizedString(*args, **kwargs).encode("utf-8")
 

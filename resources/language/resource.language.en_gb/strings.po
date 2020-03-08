@@ -222,3 +222,36 @@ msgstr ""
 msgctxt "#30102"
 msgid "Error..."
 msgstr ""
+
+# Plugin
+msgctxt "#30200"
+msgid "Insert file or URL"
+msgstr ""
+
+msgctxt "#30201"
+msgid "URL"
+msgstr ""
+
+msgctxt "#30202"
+msgid "File"
+msgstr ""
+
+msgctxt "#30203"
+msgid "Insert URL:"
+msgstr ""
+
+msgctxt "#30204"
+msgid "File path:"
+msgstr ""
+
+msgctxt "#30205"
+msgid "OK"
+msgstr ""
+
+msgctxt "#30206"
+msgid "Torrents"
+msgstr ""
+
+msgctxt "#30207"
+msgid "Add torrent/magnet"
+msgstr ""

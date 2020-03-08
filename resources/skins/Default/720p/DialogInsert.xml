@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window type="dialog">
+    <!-- 1280 x 720 -->
+    <defaultcontrol always="true">32501</defaultcontrol>
+    <depth>DepthOSD</depth>
+    <controls>
+        <control type="group">
+            <control type="image">
+                <!-- Background -->
+                <posx>240</posx>
+                <posy>205</posy>
+                <width>800</width>
+                <height>310</height>
+                <texture colordiffuse="F0F0F0F0">AddonWindow/black.png</texture>
+            </control>
+            <control type="button" id="32500">
+                <!-- Close button -->
+                <posx>981</posx>
+                <posy>222</posy>
+                <width>32</width>
+                <height>32</height>
+                <texturefocus colordiffuse="button_focus">Button/close.png</texturefocus>
+                <texturenofocus colordiffuse="EEFFFFFF">Button/close.png</texturenofocus>
+                <onup>32508</onup>
+                <ondown>32501</ondown>
+                <onleft>32505</onleft>
+            </control>
+            <control type="radiobutton" id="32501">
+                <!-- Radio Button URL -->
+                <posx>760</posx>
+                <posy>315</posy>
+                <width>280</width>
+                <height>80</height>
+                <visible>true</visible>
+                <colordiffuse>FFFFFFFF</colordiffuse>
+                <wrapmultiline>true</wrapmultiline>
+                <font>font12</font>
+                <label>$ADDON[plugin.video.torrest 30201]</label>
+                <textcolor>FFFFFFFF</textcolor>
+                <focusedcolor>FFFFFFFF</focusedcolor>
+                <disabledcolor>80FFFFFF</disabledcolor>
+                <invalidcolor>FFFFFFFF</invalidcolor>
+                <align>center</align>
+                <aligny>center</aligny>
+                <onup>32500</onup>
+                <ondown>32502</ondown>
+                <onleft>32505</onleft>
+            </control>
+            <control type="radiobutton" id="32502">
+                <!-- Radio Button file path -->
+                <posx>760</posx>
+                <posy>375</posy>
+                <width>280</width>
+                <height>80</height>
+                <visible>true</visible>
+                <colordiffuse>FFFFFFFF</colordiffuse>
+                <wrapmultiline>true</wrapmultiline>
+                <font>font12</font>
+                <label>$ADDON[plugin.video.torrest 30202]</label>
+                <textcolor>FFFFFFFF</textcolor>
+                <focusedcolor>FFFFFFFF</focusedcolor>
+                <disabledcolor>80FFFFFF</disabledcolor>
+                <invalidcolor>FFFFFFFF</invalidcolor>
+                <align>center</align>
+                <aligny>center</aligny>
+                <onup>32501</onup>
+                <ondown>32508</ondown>
+                <onleft>32505</onleft>
+            </control>
+            <control type="button" id="32508">
+                <!-- OK button -->
+                <posx>760</posx>
+                <posy>435</posy>
+                <width>280</width>
+                <height>80</height>
+                <visible>true</visible>
+                <colordiffuse>FFFFFFFF</colordiffuse>
+                <wrapmultiline>true</wrapmultiline>
+                <font>font12</font>
+                <label>$ADDON[plugin.video.torrest 30205]</label>
+                <textcolor>FFFFFFFF</textcolor>
+                <focusedcolor>FFFFFFFF</focusedcolor>
+                <disabledcolor>80FFFFFF</disabledcolor>
+                <invalidcolor>FFFFFFFF</invalidcolor>
+                <align>center</align>
+                <aligny>center</aligny>
+                <onup>32502</onup>
+                <ondown>32500</ondown>
+                <onleft>32505</onleft>
+            </control>
+            <control type="label" id="32503">
+                <!-- Window title -->
+                <posx>425</posx>
+                <posy>225</posy>
+                <width>400</width>
+                <height>30</height>
+                <font>font14</font>
+                <align>center</align>
+                <aligny>center</aligny>
+                <label>[B]$ADDON[plugin.video.torrest 30200][/B]</label>
+                <textcolor>white</textcolor>
+                <shadowcolor>AA000000</shadowcolor>
+            </control>
+            <control type="label" id="32504">
+                <!-- Box label -->
+                <posx>280</posx>
+                <posy>290</posy>
+                <width>500</width>
+                <height>30</height>
+                <font>font13</font>
+                <align>left</align>
+                <aligny>center</aligny>
+                <textcolor>white</textcolor>
+                <shadowcolor>AA000000</shadowcolor>
+            </control>
+            <control type="button" id="32505">
+                <!-- Option 1 Insert URL box -->
+                <posx>260</posx>
+                <posy>315</posy>
+                <width>500</width>
+                <height>80</height>
+                <colordiffuse>FFFFFFFF</colordiffuse>
+                <wrapmultiline>false</wrapmultiline>
+                <font>font14</font>
+                <textcolor>FFB2D4F5</textcolor>
+                <focusedcolor>FFFFFFFF</focusedcolor>
+                <disabledcolor>80FFFFFF</disabledcolor>
+                <invalidcolor>FFFFFFFF</invalidcolor>
+                <align>left</align>
+                <aligny>center</aligny>
+                <textoffsetx>30</textoffsetx>
+                <onright>32508</onright>
+            </control>
+        </control>
+    </controls>
+</window>

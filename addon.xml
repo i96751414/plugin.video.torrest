@@ -4,6 +4,7 @@
         <import addon="xbmc.python" version="2.24.0"/>
         <import addon="xbmc.addon" version="16.0.0"/>
         <import addon="script.module.requests" version="2.22.0"/>
+        <import addon="script.module.routing" version="0.2.3"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="navigation.py">
         <provides>video</provides>
