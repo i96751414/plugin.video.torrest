@@ -120,6 +120,10 @@ def once(setting, default=False):
     return decorator
 
 
+def refresh():
+    xbmc.executebuiltin("Container.Refresh")
+
+
 class KodiLogHandler(logging.StreamHandler):
     levels = {
         logging.CRITICAL: xbmc.LOGFATAL,

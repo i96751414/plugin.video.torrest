@@ -255,3 +255,23 @@ msgstr ""
 msgctxt "#30207"
 msgid "Add torrent/magnet"
 msgstr ""
+
+msgctxt "#30208"
+msgid "Stop Downloading"
+msgstr ""
+
+msgctxt "#30209"
+msgid "Download"
+msgstr ""
+
+msgctxt "#30210"
+msgid "Resume"
+msgstr ""
+
+msgctxt "#30211"
+msgid "Pause"
+msgstr ""
+
+msgctxt "#30212"
+msgid "Remove"
+msgstr ""

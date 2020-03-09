@@ -7,7 +7,7 @@ from xbmcplugin import addDirectoryItem, endOfDirectory
 
 from lib.api import Torrest
 from lib.dialog import DialogInsert
-from lib.kodi import ADDON_PATH, translate, notification, set_logger
+from lib.kodi import ADDON_PATH, translate, notification, set_logger, refresh
 from lib.settings import get_port
 
 plugin = routing.Plugin()
@@ -15,7 +15,15 @@ api = Torrest("localhost", get_port())
 
 
 def li(tid, icon):
-    return ListItem(translate(tid), iconImage=os.path.join(ADDON_PATH, "resources", "images", icon))
+    return list_item(translate(tid), icon)
+
+
+def list_item(label, icon):
+    return ListItem(label, iconImage=os.path.join(ADDON_PATH, "resources", "images", icon))
+
+
+def action(func, *args, **kwargs):
+    return "RunPlugin({})".format(plugin.url_for(func, *args, **kwargs))
 
 
 @plugin.route("/")
@@ -27,6 +35,41 @@ def index():
 
 @plugin.route("/torrents")
 def torrents():
+    for torrent in api.torrents():
+        torrent_li = list_item(torrent.name, "download.png")
+        torrent_li.addContextMenuItems([
+            (translate(30208), action(torrent_action, torrent.info_hash, "stop"))
+            if torrent.status.total == torrent.status.total_wanted else
+            (translate(30209), action(torrent_action, torrent.info_hash, "download")),
+            (translate(30210), action(torrent_action, torrent.info_hash, "resume"))
+            if torrent.status.paused else
+            (translate(30211), action(torrent_action, torrent.info_hash, "pause")),
+            (translate(30212), action(torrent_action, torrent.info_hash, "remove")),
+        ])
+        addDirectoryItem(plugin.handle, plugin.url_for(torrent_files, torrent.info_hash), torrent_li, isFolder=True)
+    endOfDirectory(plugin.handle)
+
+
+@plugin.route("/torrents/<info_hash>/<action_str>")
+def torrent_action(info_hash, action_str):
+    if action_str == "stop":
+        api.stop_torrent(info_hash)
+    elif action_str == "download":
+        api.download_torrent(info_hash)
+    elif action_str == "pause":
+        api.pause_torrent(info_hash)
+    elif action_str == "resume":
+        api.resume_torrent(info_hash)
+    elif action_str == "remove":
+        api.remove_torrent(info_hash)
+    else:
+        logging.error("Unknown action '%s'", action_str)
+        return
+    refresh()
+
+
+@plugin.route("/torrents/<info_hash>")
+def torrent_files(info_hash):
     # TODO
     endOfDirectory(plugin.handle)
 
