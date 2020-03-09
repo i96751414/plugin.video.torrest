@@ -9,6 +9,7 @@ import xbmcgui
 from lib import kodi
 from lib.daemon import Daemon
 from lib.os_platform import get_platform_arch
+from lib.settings import get_port
 
 
 class DaemonTimeoutError(Exception):
@@ -24,14 +25,10 @@ class DaemonMonitor(xbmc.Monitor):
     def __init__(self):
         super(DaemonMonitor, self).__init__()
         self._daemon = Daemon("torrest", os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch()))
-        self._port = self.get_port()
+        self._port = get_port()
         self._settings_path = os.path.join(kodi.ADDON_DATA, "settings.json")
         self._settings_spec = [s for s in kodi.get_all_settings_spec() if s["id"].startswith(
             self._settings_prefix + self._settings_separator)]
-
-    @staticmethod
-    def get_port():
-        return kodi.get_int_setting("port")
 
     def start(self):
         self._daemon.start("-port", str(self._port), "-settings", self._settings_path, level=logging.INFO)
@@ -89,7 +86,7 @@ class DaemonMonitor(xbmc.Monitor):
         return True
 
     def onSettingsChanged(self):
-        port = self.get_port()
+        port = get_port()
         if port != self._port:
             self._port = port
             self.stop()

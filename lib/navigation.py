@@ -5,10 +5,13 @@ import routing
 from xbmcgui import ListItem
 from xbmcplugin import addDirectoryItem, endOfDirectory
 
+from lib.api import Torrest
 from lib.dialog import DialogInsert
 from lib.kodi import ADDON_PATH, translate, notification, set_logger
+from lib.settings import get_port
 
 plugin = routing.Plugin()
+api = Torrest("localhost", get_port())
 
 
 def li(tid, icon):
@@ -32,11 +35,10 @@ def torrents():
 def dialog_insert():
     window = DialogInsert("DialogInsert.xml", ADDON_PATH, "Default")
     window.doModal()
-    # TODO
     if window.type == DialogInsert.TYPE_PATH:
-        pass
+        api.add_torrent(window.ret_val)
     elif window.type == DialogInsert.TYPE_URL:
-        pass
+        api.add_magnet(window.ret_val)
 
 
 def run():
