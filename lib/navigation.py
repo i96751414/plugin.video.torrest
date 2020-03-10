@@ -8,6 +8,7 @@ from xbmcplugin import addDirectoryItem, endOfDirectory
 from lib.api import Torrest
 from lib.dialog import DialogInsert
 from lib.kodi import ADDON_PATH, translate, notification, set_logger, refresh
+from lib.kodi_formats import is_music, is_picture, is_video
 from lib.settings import get_port
 
 plugin = routing.Plugin()
@@ -70,8 +71,40 @@ def torrent_action(info_hash, action_str):
 
 @plugin.route("/torrents/<info_hash>")
 def torrent_files(info_hash):
-    # TODO
+    for f in api.files(info_hash):
+        serve_url = api.serve_url(info_hash, f.id)
+        file_li = list_item(f.name, "download.png")
+        file_li.setProperty("IsPlayable", "true")
+        file_li.setPath(serve_url)
+
+        info_labels = {"title": f.name}
+        if is_video(f.name):
+            file_li.setInfo("video", info_labels)
+        elif is_picture(f.name):
+            file_li.setInfo("pictures", info_labels)
+        elif is_music(f.name):
+            file_li.setInfo("music", info_labels)
+
+        file_li.addContextMenuItems([
+            (translate(30209), action(file_action, info_hash, f.id, "download"))
+            if f.status.priority == 0 else
+            (translate(30208), action(file_action, info_hash, f.id, "stop")),
+        ])
+
+        addDirectoryItem(plugin.handle, serve_url, file_li)
     endOfDirectory(plugin.handle)
+
+
+@plugin.route("/torrents/<info_hash>/files/<file_id>/<action_str>")
+def file_action(info_hash, file_id, action_str):
+    if action_str == "download":
+        api.download_file(info_hash, file_id)
+    elif action_str == "stop":
+        api.stop_file(info_hash, file_id)
+    else:
+        logging.error("Unknown action '%s'", action_str)
+        return
+    refresh()
 
 
 @plugin.route("/insert")

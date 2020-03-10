@@ -31,6 +31,21 @@ Torrent = NamedTuple("Torrent", [
     ("status", TorrentStatus),
 ])
 
+FileStatus = NamedTuple("FileStatus", [
+    ("buffering_progress", int),
+    ("priority", int),
+    ("progress", int),
+    ("state", int),
+])
+
+File = NamedTuple("File", [
+    ("id", int),
+    ("length", int),
+    ("name", str),
+    ("path", str),
+    ("status", FileStatus),
+])
+
 
 def from_dict(data, clazz, **converters):
     if data is None:
@@ -79,6 +94,25 @@ class Torrest(object):
 
     def remove_torrent(self, info_hash, delete=True):
         self._get("/torrents/{}/remove".format(info_hash), params={"delete": self._bool_str(delete)})
+
+    def files(self, info_hash, status=True):
+        """
+        :type info_hash: str
+        :type status: bool
+        :rtype: List[File]
+        """
+        for f in self._get("/torrents/{}/files".format(info_hash), params={"status": self._bool_str(status)}).json():
+            yield from_dict(f, File, status=lambda v: from_dict(v, FileStatus))
+
+    def download_file(self, info_hash, file_id, buffer=False):
+        self._get("/torrents/{}/files/{}/download".format(info_hash, file_id),
+                  params={"buffer": self._bool_str(buffer)})
+
+    def stop_file(self, info_hash, file_id):
+        self._get("/torrents/{}/files/{}/stop".format(info_hash, file_id))
+
+    def serve_url(self, info_hash, file_id):
+        return "{}/torrents/{}/files/{}/serve".format(self._base_url, info_hash, file_id)
 
     @staticmethod
     def _bool_str(value):
