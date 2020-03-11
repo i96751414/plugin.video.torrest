@@ -9,7 +9,7 @@ import xbmcgui
 from lib import kodi
 from lib.daemon import Daemon
 from lib.os_platform import get_platform_arch
-from lib.settings import get_port
+from lib.settings import get_port, get_daemon_timeout
 
 
 class DaemonTimeoutError(Exception):
@@ -112,7 +112,7 @@ def handle_first_run():
 def run():
     kodi.set_logger(level=logging.INFO)
     with DaemonMonitor() as monitor:
-        monitor.wait(timeout=kodi.get_int_setting("timeout"), notification=True)
+        monitor.wait(timeout=get_daemon_timeout(), notification=True)
         monitor.update_kodi_settings()
         handle_first_run()
         monitor.waitForAbort()

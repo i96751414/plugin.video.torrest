@@ -1,15 +1,16 @@
 import logging
 import os
+import time
 
 import routing
-from xbmcgui import ListItem
-from xbmcplugin import addDirectoryItem, endOfDirectory
+from xbmcgui import ListItem, DialogProgress
+from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
 from lib.api import Torrest
 from lib.dialog import DialogInsert
-from lib.kodi import ADDON_PATH, translate, notification, set_logger, refresh
+from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh
 from lib.kodi_formats import is_music, is_picture, is_video
-from lib.settings import get_port
+from lib.settings import get_port, get_buffering_timeout
 
 plugin = routing.Plugin()
 api = Torrest("localhost", get_port())
@@ -25,6 +26,24 @@ def list_item(label, icon):
 
 def action(func, *args, **kwargs):
     return "RunPlugin({})".format(plugin.url_for(func, *args, **kwargs))
+
+
+def media(func, *args, **kwargs):
+    return "PlayMedia({})".format(plugin.url_for(func, *args, **kwargs))
+
+
+def get_state_string(state):
+    if 0 <= state <= 9:
+        return translate(30220 + state)
+    return translate(30230)
+
+
+def sizeof_fmt(num, suffix="B", divisor=1000.0):
+    for unit in ("", "k", "M", "G", "T", "P", "E", "Z"):
+        if abs(num) < divisor:
+            return "{:.2f}{}{}".format(num, unit, suffix)
+        num /= divisor
+    return "{:.2f}{}{}".format(num, "Y", suffix)
 
 
 @plugin.route("/")
@@ -86,6 +105,7 @@ def torrent_files(info_hash):
             file_li.setInfo("music", info_labels)
 
         file_li.addContextMenuItems([
+            (translate(30235), media(play, info_hash, f.id, f.name)),
             (translate(30209), action(file_action, info_hash, f.id, "download"))
             if f.status.priority == 0 else
             (translate(30208), action(file_action, info_hash, f.id, "stop")),
@@ -93,6 +113,47 @@ def torrent_files(info_hash):
 
         addDirectoryItem(plugin.handle, serve_url, file_li)
     endOfDirectory(plugin.handle)
+
+
+@plugin.route("/play/<info_hash>/<file_id>/<name>")
+def play(info_hash, file_id, name):
+    api.download_file(info_hash, file_id, buffer=True)
+
+    progress = DialogProgress()
+    progress.create(ADDON_NAME)
+
+    timeout = get_buffering_timeout()
+    start_time = time.time()
+    last_time = 0
+    last_done = 0
+    while True:
+        current_time = time.time()
+        status = api.file_status(info_hash, file_id)
+        if status.buffering_progress >= 100:
+            break
+
+        speed = float(status.total_done - last_done) / (current_time - last_time)
+        last_time = current_time
+        last_done = status.total_done
+        progress.update(
+            int(status.buffering_progress),
+            "{} - {:.2f}%".format(get_state_string(status.state), status.buffering_progress),
+            "{} of {} - {}/s".format(sizeof_fmt(status.total_done), sizeof_fmt(status.total), sizeof_fmt(speed)))
+
+        if progress.iscanceled():
+            return
+        if 0 < timeout < current_time - start_time:
+            notification(translate(30236))
+            return
+
+        time.sleep(1)
+
+    progress.close()
+
+    file_li = ListItem(name)
+    file_li.setProperty("IsPlayable", "true")
+    file_li.setPath(api.serve_url(info_hash, file_id))
+    setResolvedUrl(plugin.handle, True, file_li)
 
 
 @plugin.route("/torrents/<info_hash>/files/<file_id>/<action_str>")

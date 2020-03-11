@@ -12,7 +12,7 @@ TorrentStatus = NamedTuple("TorrentStatus", [
     ("paused", bool),
     ("peers", int),
     ("peers_total", int),
-    ("progress", int),
+    ("progress", float),
     ("seeders", int),
     ("seeders_total", int),
     ("seeding_time", int),
@@ -32,9 +32,11 @@ Torrent = NamedTuple("Torrent", [
 ])
 
 FileStatus = NamedTuple("FileStatus", [
-    ("buffering_progress", int),
+    ("total", int),
+    ("total_done", int),
+    ("buffering_progress", float),
     ("priority", int),
-    ("progress", int),
+    ("progress", float),
     ("state", int),
 ])
 
@@ -103,6 +105,14 @@ class Torrest(object):
         """
         for f in self._get("/torrents/{}/files".format(info_hash), params={"status": self._bool_str(status)}).json():
             yield from_dict(f, File, status=lambda v: from_dict(v, FileStatus))
+
+    def file_status(self, info_hash, file_id):
+        """
+        :type info_hash: str
+        :type file_id: int
+        :rtype: FileStatus
+        """
+        return from_dict(self._get("/torrents/{}/files/{}/status".format(info_hash, file_id)).json(), FileStatus)
 
     def download_file(self, info_hash, file_id, buffer=False):
         self._get("/torrents/{}/files/{}/download".format(info_hash, file_id),
