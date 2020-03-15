@@ -1,51 +1,51 @@
-from typing import NamedTuple, List  # NOQA
+from collections import namedtuple
 
 import requests
 
-TorrentStatus = NamedTuple("TorrentStatus", [
-    ("active_time", int),
-    ("all_time_download", int),
-    ("all_time_upload", int),
-    ("download_rate", int),
-    ("finished_time", int),
-    ("has_metadata", bool),
-    ("paused", bool),
-    ("peers", int),
-    ("peers_total", int),
-    ("progress", float),
-    ("seeders", int),
-    ("seeders_total", int),
-    ("seeding_time", int),
-    ("state", int),
-    ("total", int),
-    ("total_done", int),
-    ("total_wanted", int),
-    ("total_wanted_done", int),
-    ("upload_rate", int),
+TorrentStatus = namedtuple("TorrentStatus", [
+    "active_time",  # type:int
+    "all_time_download",  # type:int
+    "all_time_upload",  # type:int
+    "download_rate",  # type:int
+    "finished_time",  # type:int
+    "has_metadata",  # type:bool
+    "paused",  # type:bool
+    "peers",  # type:int
+    "peers_total",  # type:int
+    "progress",  # type:float
+    "seeders",  # type:int
+    "seeders_total",  # type:int
+    "seeding_time",  # type:int
+    "state",  # type:int
+    "total",  # type:int
+    "total_done",  # type:int
+    "total_wanted",  # type:int
+    "total_wanted_done",  # type:int
+    "upload_rate",  # type:int
 ])
 
-Torrent = NamedTuple("Torrent", [
-    ("info_hash", str),
-    ("name", str),
-    ("size", int),
-    ("status", TorrentStatus),
+Torrent = namedtuple("Torrent", [
+    "info_hash",  # type:str
+    "name",  # type:str
+    "size",  # type:int
+    "status",  # type:TorrentStatus
 ])
 
-FileStatus = NamedTuple("FileStatus", [
-    ("total", int),
-    ("total_done", int),
-    ("buffering_progress", float),
-    ("priority", int),
-    ("progress", float),
-    ("state", int),
+FileStatus = namedtuple("FileStatus", [
+    "total",  # type:int
+    "total_done",  # type:int
+    "buffering_progress",  # type:float
+    "priority",  # type:int
+    "progress",  # type:float
+    "state",  # type:int
 ])
 
-File = NamedTuple("File", [
-    ("id", int),
-    ("length", int),
-    ("name", str),
-    ("path", str),
-    ("status", FileStatus),
+File = namedtuple("File", [
+    "id",  # type:int
+    "length",  # type:int
+    "name",  # type:str
+    "path",  # type:str
+    "status",  # type:FileStatus
 ])
 
 
@@ -77,7 +77,7 @@ class Torrest(object):
     def torrents(self, status=True):
         """
         :type status: bool
-        :rtype: List[Torrent]
+        :rtype: typing.List[Torrent]
         """
         for t in self._get("/torrents", params={"status": self._bool_str(status)}).json():
             yield from_dict(t, Torrent, status=lambda v: from_dict(v, TorrentStatus))
@@ -101,7 +101,7 @@ class Torrest(object):
         """
         :type info_hash: str
         :type status: bool
-        :rtype: List[File]
+        :rtype: typing.List[File]
         """
         for f in self._get("/torrents/{}/files".format(info_hash), params={"status": self._bool_str(status)}).json():
             yield from_dict(f, File, status=lambda v: from_dict(v, FileStatus))

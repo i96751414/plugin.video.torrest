@@ -2,19 +2,17 @@ import logging
 import os
 import platform
 import sys
-
-from enum import Enum
-from typing import NamedTuple
+from collections import namedtuple
 
 
-class System(Enum):
+class System:
     linux = "linux"
     android = "android"
     darwin = "darwin"
     windows = "windows"
 
 
-class Arch(Enum):
+class Arch:
     x64 = "x64"
     x86 = "x86"
     arm = "arm"
@@ -22,33 +20,35 @@ class Arch(Enum):
     armv7 = "armv7"
 
 
-Platform = NamedTuple("Platform", [("system", System), ("version", str), ("arch", Arch)])
+Platform = namedtuple("Platform", [
+    "system",  # type:str
+    "version",  # type:str
+    "arch",  # type:str
+])
 
 
 def get_platform():
-    p = Platform(
-        system=System(platform.system().lower()),
-        version=platform.release(),
-        arch=Arch.x64 if sys.maxsize > 2 ** 32 else Arch.x86,
-    )
-
+    system = platform.system().lower()
+    version = platform.release()
+    arch = Arch.x64 if sys.maxsize > 2 ** 32 else Arch.x86
     machine = platform.machine()
-    if "ANDROID_STORAGE" in os.environ:
-        p.system = System.android
-        if "arm" in machine or "aarch" in machine:
-            p.arch = Arch.arm
-    elif p.system == System.linux:
-        if "armv7" in machine:
-            p.arch = Arch.armv7
-        elif "arm" in machine:
-            p.arch = Arch.arm
-    elif p.system == System.windows:
-        if machine.endswith("64"):
-            p.arch = Arch.x64
-    elif p.system == System.darwin:
-        p.arch = Arch.x64
 
-    return p
+    if "ANDROID_STORAGE" in os.environ:
+        system = System.android
+        if "arm" in machine or "aarch" in machine:
+            arch = Arch.arm
+    elif system == System.linux:
+        if "armv7" in machine:
+            arch = Arch.armv7
+        elif "arm" in machine:
+            arch = Arch.arm
+    elif system == System.windows:
+        if machine.endswith("64"):
+            arch = Arch.x64
+    elif system == System.darwin:
+        arch = Arch.x64
+
+    return Platform(system, version, arch)
 
 
 def dump_platform():
@@ -59,9 +59,9 @@ def dump_platform():
 try:
     PLATFORM = get_platform()
 except Exception as _e:
-    logging.fatal(_e)
+    logging.fatal(_e, exc_info=True)
     logging.fatal(dump_platform())
 
 
 def get_platform_arch():
-    return "{}_{}".format(PLATFORM.system.value, PLATFORM.arch.value)
+    return "{}_{}".format(PLATFORM.system, PLATFORM.arch)

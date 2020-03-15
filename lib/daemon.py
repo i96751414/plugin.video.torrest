@@ -5,7 +5,6 @@ import shutil
 import stat
 import subprocess
 import threading
-from typing import Optional
 
 from lib.os_platform import PLATFORM, System
 from lib.utils import bytes_to_str
@@ -76,8 +75,8 @@ class Daemon(object):
         else:
             self._path = os.path.join(self._dir, self._name)
 
-        self._p = None  # type: Optional[subprocess.Popen]
-        self._logger = None  # type: Optional[DaemonLogger]
+        self._p = None  # type: subprocess.Popen or None
+        self._logger = None  # type: DaemonLogger or None
 
     @staticmethod
     def _get_sha1(path):
