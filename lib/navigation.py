@@ -3,13 +3,13 @@ import os
 import time
 
 import routing
-from xbmc import Player
 from xbmcgui import ListItem, DialogProgress
-from xbmcplugin import addDirectoryItem, endOfDirectory
+from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
 from lib.api import Torrest
 from lib.dialog import DialogInsert
-from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh
+from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, close_busy_dialog, \
+    show_picture
 from lib.kodi_formats import is_music, is_picture, is_video
 from lib.settings import get_port, get_buffering_timeout
 
@@ -94,31 +94,48 @@ def torrent_files(info_hash):
     for f in api.files(info_hash):
         serve_url = api.serve_url(info_hash, f.id)
         file_li = list_item(f.name, "download.png")
-        file_li.setProperty("IsPlayable", "true")
         file_li.setPath(serve_url)
 
+        context_menu_items = []
         info_labels = {"title": f.name}
-        if is_video(f.name):
-            file_li.setInfo("video", info_labels)
-        elif is_picture(f.name):
+        if is_picture(f.name):
+            url = plugin.url_for(display_picture, info_hash, f.id)
             file_li.setInfo("pictures", info_labels)
-        elif is_music(f.name):
-            file_li.setInfo("music", info_labels)
+        else:
+            url = serve_url
+            if is_video(f.name):
+                info_type = "video"
+            elif is_music(f.name):
+                info_type = "music"
+            else:
+                info_type = None
 
-        file_li.addContextMenuItems([
-            (translate(30235), action(play, info_hash, f.id, f.name)),
+            if info_type is not None:
+                file_li.setInfo(info_type, info_labels)
+                file_li.setProperty("IsPlayable", "true")
+                context_menu_items.append((translate(30235), media(play, info_hash, f.id, f.name)))
+
+        context_menu_items.append(
             (translate(30209), action(file_action, info_hash, f.id, "download"))
             if f.status.priority == 0 else
-            (translate(30208), action(file_action, info_hash, f.id, "stop")),
-        ])
+            (translate(30208), action(file_action, info_hash, f.id, "stop"))
+        )
+        file_li.addContextMenuItems(context_menu_items)
 
-        addDirectoryItem(plugin.handle, serve_url, file_li)
+        addDirectoryItem(plugin.handle, url, file_li)
     endOfDirectory(plugin.handle)
+
+
+@plugin.route("/display_picture/<info_hash>/<file_id>")
+def display_picture(info_hash, file_id):
+    show_picture(api.serve_url(info_hash, file_id))
 
 
 @plugin.route("/play/<info_hash>/<file_id>/<name>")
 def play(info_hash, file_id, name):
     api.download_file(info_hash, file_id, buffer=True)
+    # Make sure kodi does not block the window
+    close_busy_dialog()
 
     progress = DialogProgress()
     progress.create(ADDON_NAME)
@@ -155,7 +172,7 @@ def play(info_hash, file_id, name):
     file_li = ListItem(name)
     file_li.setProperty("IsPlayable", "true")
     file_li.setPath(serve_url)
-    Player().play(serve_url, file_li)
+    setResolvedUrl(plugin.handle, True, file_li)
 
 
 @plugin.route("/torrents/<info_hash>/files/<file_id>/<action_str>")

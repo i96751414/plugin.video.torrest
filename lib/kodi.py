@@ -124,6 +124,18 @@ def refresh():
     xbmc.executebuiltin("Container.Refresh")
 
 
+def show_picture(url):
+    xbmc.executebuiltin('ShowPicture("{}")'.format(url))
+
+
+def busy_dialog():
+    xbmc.executebuiltin("ActivateWindow(busydialog)")
+
+
+def close_busy_dialog():
+    xbmc.executebuiltin("Dialog.Close(busydialog)")
+
+
 class KodiLogHandler(logging.StreamHandler):
     levels = {
         logging.CRITICAL: xbmc.LOGFATAL,
