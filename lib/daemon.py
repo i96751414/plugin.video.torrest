@@ -90,12 +90,23 @@ class Daemon(object):
             logging.info("Setting exec permissions")
             os.chmod(self._path, st.st_mode | stat.S_IEXEC)
 
-    def start_daemon(self, *args):
+    def start_daemon(self, *args, **kwargs):
         if self._p is not None:
             raise ValueError("daemon already running")
         logging.info("Starting daemon with args: %s", args)
         cmd = [self._path] + list(args)
-        self._p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=self._dir)
+
+        if PLATFORM.system == System.windows:
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            si.wShowWindow = subprocess.SW_HIDE
+            kwargs.setdefault("startupinfo", si)
+
+        kwargs.setdefault("stdout", subprocess.PIPE)
+        kwargs.setdefault("stderr", subprocess.STDOUT)
+        kwargs.setdefault("cwd", self._dir)
+
+        self._p = subprocess.Popen(cmd, **kwargs)
 
     def stop_daemon(self):
         if self._p is not None:
