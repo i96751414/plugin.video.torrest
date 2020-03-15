@@ -3,8 +3,9 @@ import os
 import time
 
 import routing
+from xbmc import Player
 from xbmcgui import ListItem, DialogProgress
-from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
+from xbmcplugin import addDirectoryItem, endOfDirectory
 
 from lib.api import Torrest
 from lib.dialog import DialogInsert
@@ -105,7 +106,7 @@ def torrent_files(info_hash):
             file_li.setInfo("music", info_labels)
 
         file_li.addContextMenuItems([
-            (translate(30235), media(play, info_hash, f.id, f.name)),
+            (translate(30235), action(play, info_hash, f.id, f.name)),
             (translate(30209), action(file_action, info_hash, f.id, "download"))
             if f.status.priority == 0 else
             (translate(30208), action(file_action, info_hash, f.id, "stop")),
@@ -150,10 +151,11 @@ def play(info_hash, file_id, name):
 
     progress.close()
 
+    serve_url = api.serve_url(info_hash, file_id)
     file_li = ListItem(name)
     file_li.setProperty("IsPlayable", "true")
-    file_li.setPath(api.serve_url(info_hash, file_id))
-    setResolvedUrl(plugin.handle, True, file_li)
+    file_li.setPath(serve_url)
+    Player().play(serve_url, file_li)
 
 
 @plugin.route("/torrents/<info_hash>/files/<file_id>/<action_str>")
