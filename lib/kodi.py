@@ -9,6 +9,10 @@ import xbmcgui
 
 from lib.utils import PY3, str_to_unicode
 
+# Windows IDs - https://kodi.wiki/view/Window_IDs
+WINDOW_HOME = 10000
+WINDOW_FULLSCREEN_VIDEO = 12005
+
 ADDON = xbmcaddon.Addon()
 ADDON_NAME = ADDON.getAddonInfo("name")
 ADDON_ID = ADDON.getAddonInfo("id")
@@ -134,6 +138,15 @@ def busy_dialog():
 
 def close_busy_dialog():
     xbmc.executebuiltin("Dialog.Close(busydialog)")
+
+
+def is_window_visible(window_id):
+    return xbmc.getCondVisibility("Window.IsVisible({})".format(window_id))
+
+
+def get_resolution():
+    home = xbmcgui.Window(WINDOW_HOME)
+    return home.getWidth(), home.getHeight()
 
 
 class KodiLogHandler(logging.StreamHandler):

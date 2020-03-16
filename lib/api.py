@@ -97,6 +97,13 @@ class Torrest(object):
     def remove_torrent(self, info_hash, delete=True):
         self._get("/torrents/{}/remove".format(info_hash), params={"delete": self._bool_str(delete)})
 
+    def torrent_status(self, info_hash):
+        """
+        :type info_hash: str
+        :rtype: TorrentStatus
+        """
+        return from_dict(self._get("/torrents/{}/status".format(info_hash)).json(), TorrentStatus)
+
     def files(self, info_hash, status=True):
         """
         :type info_hash: str

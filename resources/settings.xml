@@ -3,6 +3,7 @@
     <!-- General -->
     <category label="30000">
         <setting id="port" type="number" label="30001" default="8080"/>
+        <setting id="overlay" type="bool" label="30004" default="true"/>
         <setting id="timeout" type="number" label="30002" default="20"/>
         <setting id="buffer_timeout" type="slider" label="30003" range="0,30,600" default="300"/>
         <setting id="migrated" type="bool" visible="false" default="false"/>

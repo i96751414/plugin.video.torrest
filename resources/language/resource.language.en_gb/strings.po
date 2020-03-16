@@ -34,6 +34,10 @@ msgctxt "#30003"
 msgid "Buffering timeout"
 msgstr ""
 
+msgctxt "#30004"
+msgid "Show status overlay"
+msgstr ""
+
 msgctxt "#30010"
 msgid "Download Path"
 msgstr ""

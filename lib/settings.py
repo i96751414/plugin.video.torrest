@@ -1,4 +1,4 @@
-from lib.kodi import get_int_setting
+from lib.kodi import get_int_setting, get_boolean_setting
 
 
 def get_port():
@@ -11,3 +11,7 @@ def get_daemon_timeout():
 
 def get_buffering_timeout():
     return get_int_setting("buffer_timeout")
+
+
+def show_status_overlay():
+    return get_boolean_setting("overlay")
