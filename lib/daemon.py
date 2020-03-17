@@ -4,6 +4,7 @@ import re
 import shutil
 import stat
 import subprocess
+import sys
 import threading
 
 from lib.os_platform import PLATFORM, System
@@ -13,6 +14,48 @@ from lib.utils import bytes_to_str
 def android_get_current_app_id():
     with open("/proc/{:d}/cmdline".format(os.getpid())) as fp:
         return fp.read().rstrip("\0")
+
+
+HANDLE_FLAG_INHERIT = 0x00000001
+
+if sys.version_info[0:2] >= (3, 4):
+    def windows_suppress_file_handles_inheritance(_=100):
+        return []
+
+    def windows_restore_file_handles_inheritance(_):
+        pass
+else:
+    def windows_suppress_file_handles_inheritance(r=100):
+        import stat
+        from ctypes import windll, wintypes, pointer
+        from msvcrt import get_osfhandle
+
+        handles = []
+        for fd in range(r):
+            try:
+                s = os.fstat(fd)
+            except OSError:
+                continue
+            if stat.S_ISREG(s.st_mode):
+                flags = wintypes.DWORD()
+                handle = get_osfhandle(fd)
+                windll.kernel32.GetHandleInformation(handle, pointer(flags))
+                if flags.value & HANDLE_FLAG_INHERIT:
+                    if windll.kernel32.SetHandleInformation(handle, HANDLE_FLAG_INHERIT, 0):
+                        handles.append(handle)
+                    else:
+                        logging.error("Error clearing inherit flag, disk file handle %x", handle)
+
+            return handles
+
+    def windows_restore_file_handles_inheritance(handles):
+        import ctypes
+
+        for osf_handle in handles:
+            try:
+                ctypes.windll.kernel32.SetHandleInformation(osf_handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT)
+            except (ctypes.WinError, WindowsError, OSError):
+                pass
 
 
 class DefaultDaemonLogger(threading.Thread):
@@ -101,12 +144,20 @@ class Daemon(object):
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
             kwargs.setdefault("startupinfo", si)
+            handles = windows_suppress_file_handles_inheritance()
+        else:
+            kwargs.setdefault("close_fds", True)
+            handles = []
 
         kwargs.setdefault("stdout", subprocess.PIPE)
         kwargs.setdefault("stderr", subprocess.STDOUT)
         kwargs.setdefault("cwd", self._dir)
 
-        self._p = subprocess.Popen(cmd, **kwargs)
+        try:
+            self._p = subprocess.Popen(cmd, **kwargs)
+        finally:
+            if PLATFORM.system == System.windows:
+                windows_restore_file_handles_inheritance(handles)
 
     def stop_daemon(self):
         if self._p is not None:
