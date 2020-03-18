@@ -1,3 +1,3 @@
-from lib import service
+from lib.service import run
 
-service.run()
+run()

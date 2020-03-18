@@ -4,7 +4,6 @@ import re
 import shutil
 import stat
 import subprocess
-import sys
 import threading
 
 from lib.os_platform import PLATFORM, System
@@ -18,44 +17,39 @@ def android_get_current_app_id():
 
 HANDLE_FLAG_INHERIT = 0x00000001
 
-if sys.version_info[0:2] >= (3, 4):
-    def windows_suppress_file_handles_inheritance(_=100):
-        return []
 
-    def windows_restore_file_handles_inheritance(_):
-        pass
-else:
-    def windows_suppress_file_handles_inheritance(r=100):
-        import stat
-        from ctypes import windll, wintypes, pointer
-        from msvcrt import get_osfhandle
+def windows_suppress_file_handles_inheritance(r=100):
+    import stat
+    from ctypes import windll, wintypes, pointer
+    from msvcrt import get_osfhandle
 
-        handles = []
-        for fd in range(r):
-            try:
-                s = os.fstat(fd)
-            except OSError:
-                continue
-            if stat.S_ISREG(s.st_mode):
-                flags = wintypes.DWORD()
-                handle = get_osfhandle(fd)
-                windll.kernel32.GetHandleInformation(handle, pointer(flags))
-                if flags.value & HANDLE_FLAG_INHERIT:
-                    if windll.kernel32.SetHandleInformation(handle, HANDLE_FLAG_INHERIT, 0):
-                        handles.append(handle)
-                    else:
-                        logging.error("Error clearing inherit flag, disk file handle %x", handle)
+    handles = []
+    for fd in range(r):
+        try:
+            s = os.fstat(fd)
+        except OSError:
+            continue
+        if stat.S_ISREG(s.st_mode):
+            flags = wintypes.DWORD()
+            handle = get_osfhandle(fd)
+            windll.kernel32.GetHandleInformation(handle, pointer(flags))
+            if flags.value & HANDLE_FLAG_INHERIT:
+                if windll.kernel32.SetHandleInformation(handle, HANDLE_FLAG_INHERIT, 0):
+                    handles.append(handle)
+                else:
+                    logging.error("Error clearing inherit flag, disk file handle %x", handle)
 
-            return handles
+        return handles
 
-    def windows_restore_file_handles_inheritance(handles):
-        import ctypes
 
-        for osf_handle in handles:
-            try:
-                ctypes.windll.kernel32.SetHandleInformation(osf_handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT)
-            except (ctypes.WinError, WindowsError, OSError):
-                pass
+def windows_restore_file_handles_inheritance(handles):
+    import ctypes
+
+    for osf_handle in handles:
+        try:
+            ctypes.windll.kernel32.SetHandleInformation(osf_handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT)
+        except (ctypes.WinError, WindowsError, OSError):
+            pass
 
 
 class DefaultDaemonLogger(threading.Thread):
