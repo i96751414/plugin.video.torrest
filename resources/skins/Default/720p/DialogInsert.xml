@@ -21,7 +21,7 @@
                 <height>32</height>
                 <texturefocus colordiffuse="button_focus">Button/close.png</texturefocus>
                 <texturenofocus colordiffuse="EEFFFFFF">Button/close.png</texturenofocus>
-                <onup>32508</onup>
+                <onup>32506</onup>
                 <ondown>32501</ondown>
                 <onleft>32505</onleft>
             </control>
@@ -64,10 +64,10 @@
                 <align>center</align>
                 <aligny>center</aligny>
                 <onup>32501</onup>
-                <ondown>32508</ondown>
+                <ondown>32506</ondown>
                 <onleft>32505</onleft>
             </control>
-            <control type="button" id="32508">
+            <control type="button" id="32506">
                 <!-- OK button -->
                 <posx>760</posx>
                 <posy>435</posy>
@@ -129,7 +129,7 @@
                 <align>left</align>
                 <aligny>center</aligny>
                 <textoffsetx>30</textoffsetx>
-                <onright>32508</onright>
+                <onright>32506</onright>
             </control>
         </control>
     </controls>
