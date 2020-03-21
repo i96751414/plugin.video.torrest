@@ -39,7 +39,7 @@ def windows_suppress_file_handles_inheritance(r=100):
                 else:
                     logging.error("Error clearing inherit flag, disk file handle %x", handle)
 
-        return handles
+    return handles
 
 
 def windows_restore_file_handles_inheritance(handles):

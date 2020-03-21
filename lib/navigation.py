@@ -23,7 +23,9 @@ def li(tid, icon):
 
 
 def list_item(label, icon):
-    return ListItem(label, iconImage=os.path.join(ADDON_PATH, "resources", "images", icon))
+    item = ListItem(label)
+    item.setArt({"icon": os.path.join(ADDON_PATH, "resources", "images", icon)})
+    return item
 
 
 def action(func, *args, **kwargs):
