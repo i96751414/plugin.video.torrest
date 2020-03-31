@@ -12,6 +12,10 @@ from lib.os_platform import get_platform_arch
 from lib.settings import get_port, get_daemon_timeout
 
 
+class AbortRequestedError(Exception):
+    pass
+
+
 class DaemonTimeoutError(Exception):
     pass
 
@@ -41,14 +45,15 @@ class DaemonMonitor(xbmc.Monitor):
 
     def wait(self, timeout=-1, notification=False):
         start = time.time()
-        while timeout < 0 or time.time() - start <= timeout:
+        while not 0 < timeout < time.time() - start:
             try:
                 self._request("get", "")
                 if notification:
                     kodi.notification("Torrest daemon started")
                 return
             except requests.exceptions.ConnectionError:
-                time.sleep(0.5)
+                if self.waitForAbort(0.5):
+                    raise AbortRequestedError("Abort requested")
         raise DaemonTimeoutError("Timeout reached")
 
     def get_kodi_settings(self):
@@ -100,6 +105,7 @@ class DaemonMonitor(xbmc.Monitor):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
+        return exc_type is AbortRequestedError
 
 
 @kodi.once("migrated")
