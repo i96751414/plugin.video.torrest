@@ -23,10 +23,9 @@ class Player(object):
         while not self.is_active():
             if 0 < timeout < time.time() - start_time:
                 raise PlayerTimeoutError("Timeout did not start after {} seconds".format(timeout))
-            if self._monitor.abortRequested():
+            if self._monitor.waitForAbort(0.5):
                 logging.debug("Received abort request. Aborting...")
                 return
-            time.sleep(0.5)
 
         if self._url is not None:
             playing_file = self._player.getPlayingFile()
@@ -48,11 +47,10 @@ class Player(object):
                     current_event = event
                     logging.debug("Calling %s callback", callback.__name__)
                     callback()
-                if self._monitor.abortRequested():
-                    logging.debug("Received abort request. Aborting...")
-                    self.on_abort_requested()
-                    return
-            time.sleep(0.2)
+            if self._monitor.waitForAbort(0.2):
+                logging.debug("Received abort request. Aborting...")
+                self.on_abort_requested()
+                return
 
         logging.debug("Calling on_playback_stopped callback")
         self.on_playback_stopped()
@@ -120,4 +118,5 @@ class TorrestPlayer(Player):
         while not self._stopped:
             if self._overlay.shown:
                 self._update_overlay_text()
-            time.sleep(1)
+            if self._monitor.waitForAbort(1):
+                return
