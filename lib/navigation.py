@@ -3,7 +3,7 @@ import os
 import time
 
 import routing
-from xbmc import getInfoLabel
+from xbmc import getInfoLabel, executebuiltin
 from xbmcgui import ListItem, DialogProgress
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
@@ -186,6 +186,10 @@ def buffer_and_play(info_hash, file_id, handle=None):
 @plugin.route("/play/<info_hash>/<file_id>")
 @plugin.route("/play/<info_hash>/<file_id>/<handle>")
 def play(info_hash, file_id, handle=None):
+    if handle is None and plugin.handle == -1:
+        executebuiltin(media(play, info_hash, file_id))
+        return
+
     serve_url = api.serve_url(info_hash, file_id)
     name = getInfoLabel("ListItem.Label")
     setResolvedUrl(plugin.handle if handle is None else int(handle), True, ListItem(name, path=serve_url))
