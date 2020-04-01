@@ -24,10 +24,13 @@ TorrentStatus = namedtuple("TorrentStatus", [
     "upload_rate",  # type:int
 ])
 
-Torrent = namedtuple("Torrent", [
+TorrentInfo = namedtuple("TorrentInfo", [
     "info_hash",  # type:str
     "name",  # type:str
     "size",  # type:int
+])
+
+Torrent = namedtuple("Torrent", list(TorrentInfo._fields) + [
     "status",  # type:TorrentStatus
 ])
 
@@ -40,11 +43,14 @@ FileStatus = namedtuple("FileStatus", [
     "state",  # type:int
 ])
 
-File = namedtuple("File", [
+FileInfo = namedtuple("FileInfo", [
     "id",  # type:int
     "length",  # type:int
     "name",  # type:str
     "path",  # type:str
+])
+
+File = namedtuple("File", list(FileInfo._fields) + [
     "status",  # type:FileStatus
 ])
 
@@ -96,6 +102,13 @@ class Torrest(object):
 
     def remove_torrent(self, info_hash, delete=True):
         self._get("/torrents/{}/remove".format(info_hash), params={"delete": self._bool_str(delete)})
+
+    def torrent_info(self, info_hash):
+        """
+        :type info_hash: str
+        :rtype: TorrentInfo
+        """
+        return from_dict(self._get("/torrents/{}/info".format(info_hash)).json(), TorrentInfo)
 
     def torrent_status(self, info_hash):
         """

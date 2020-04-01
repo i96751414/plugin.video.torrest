@@ -3,7 +3,7 @@ import os
 import time
 
 import routing
-from xbmc import getInfoLabel, executebuiltin
+from xbmc import executebuiltin
 from xbmcgui import ListItem, DialogProgress
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
@@ -191,7 +191,7 @@ def play(info_hash, file_id, handle=None):
         return
 
     serve_url = api.serve_url(info_hash, file_id)
-    name = getInfoLabel("ListItem.Label")
+    name = api.torrent_info(info_hash).name
     setResolvedUrl(plugin.handle if handle is None else int(handle), True, ListItem(name, path=serve_url))
 
     TorrestPlayer(
