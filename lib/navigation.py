@@ -3,6 +3,7 @@ import os
 import time
 
 import routing
+from xbmc import getInfoLabel
 from xbmcgui import ListItem, DialogProgress
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
@@ -121,10 +122,10 @@ def torrent_files(info_hash):
                 info_type = None
 
             if info_type is not None:
-                url = plugin.url_for(play, info_hash, f.id, f.name)
+                url = plugin.url_for(play, info_hash, f.id)
                 file_li.setInfo(info_type, info_labels)
                 file_li.setProperty("IsPlayable", "true")
-                context_menu_items.append((translate(30235), media(buffer_and_play, info_hash, f.id, f.name)))
+                context_menu_items.append((translate(30235), media(buffer_and_play, info_hash, f.id)))
 
         context_menu_items.append(
             (translate(30209), action(file_action, info_hash, f.id, "download"))
@@ -142,8 +143,9 @@ def display_picture(info_hash, file_id):
     show_picture(api.serve_url(info_hash, file_id))
 
 
-@plugin.route("/buffer_and_play/<info_hash>/<file_id>/<name>")
-def buffer_and_play(info_hash, file_id, name):
+@plugin.route("/buffer_and_play/<info_hash>/<file_id>")
+@plugin.route("/buffer_and_play/<info_hash>/<file_id>/<handle>")
+def buffer_and_play(info_hash, file_id, handle=None):
     api.download_file(info_hash, file_id, buffer=True)
     # Make sure kodi does not block the window
     close_busy_dialog()
@@ -178,16 +180,15 @@ def buffer_and_play(info_hash, file_id, name):
         time.sleep(1)
 
     progress.close()
-    play(info_hash, file_id, name)
+    play(info_hash, file_id, handle=handle)
 
 
-@plugin.route("/play/<info_hash>/<file_id>/<name>")
-def play(info_hash, file_id, name):
+@plugin.route("/play/<info_hash>/<file_id>")
+@plugin.route("/play/<info_hash>/<file_id>/<handle>")
+def play(info_hash, file_id, handle=None):
     serve_url = api.serve_url(info_hash, file_id)
-    file_li = ListItem(name)
-    file_li.setProperty("IsPlayable", "true")
-    file_li.setPath(serve_url)
-    setResolvedUrl(plugin.handle, True, file_li)
+    name = getInfoLabel("ListItem.Label")
+    setResolvedUrl(plugin.handle if handle is None else int(handle), True, ListItem(name, path=serve_url))
 
     TorrestPlayer(
         url=serve_url,
