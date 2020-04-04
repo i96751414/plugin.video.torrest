@@ -73,12 +73,15 @@ class Torrest(object):
         self._base_url = "http://{}:{}".format(host, port)
         self._session = requests.Session()
 
-    def add_magnet(self, magnet):
-        self._get("/add/magnet", params={"uri": magnet})
+    def add_magnet(self, magnet, ignore_duplicate=False):
+        r = self._get("/add/magnet", params={"uri": magnet, "ignore_duplicate": self._bool_str(ignore_duplicate)})
+        return r.json()["info_hash"]
 
-    def add_torrent(self, path):
+    def add_torrent(self, path, ignore_duplicate=False):
         with open(path, "rb") as f:
-            self._post("/add/torrent", files={"torrent": f})
+            r = self._post("/add/torrent", files={"torrent": f},
+                           params={"ignore_duplicate": self._bool_str(ignore_duplicate)})
+            return r.json()["info_hash"]
 
     def torrents(self, status=True):
         """

@@ -1,22 +1,24 @@
 import logging
 import os
+import sys
 import time
 
 import routing
-from xbmc import executebuiltin
-from xbmcgui import ListItem, DialogProgress
+from xbmc import executebuiltin, Monitor
+from xbmcgui import ListItem, DialogProgress, Dialog
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
 from lib.api import Torrest
 from lib.dialog import DialogInsert
-from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, close_busy_dialog, \
-    show_picture
+from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture
 from lib.kodi_formats import is_music, is_picture, is_video
 from lib.player import TorrestPlayer
 from lib.settings import get_port, get_buffering_timeout, show_status_overlay
 
 plugin = routing.Plugin()
 api = Torrest("localhost", get_port())
+
+MIN_CANDIDATE_SIZE = 100 * 1024 * 1024
 
 
 def li(tid, icon):
@@ -143,48 +145,91 @@ def display_picture(info_hash, file_id):
     show_picture(api.serve_url(info_hash, file_id))
 
 
+@plugin.route("/<handle>/play_magnet/<magnet>")
+@plugin.route("/play_magnet/<magnet>")
+def play_magnet(magnet, timeout=30, handle=None):
+    if "?" not in magnet:
+        magnet += sys.argv[2]
+
+    start_time = time.time()
+    info_hash = api.add_magnet(magnet, ignore_duplicate=True)
+    monitor = Monitor()
+    progress = DialogProgress()
+    progress.create(ADDON_NAME, translate(30237))
+
+    try:
+        while not api.torrent_status(info_hash).has_metadata:
+            if monitor.waitForAbort(0.5):
+                logging.debug("Received abort request. Aborting...")
+                return
+            passed_time = time.time() - start_time
+            if 0 < timeout < passed_time:
+                raise ValueError("No metadata after timeout")
+            progress.update(int(100 * passed_time / timeout))
+            if progress.iscanceled():
+                return
+    finally:
+        progress.close()
+
+    files = api.files(info_hash, status=False)
+    candidate_files = [f for f in files if is_video(f.path) and f.length >= MIN_CANDIDATE_SIZE]
+    if not candidate_files:
+        logging.info("No candidate files found from %s", info_hash)
+        return
+    elif len(candidate_files) == 1:
+        chosen_file = candidate_files[0]
+    else:
+        chosen_index = Dialog().select(translate(30238), [f.name for f in candidate_files])
+        if chosen_index < 0:
+            return
+        chosen_file = candidate_files[chosen_index]
+
+    buffer_and_play(info_hash, chosen_file.id, handle=handle)
+
+
+@plugin.route("/<handle>/buffer_and_play/<info_hash>/<file_id>")
 @plugin.route("/buffer_and_play/<info_hash>/<file_id>")
-@plugin.route("/buffer_and_play/<info_hash>/<file_id>/<handle>")
 def buffer_and_play(info_hash, file_id, handle=None):
     api.download_file(info_hash, file_id, buffer=True)
-    # Make sure kodi does not block the window
-    close_busy_dialog()
 
+    monitor = Monitor()
     progress = DialogProgress()
     progress.create(ADDON_NAME)
 
-    timeout = get_buffering_timeout()
-    start_time = time.time()
-    last_time = 0
-    last_done = 0
-    while True:
-        current_time = time.time()
-        status = api.file_status(info_hash, file_id)
-        if status.buffering_progress >= 100:
-            break
+    try:
+        timeout = get_buffering_timeout()
+        start_time = time.time()
+        last_time = 0
+        last_done = 0
+        while True:
+            current_time = time.time()
+            status = api.file_status(info_hash, file_id)
+            if status.buffering_progress >= 100:
+                break
 
-        speed = float(status.total_done - last_done) / (current_time - last_time)
-        last_time = current_time
-        last_done = status.total_done
-        progress.update(
-            int(status.buffering_progress),
-            "{} - {:.2f}%".format(get_state_string(status.state), status.buffering_progress),
-            "{} of {} - {}/s".format(sizeof_fmt(status.total_done), sizeof_fmt(status.total), sizeof_fmt(speed)))
+            speed = float(status.total_done - last_done) / (current_time - last_time)
+            last_time = current_time
+            last_done = status.total_done
+            progress.update(
+                int(status.buffering_progress),
+                "{} - {:.2f}%".format(get_state_string(status.state), status.buffering_progress),
+                "{} of {} - {}/s".format(sizeof_fmt(status.total_done), sizeof_fmt(status.total), sizeof_fmt(speed)))
 
-        if progress.iscanceled():
-            return
-        if 0 < timeout < current_time - start_time:
-            notification(translate(30236))
-            return
+            if progress.iscanceled():
+                return
+            if 0 < timeout < current_time - start_time:
+                notification(translate(30236))
+                return
+            if monitor.waitForAbort(1):
+                return
+    finally:
+        progress.close()
 
-        time.sleep(1)
-
-    progress.close()
     play(info_hash, file_id, handle=handle)
 
 
+@plugin.route("/<handle>/play/<info_hash>/<file_id>")
 @plugin.route("/play/<info_hash>/<file_id>")
-@plugin.route("/play/<info_hash>/<file_id>/<handle>")
 def play(info_hash, file_id, handle=None):
     if handle is None and plugin.handle == -1:
         executebuiltin(media(play, info_hash, file_id))

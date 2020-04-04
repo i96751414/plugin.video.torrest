@@ -22,7 +22,7 @@ class Player(object):
         start_time = time.time()
         while not self.is_active():
             if 0 < timeout < time.time() - start_time:
-                raise PlayerTimeoutError("Timeout did not start after {} seconds".format(timeout))
+                raise PlayerTimeoutError("Player did not start after {} seconds".format(timeout))
             if self._monitor.waitForAbort(0.5):
                 logging.debug("Received abort request. Aborting...")
                 return
