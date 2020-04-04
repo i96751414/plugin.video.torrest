@@ -145,9 +145,8 @@ def display_picture(info_hash, file_id):
     show_picture(api.serve_url(info_hash, file_id))
 
 
-@plugin.route("/<handle>/play_magnet/<magnet>")
 @plugin.route("/play_magnet/<magnet>")
-def play_magnet(magnet, timeout=30, handle=None):
+def play_magnet(magnet, timeout=30):
     if "?" not in magnet:
         magnet += sys.argv[2]
 
@@ -184,12 +183,11 @@ def play_magnet(magnet, timeout=30, handle=None):
             return
         chosen_file = candidate_files[chosen_index]
 
-    buffer_and_play(info_hash, chosen_file.id, handle=handle)
+    buffer_and_play(info_hash, chosen_file.id)
 
 
-@plugin.route("/<handle>/buffer_and_play/<info_hash>/<file_id>")
 @plugin.route("/buffer_and_play/<info_hash>/<file_id>")
-def buffer_and_play(info_hash, file_id, handle=None):
+def buffer_and_play(info_hash, file_id):
     api.download_file(info_hash, file_id, buffer=True)
 
     monitor = Monitor()
@@ -225,19 +223,18 @@ def buffer_and_play(info_hash, file_id, handle=None):
     finally:
         progress.close()
 
-    play(info_hash, file_id, handle=handle)
+    play(info_hash, file_id)
 
 
-@plugin.route("/<handle>/play/<info_hash>/<file_id>")
 @plugin.route("/play/<info_hash>/<file_id>")
-def play(info_hash, file_id, handle=None):
-    if handle is None and plugin.handle == -1:
+def play(info_hash, file_id):
+    if plugin.handle == -1:
         executebuiltin(media(play, info_hash, file_id))
         return
 
     serve_url = api.serve_url(info_hash, file_id)
     name = api.torrent_info(info_hash).name
-    setResolvedUrl(plugin.handle if handle is None else int(handle), True, ListItem(name, path=serve_url))
+    setResolvedUrl(plugin.handle, True, ListItem(name, path=serve_url))
 
     TorrestPlayer(
         url=serve_url,
