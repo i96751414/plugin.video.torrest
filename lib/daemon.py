@@ -108,7 +108,10 @@ class Daemon(object):
             self._path = os.path.join(self._dir, self._name)
             if not os.path.exists(self._path) or self._get_sha1(src_path) != self._get_sha1(self._path):
                 logging.info("Updating android daemon '%s'", self._path)
-                shutil.copy(src_path, self._path)
+                if os.path.exists(self._dir):
+                    logging.debug("Removing old daemon dir")
+                    shutil.rmtree(self._dir)
+                shutil.copytree(daemon_dir, self._dir)
         else:
             self._path = os.path.join(self._dir, self._name)
 

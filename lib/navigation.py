@@ -150,8 +150,8 @@ def play_magnet(magnet, timeout=30):
     if "?" not in magnet:
         magnet += sys.argv[2]
 
-    start_time = time.time()
     info_hash = api.add_magnet(magnet, ignore_duplicate=True)
+    start_time = time.time()
     monitor = Monitor()
     progress = DialogProgress()
     progress.create(ADDON_NAME, translate(30237))
