@@ -16,7 +16,7 @@ from lib.player import TorrestPlayer
 from lib.settings import get_port, get_buffering_timeout, show_status_overlay
 
 plugin = routing.Plugin()
-api = Torrest("localhost", get_port())
+api = Torrest("127.0.0.1", get_port())
 
 MIN_CANDIDATE_SIZE = 100 * 1024 * 1024
 

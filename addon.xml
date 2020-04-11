@@ -9,7 +9,7 @@
     <extension point="xbmc.python.pluginsource" library="navigation.py">
         <provides>video</provides>
     </extension>
-    <extension point="xbmc.service" library="service.py" start="login"/>
+    <extension point="xbmc.service" library="service.py"/>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>
         <license>See https://github.com/i96751414/plugin.video.torrest/blob/master/LICENSE</license>

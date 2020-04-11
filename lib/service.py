@@ -41,7 +41,7 @@ class DaemonMonitor(xbmc.Monitor):
         self._daemon.stop()
 
     def _request(self, method, url, **kwargs):
-        return requests.request(method, "http://localhost:{}/{}".format(self._port, url), **kwargs)
+        return requests.request(method, "http://127.0.0.1:{}/{}".format(self._port, url), **kwargs)
 
     def wait(self, timeout=-1, notification=False):
         start = time.time()
