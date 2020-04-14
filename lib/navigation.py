@@ -31,7 +31,9 @@ def check_playable(func):
             return func(*args, **kwargs)
         except Exception as e:
             setResolvedUrl(plugin.handle, False, ListItem())
-            if not isinstance(e, PlayError):
+            if isinstance(e, PlayError):
+                logging.debug(e)
+            else:
                 raise e
 
     return wrapper
@@ -176,7 +178,6 @@ def play_magnet(magnet, timeout=30):
     try:
         while not api.torrent_status(info_hash).has_metadata:
             if monitor.waitForAbort(0.5):
-                logging.debug("Received abort request. Aborting...")
                 raise PlayError("Abort requested")
             passed_time = time.time() - start_time
             if 0 < timeout < passed_time:
@@ -184,22 +185,21 @@ def play_magnet(magnet, timeout=30):
                 raise PlayError("No metadata after timeout")
             progress.update(int(100 * passed_time / timeout))
             if progress.iscanceled():
-                raise PlayError("User canceled")
+                raise PlayError("User canceled metadata")
     finally:
         progress.close()
 
     files = api.files(info_hash, status=False)
     candidate_files = [f for f in files if is_video(f.path) and f.length >= MIN_CANDIDATE_SIZE]
     if not candidate_files:
-        logging.info("No candidate files found from %s", info_hash)
         notification(translate(30239))
-        raise PlayError("No candidate files")
+        raise PlayError("No candidate files found for {}".format(info_hash))
     elif len(candidate_files) == 1:
         chosen_file = candidate_files[0]
     else:
         chosen_index = Dialog().select(translate(30240), [f.name for f in candidate_files])
         if chosen_index < 0:
-            raise PlayError("User canceled")
+            raise PlayError("User canceled dialog select")
         chosen_file = candidate_files[chosen_index]
 
     buffer_and_play(info_hash, chosen_file.id)
@@ -234,10 +234,10 @@ def buffer_and_play(info_hash, file_id):
                 "{} of {} - {}/s".format(sizeof_fmt(status.total_done), sizeof_fmt(status.total), sizeof_fmt(speed)))
 
             if progress.iscanceled():
-                raise PlayError("User canceled")
+                raise PlayError("User canceled buffering")
             if 0 < timeout < current_time - start_time:
                 notification(translate(30236))
-                raise PlayError("Timeout reached")
+                raise PlayError("Buffering timeout reached")
             if monitor.waitForAbort(1):
                 raise PlayError("Abort requested")
     finally:
