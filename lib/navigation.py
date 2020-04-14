@@ -4,7 +4,7 @@ import sys
 import time
 
 import routing
-from xbmc import executebuiltin, Monitor
+from xbmc import Monitor
 from xbmcgui import ListItem, DialogProgress, Dialog
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
@@ -19,6 +19,22 @@ plugin = routing.Plugin()
 api = Torrest("127.0.0.1", get_port())
 
 MIN_CANDIDATE_SIZE = 100 * 1024 * 1024
+
+
+class PlayError(Exception):
+    pass
+
+
+def check_playable(func):
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            setResolvedUrl(plugin.handle, False, ListItem())
+            if not isinstance(e, PlayError):
+                raise e
+
+    return wrapper
 
 
 def li(tid, icon):
@@ -146,6 +162,7 @@ def display_picture(info_hash, file_id):
 
 
 @plugin.route("/play_magnet/<magnet>")
+@check_playable
 def play_magnet(magnet, timeout=30):
     if "?" not in magnet:
         magnet += sys.argv[2]
@@ -160,13 +177,14 @@ def play_magnet(magnet, timeout=30):
         while not api.torrent_status(info_hash).has_metadata:
             if monitor.waitForAbort(0.5):
                 logging.debug("Received abort request. Aborting...")
-                return
+                raise PlayError("Abort requested")
             passed_time = time.time() - start_time
             if 0 < timeout < passed_time:
-                raise ValueError("No metadata after timeout")
+                notification(translate(30238))
+                raise PlayError("No metadata after timeout")
             progress.update(int(100 * passed_time / timeout))
             if progress.iscanceled():
-                return
+                raise PlayError("User canceled")
     finally:
         progress.close()
 
@@ -174,19 +192,21 @@ def play_magnet(magnet, timeout=30):
     candidate_files = [f for f in files if is_video(f.path) and f.length >= MIN_CANDIDATE_SIZE]
     if not candidate_files:
         logging.info("No candidate files found from %s", info_hash)
-        return
+        notification(translate(30239))
+        raise PlayError("No candidate files")
     elif len(candidate_files) == 1:
         chosen_file = candidate_files[0]
     else:
-        chosen_index = Dialog().select(translate(30238), [f.name for f in candidate_files])
+        chosen_index = Dialog().select(translate(30240), [f.name for f in candidate_files])
         if chosen_index < 0:
-            return
+            raise PlayError("User canceled")
         chosen_file = candidate_files[chosen_index]
 
     buffer_and_play(info_hash, chosen_file.id)
 
 
 @plugin.route("/buffer_and_play/<info_hash>/<file_id>")
+@check_playable
 def buffer_and_play(info_hash, file_id):
     api.download_file(info_hash, file_id, buffer=True)
 
@@ -214,12 +234,12 @@ def buffer_and_play(info_hash, file_id):
                 "{} of {} - {}/s".format(sizeof_fmt(status.total_done), sizeof_fmt(status.total), sizeof_fmt(speed)))
 
             if progress.iscanceled():
-                return
+                raise PlayError("User canceled")
             if 0 < timeout < current_time - start_time:
                 notification(translate(30236))
-                return
+                raise PlayError("Timeout reached")
             if monitor.waitForAbort(1):
-                return
+                raise PlayError("Abort requested")
     finally:
         progress.close()
 
@@ -228,10 +248,6 @@ def buffer_and_play(info_hash, file_id):
 
 @plugin.route("/play/<info_hash>/<file_id>")
 def play(info_hash, file_id):
-    if plugin.handle == -1:
-        executebuiltin(media(play, info_hash, file_id))
-        return
-
     serve_url = api.serve_url(info_hash, file_id)
     name = api.torrent_info(info_hash).name
     setResolvedUrl(plugin.handle, True, ListItem(name, path=serve_url))

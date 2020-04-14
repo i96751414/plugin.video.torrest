@@ -341,5 +341,13 @@ msgid "Waiting for metadata"
 msgstr ""
 
 msgctxt "#30238"
+msgid "Timed out waiting for metadata"
+msgstr ""
+
+msgctxt "#30239"
+msgid "No candidate files found"
+msgstr ""
+
+msgctxt "#30240"
 msgid "Please choose what file to play"
 msgstr ""
