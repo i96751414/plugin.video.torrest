@@ -28,12 +28,12 @@ pictures_extensions = (
 
 
 def is_video(s):
-    return s.endswith(videos_extensions)
+    return s.lower().endswith(videos_extensions)
 
 
 def is_music(s):
-    return s.endswith(music_extensions)
+    return s.lower().endswith(music_extensions)
 
 
 def is_picture(s):
-    return s.endswith(pictures_extensions)
+    return s.lower().endswith(pictures_extensions)
