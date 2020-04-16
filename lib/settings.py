@@ -15,3 +15,7 @@ def get_buffering_timeout():
 
 def show_status_overlay():
     return get_boolean_setting("overlay")
+
+
+def get_min_candidate_size():
+    return get_int_setting("min_candidate_size")

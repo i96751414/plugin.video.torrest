@@ -13,12 +13,10 @@ from lib.dialog import DialogInsert
 from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture
 from lib.kodi_formats import is_music, is_picture, is_video
 from lib.player import TorrestPlayer
-from lib.settings import get_port, get_buffering_timeout, show_status_overlay
+from lib.settings import get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size
 
 plugin = routing.Plugin()
 api = Torrest("127.0.0.1", get_port())
-
-MIN_CANDIDATE_SIZE = 100 * 1024 * 1024
 
 
 class PlayError(Exception):
@@ -90,6 +88,7 @@ def torrents():
     for torrent in api.torrents():
         torrent_li = list_item(torrent.name, "download.png")
         torrent_li.addContextMenuItems([
+            (translate(30235), media(play_info_hash, torrent.info_hash)),
             (translate(30208), action(torrent_action, torrent.info_hash, "stop"))
             if torrent.status.total == torrent.status.total_wanted else
             (translate(30209), action(torrent_action, torrent.info_hash, "download")),
@@ -165,11 +164,17 @@ def display_picture(info_hash, file_id):
 
 @plugin.route("/play_magnet/<magnet>")
 @check_playable
-def play_magnet(magnet, timeout=30):
+def play_magnet(magnet, buffer=True):
     if "?" not in magnet:
         magnet += sys.argv[2]
 
     info_hash = api.add_magnet(magnet, ignore_duplicate=True)
+    play_info_hash(info_hash, buffer=buffer)
+
+
+@plugin.route("/play_info_hash/<info_hash>")
+@check_playable
+def play_info_hash(info_hash, timeout=30, buffer=True):
     start_time = time.time()
     monitor = Monitor()
     progress = DialogProgress()
@@ -190,7 +195,8 @@ def play_magnet(magnet, timeout=30):
         progress.close()
 
     files = api.files(info_hash, status=False)
-    candidate_files = [f for f in files if is_video(f.path) and f.length >= MIN_CANDIDATE_SIZE]
+    min_candidate_size = get_min_candidate_size() * 1024 * 1024
+    candidate_files = [f for f in files if is_video(f.path) and f.length >= min_candidate_size]
     if not candidate_files:
         notification(translate(30239))
         raise PlayError("No candidate files found for {}".format(info_hash))
@@ -202,7 +208,10 @@ def play_magnet(magnet, timeout=30):
             raise PlayError("User canceled dialog select")
         chosen_file = candidate_files[chosen_index]
 
-    buffer_and_play(info_hash, chosen_file.id)
+    if buffer:
+        buffer_and_play(info_hash, chosen_file.id)
+    else:
+        play(info_hash, chosen_file.id)
 
 
 @plugin.route("/buffer_and_play/<info_hash>/<file_id>")

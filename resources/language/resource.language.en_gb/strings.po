@@ -218,6 +218,10 @@ msgctxt "#30054"
 msgid "Password"
 msgstr ""
 
+msgctxt "#30055"
+msgid "Minimum video candidate size (MB)"
+msgstr ""
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"
