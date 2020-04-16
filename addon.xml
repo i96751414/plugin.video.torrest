@@ -21,9 +21,10 @@
         </news>
         <assets>
             <icon>icon.png</icon>
-            <screenshot>resources/images/screenshot-1.png</screenshot>
-            <screenshot>resources/images/screenshot-2.png</screenshot>
-            <screenshot>resources/images/screenshot-3.png</screenshot>
+            <screenshot>resources/screenshots/screenshot-1.jpg</screenshot>
+            <screenshot>resources/screenshots/screenshot-2.jpg</screenshot>
+            <screenshot>resources/screenshots/screenshot-3.jpg</screenshot>
+            <screenshot>resources/screenshots/screenshot-4.jpg</screenshot>
         </assets>
         <reuselanguageinvoker>true</reuselanguageinvoker>
     </extension>

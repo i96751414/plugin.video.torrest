@@ -39,3 +39,6 @@ class OverlayText(object):
     @property
     def shown(self):
         return self._shown
+
+    def __del__(self):
+        self.hide()
