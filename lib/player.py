@@ -33,10 +33,10 @@ class Player(object):
                 logging.warning("Expecting url '%s' but found '%s'. Aborting...", self._url, playing_file)
                 return
 
-        current_event = None
+        current_event = 0
         events = [
-            (0, self.is_paused, self.on_playback_paused),
-            (1, self.is_playing, self.on_playback_resumed),
+            (0, self.is_playing, self.on_playback_resumed),
+            (1, self.is_paused, self.on_playback_paused),
         ]
 
         logging.debug("Calling on_playback_started callback")
@@ -87,12 +87,13 @@ class TorrestPlayer(Player):
         super(TorrestPlayer, self).__init__(url=url)
         self._stopped = False
         self._text_handler = text_handler
-        self._overlay = OverlayText()
-        self._overlay_thread = threading.Thread(target=self._overlay_updater)
-        self._overlay_thread.daemon = True
 
+    # noinspection PyAttributeOutsideInit
     def on_playback_started(self):
         if self._text_handler is not None:
+            self._overlay = OverlayText()
+            self._overlay_thread = threading.Thread(target=self._overlay_updater)
+            self._overlay_thread.daemon = True
             self._overlay_thread.start()
 
     def on_playback_paused(self):
@@ -106,10 +107,6 @@ class TorrestPlayer(Player):
 
     def on_playback_stopped(self):
         self._stopped = True
-        self.on_playback_resumed()
-
-    def on_abort_requested(self):
-        self.on_playback_stopped()
 
     def _update_overlay_text(self):
         self._overlay.set_text(self._text_handler())
@@ -119,4 +116,5 @@ class TorrestPlayer(Player):
             if self._overlay.shown:
                 self._update_overlay_text()
             if self._monitor.waitForAbort(1):
-                return
+                break
+        self._overlay.close()

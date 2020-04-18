@@ -18,27 +18,37 @@ class OverlayText(object):
         x = (window_width - w) // 2
         y = int((3 * window_height / 4) - (h / 2)) + y_offset
 
-        self._label = ControlLabel(x, y, w, h, "", alignment=0x2 | 0x4)
-        self._background = ControlImage(x, y, w, h, os.path.join(ADDON_PATH, "resources", "images", "black.png"))
-        self._background.setColorDiffuse("0xD0000000")
+        self._label = ControlLabel(x, y, 0, 0, "", alignment=0x2 | 0x4)
+        self._background = ControlImage(
+            x, y, 0, 0, os.path.join(ADDON_PATH, "resources", "images", "black.png"),
+            colorDiffuse="0xD0000000")
         self._controls = [self._background, self._label]
+        self._window.addControls(self._controls)
+        # We are only able to update visibility after adding elements, so to make them not visible
+        # we have to create them with 0 width and height and then update the controls after adding
+        # them to the window
+        for c in self._controls:
+            c.setVisible(self._shown)
+            c.setWidth(w)
+            c.setHeight(h)
+
+    def _set_visible(self, visible):
+        self._shown = visible
+        for c in self._controls:
+            c.setVisible(visible)
 
     def show(self):
-        if not self._shown:
-            self._window.addControls(self._controls)
-            self._shown = True
+        self._set_visible(True)
 
     def hide(self):
-        if self._shown:
-            self._window.removeControls(self._controls)
-            self._shown = False
+        self._set_visible(False)
 
     def set_text(self, text):
         self._label.setLabel(text)
 
+    def close(self):
+        self._window.removeControls(self._controls)
+
     @property
     def shown(self):
         return self._shown
-
-    def __del__(self):
-        self.hide()
