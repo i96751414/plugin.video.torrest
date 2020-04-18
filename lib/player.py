@@ -83,10 +83,11 @@ class Player(object):
 
 
 class TorrestPlayer(Player):
-    def __init__(self, url=None, text_handler=None):
+    def __init__(self, url=None, text_handler=None, on_close_handler=None):
         super(TorrestPlayer, self).__init__(url=url)
         self._stopped = False
         self._text_handler = text_handler
+        self._on_close_handler = on_close_handler
 
     # noinspection PyAttributeOutsideInit
     def on_playback_started(self):
@@ -107,6 +108,8 @@ class TorrestPlayer(Player):
 
     def on_playback_stopped(self):
         self._stopped = True
+        if self._on_close_handler:
+            self._on_close_handler()
 
     def _update_overlay_text(self):
         self._overlay.set_text(self._text_handler())

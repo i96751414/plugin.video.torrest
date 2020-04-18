@@ -7,6 +7,7 @@
         <setting id="timeout" type="number" label="30002" default="20"/>
         <setting id="buffer_timeout" type="slider" label="30003" option="int" range="0,30,600" default="300"/>
         <setting id="min_candidate_size" type="slider" label="30055" option="int" range="0,10,200" default="100"/>
+        <setting id="ask_to_delete" type="bool" label="30056" default="true"/>
         <setting id="migrated" type="bool" visible="false" default="false"/>
     </category>
     <category label="BitTorrent">

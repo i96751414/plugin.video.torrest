@@ -19,3 +19,7 @@ def show_status_overlay():
 
 def get_min_candidate_size():
     return get_int_setting("min_candidate_size")
+
+
+def ask_to_delete_torrent():
+    return get_boolean_setting("ask_to_delete")

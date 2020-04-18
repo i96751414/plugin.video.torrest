@@ -4,7 +4,7 @@ import sys
 import time
 
 import routing
-from xbmc import Monitor
+from xbmc import Monitor, executebuiltin
 from xbmcgui import ListItem, DialogProgress, Dialog
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
@@ -13,7 +13,8 @@ from lib.dialog import DialogInsert
 from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture
 from lib.kodi_formats import is_music, is_picture, is_video
 from lib.player import TorrestPlayer
-from lib.settings import get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size
+from lib.settings import get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
+    ask_to_delete_torrent
 
 plugin = routing.Plugin()
 api = Torrest("127.0.0.1", get_port())
@@ -55,6 +56,11 @@ def media(func, *args, **kwargs):
     return "PlayMedia({})".format(plugin.url_for(func, *args, **kwargs))
 
 
+def get_plugin_query(key):
+    plugin_action = plugin.args.get(key)
+    return None if plugin_action is None else plugin_action[0]
+
+
 def get_state_string(state):
     if 0 <= state <= 9:
         return translate(30220 + state)
@@ -76,6 +82,20 @@ def get_status_string(info_hash, name):
         sizeof_fmt(status.upload_rate), status.seeders, status.seeders_total, status.peers, status.peers_total, name)
 
 
+def handle_player_stop(info_hash, name):
+    remove_torrent = Dialog().yesno(ADDON_NAME, name + "\n" + translate(30241))
+    if remove_torrent:
+        api.remove_torrent(info_hash, delete=True)
+        plugin_action = get_plugin_query("action")
+        if plugin_action is not None:
+            if plugin_action == "back":
+                executebuiltin("Action(Back)")
+            elif plugin_action == "refresh":
+                refresh()
+            else:
+                logging.warning("Unknown action '%s'", plugin_action)
+
+
 @plugin.route("/")
 def index():
     addDirectoryItem(plugin.handle, plugin.url_for(torrents), li(30206, "torrents.png"), isFolder=True)
@@ -88,14 +108,15 @@ def torrents():
     for torrent in api.torrents():
         torrent_li = list_item(torrent.name, "download.png")
         torrent_li.addContextMenuItems([
-            (translate(30235), media(play_info_hash, torrent.info_hash)),
+            (translate(30235), media(play_info_hash, info_hash=torrent.info_hash, action="refresh")),
             (translate(30208), action(torrent_action, torrent.info_hash, "stop"))
             if torrent.status.total == torrent.status.total_wanted else
             (translate(30209), action(torrent_action, torrent.info_hash, "download")),
             (translate(30210), action(torrent_action, torrent.info_hash, "resume"))
             if torrent.status.paused else
             (translate(30211), action(torrent_action, torrent.info_hash, "pause")),
-            (translate(30212), action(torrent_action, torrent.info_hash, "remove")),
+            (translate(30242), action(torrent_action, torrent.info_hash, "remove_torrent")),
+            (translate(30212), action(torrent_action, torrent.info_hash, "remove_torrent_and_files")),
         ])
         addDirectoryItem(plugin.handle, plugin.url_for(torrent_files, torrent.info_hash), torrent_li, isFolder=True)
     endOfDirectory(plugin.handle)
@@ -111,8 +132,10 @@ def torrent_action(info_hash, action_str):
         api.pause_torrent(info_hash)
     elif action_str == "resume":
         api.resume_torrent(info_hash)
-    elif action_str == "remove":
-        api.remove_torrent(info_hash)
+    elif action_str == "remove_torrent":
+        api.remove_torrent(info_hash, delete=False)
+    elif action_str == "remove_torrent_and_files":
+        api.remove_torrent(info_hash, delete=True)
     else:
         logging.error("Unknown action '%s'", action_str)
         return
@@ -141,10 +164,11 @@ def torrent_files(info_hash):
                 info_type = None
 
             if info_type is not None:
-                url = plugin.url_for(play, info_hash, f.id)
+                kwargs = dict(info_hash=info_hash, file_id=f.id, action="back")
+                url = plugin.url_for(play, **kwargs)
                 file_li.setInfo(info_type, info_labels)
                 file_li.setProperty("IsPlayable", "true")
-                context_menu_items.append((translate(30235), media(buffer_and_play, info_hash, f.id)))
+                context_menu_items.append((translate(30235), media(buffer_and_play, **kwargs)))
 
         context_menu_items.append(
             (translate(30209), action(file_action, info_hash, f.id, "download"))
@@ -256,6 +280,7 @@ def buffer_and_play(info_hash, file_id):
 
 
 @plugin.route("/play/<info_hash>/<file_id>")
+@check_playable
 def play(info_hash, file_id):
     serve_url = api.serve_url(info_hash, file_id)
     name = api.torrent_info(info_hash).name
@@ -264,6 +289,7 @@ def play(info_hash, file_id):
     TorrestPlayer(
         url=serve_url,
         text_handler=(lambda: get_status_string(info_hash, name)) if show_status_overlay() else None,
+        on_close_handler=(lambda: handle_player_stop(info_hash, name)) if ask_to_delete_torrent() else None,
     ).handle_events()
 
 
