@@ -27,13 +27,25 @@ class PlayError(Exception):
 def check_playable(func):
     def wrapper(*args, **kwargs):
         try:
-            return func(*args, **kwargs)
+            func(*args, **kwargs)
         except Exception as e:
             setResolvedUrl(plugin.handle, False, ListItem())
             if isinstance(e, PlayError):
                 logging.debug(e)
             else:
                 raise e
+
+    return wrapper
+
+
+def check_directory(func):
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+            endOfDirectory(plugin.handle)
+        except Exception as e:
+            endOfDirectory(plugin.handle, succeeded=False)
+            raise e
 
     return wrapper
 
@@ -104,6 +116,7 @@ def index():
 
 
 @plugin.route("/torrents")
+@check_directory
 def torrents():
     for torrent in api.torrents():
         torrent_li = list_item(torrent.name, "download.png")
@@ -119,7 +132,6 @@ def torrents():
             (translate(30212), action(torrent_action, torrent.info_hash, "remove_torrent_and_files")),
         ])
         addDirectoryItem(plugin.handle, plugin.url_for(torrent_files, torrent.info_hash), torrent_li, isFolder=True)
-    endOfDirectory(plugin.handle)
 
 
 @plugin.route("/torrents/<info_hash>/<action_str>")
@@ -143,6 +155,7 @@ def torrent_action(info_hash, action_str):
 
 
 @plugin.route("/torrents/<info_hash>")
+@check_directory
 def torrent_files(info_hash):
     for f in api.files(info_hash):
         serve_url = api.serve_url(info_hash, f.id)
@@ -178,7 +191,6 @@ def torrent_files(info_hash):
         file_li.addContextMenuItems(context_menu_items)
 
         addDirectoryItem(plugin.handle, url, file_li)
-    endOfDirectory(plugin.handle)
 
 
 @plugin.route("/display_picture/<info_hash>/<file_id>")
