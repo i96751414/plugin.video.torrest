@@ -7,6 +7,14 @@ import xbmc
 from lib.overlay import OverlayText
 
 
+def _execute_callback(callback):
+    logging.debug("Calling %s callback", callback.__name__)
+    try:
+        callback()
+    except Exception as e:
+        logging.error("Exception thrown when executing callback %s: %s", callback.__name__, e, exc_info=True)
+
+
 class PlayerTimeoutError(Exception):
     pass
 
@@ -39,21 +47,17 @@ class Player(object):
             (1, self.is_paused, self.on_playback_paused),
         ]
 
-        logging.debug("Calling on_playback_started callback")
-        self.on_playback_started()
+        _execute_callback(self.on_playback_started)
         while self.is_active():
             for event, handle, callback in events:
                 if handle() and current_event != event:
                     current_event = event
-                    logging.debug("Calling %s callback", callback.__name__)
-                    callback()
+                    _execute_callback(callback)
             if self._monitor.waitForAbort(0.2):
-                logging.debug("Received abort request. Aborting...")
-                self.on_abort_requested()
+                _execute_callback(self.on_abort_requested)
                 return
 
-        logging.debug("Calling on_playback_stopped callback")
-        self.on_playback_stopped()
+        _execute_callback(self.on_playback_stopped)
 
     def is_active(self):
         return self._player.isPlaying()
