@@ -116,7 +116,7 @@ class TorrestPlayer(Player):
             self._on_close_handler()
 
     def _update_overlay_text(self):
-        self._overlay.set_text(self._text_handler())
+        self._overlay.set_text(*self._text_handler())
 
     def _overlay_updater(self):
         while not self._stopped:

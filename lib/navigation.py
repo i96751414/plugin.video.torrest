@@ -87,11 +87,13 @@ def sizeof_fmt(num, suffix="B", divisor=1000.0):
     return "{:.2f}{}{}".format(num, "Y", suffix)
 
 
-def get_status_string(info_hash, name):
+def get_status_labels(info_hash):
     status = api.torrent_status(info_hash)
-    return "{:s} ({:.2f}%)\nD:{:s}/s U:{:s}/s S:{:d}/{:d} P:{:d}/{:d}\n{:s}".format(
-        get_state_string(status.state), status.progress, sizeof_fmt(status.download_rate),
-        sizeof_fmt(status.upload_rate), status.seeders, status.seeders_total, status.peers, status.peers_total, name)
+    return (
+        "{:s} ({:.2f}%)".format(get_state_string(status.state), status.progress),
+        "D:{:s}/s U:{:s}/s S:{:d}/{:d} P:{:d}/{:d}".format(
+            sizeof_fmt(status.download_rate), sizeof_fmt(status.upload_rate), status.seeders,
+            status.seeders_total, status.peers, status.peers_total))
 
 
 def handle_player_stop(info_hash, name):
@@ -300,7 +302,7 @@ def play(info_hash, file_id):
 
     TorrestPlayer(
         url=serve_url,
-        text_handler=(lambda: get_status_string(info_hash, name)) if show_status_overlay() else None,
+        text_handler=(lambda: get_status_labels(info_hash) + (name,)) if show_status_overlay() else None,
         on_close_handler=(lambda: handle_player_stop(info_hash, name)) if ask_to_delete_torrent() else None,
     ).handle_events()
 
