@@ -4,7 +4,7 @@ import sys
 import time
 
 import routing
-from xbmc import Monitor, executebuiltin
+from xbmc import Monitor, executebuiltin, getInfoLabel
 from xbmcgui import ListItem, DialogProgress, Dialog
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
@@ -100,14 +100,11 @@ def handle_player_stop(info_hash, name):
     remove_torrent = Dialog().yesno(ADDON_NAME, name + "\n" + translate(30241))
     if remove_torrent:
         api.remove_torrent(info_hash, delete=True)
-        plugin_action = get_plugin_query("action")
-        if plugin_action is not None:
-            if plugin_action == "back":
-                executebuiltin("Action(Back)")
-            elif plugin_action == "refresh":
-                refresh()
-            else:
-                logging.warning("Unknown action '%s'", plugin_action)
+        current_folder = getInfoLabel("Container.FolderPath")
+        if current_folder == plugin.url_for(torrent_files, info_hash):
+            executebuiltin("Action(Back)")
+        elif current_folder == plugin.url_for(torrents):
+            refresh()
 
 
 @plugin.route("/")
@@ -123,7 +120,7 @@ def torrents():
     for torrent in api.torrents():
         torrent_li = list_item(torrent.name, "download.png")
         torrent_li.addContextMenuItems([
-            (translate(30235), media(play_info_hash, info_hash=torrent.info_hash, action="refresh")),
+            (translate(30235), media(play_info_hash, info_hash=torrent.info_hash)),
             (translate(30208), action(torrent_action, torrent.info_hash, "stop"))
             if torrent.status.total == torrent.status.total_wanted else
             (translate(30209), action(torrent_action, torrent.info_hash, "download")),
@@ -179,7 +176,7 @@ def torrent_files(info_hash):
                 info_type = None
 
             if info_type is not None:
-                kwargs = dict(info_hash=info_hash, file_id=f.id, action="back")
+                kwargs = dict(info_hash=info_hash, file_id=f.id)
                 url = plugin.url_for(play, **kwargs)
                 file_li.setInfo(info_type, info_labels)
                 file_li.setProperty("IsPlayable", "true")
