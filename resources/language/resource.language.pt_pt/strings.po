@@ -11,7 +11,7 @@ msgstr ""
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: en\n"
+"Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,63 +20,63 @@ msgstr ""
 # Settings
 msgctxt "#30000"
 msgid "General"
-msgstr ""
+msgstr "Geral"
 
 msgctxt "#30001"
 msgid "Service port"
-msgstr ""
+msgstr "Porto do serviço"
 
 msgctxt "#30002"
 msgid "Daemon start timeout"
-msgstr ""
+msgstr "Tempo limite de início do daemon"
 
 msgctxt "#30003"
 msgid "Buffering timeout"
-msgstr ""
+msgstr "Tempo limite de buffering"
 
 msgctxt "#30004"
 msgid "Show status overlay"
-msgstr ""
+msgstr "Mostrar diálogo de status"
 
 msgctxt "#30010"
 msgid "Download path"
-msgstr ""
+msgstr "Pasta de download"
 
 msgctxt "#30011"
 msgid "Connections limit"
-msgstr ""
+msgstr "Limite de conexões"
 
 msgctxt "#30012"
 msgid "Buffer size (B)"
-msgstr ""
+msgstr "Tamanho do buffer (B)"
 
 msgctxt "#30013"
 msgid "Listen port"
-msgstr ""
+msgstr "Porto em escuta"
 
 msgctxt "#30014"
 msgid "Listen interfaces"
-msgstr ""
+msgstr "Interfaces em escuta"
 
 msgctxt "#30015"
 msgid "Outgoing interfaces"
-msgstr ""
+msgstr "Interfaces de saída"
 
 msgctxt "#30016"
 msgid "Disable DHT"
-msgstr ""
+msgstr "Desativar DHT"
 
 msgctxt "#30017"
 msgid "Disable UPNP"
-msgstr ""
+msgstr "Desativar UPNP"
 
 msgctxt "#30018"
 msgid "User-Agent"
-msgstr ""
+msgstr "User-Agent"
 
 msgctxt "#30019"
 msgid "Default"
-msgstr ""
+msgstr "Padrão"
 
 msgctxt "#30020"
 msgid "Libtorrent"
@@ -124,59 +124,59 @@ msgstr ""
 
 msgctxt "#30031"
 msgid "Session saving frequency (seconds)"
-msgstr ""
+msgstr "Frequência de gravação da sessão (segundos)"
 
 msgctxt "#30032"
 msgid "Enable tuned storage settings"
-msgstr ""
+msgstr "Ativar configurações de armazenamento afinadas"
 
 msgctxt "#30033"
 msgid "Limit rates after buffering"
-msgstr ""
+msgstr "Limitar taxas depois do buffering"
 
 msgctxt "#30034"
 msgid "Max download rate (B/s)"
-msgstr ""
+msgstr "Taxa máxima de download (B/s)"
 
 msgctxt "#30035"
 msgid "Max upload rate (B/s)"
-msgstr ""
+msgstr "Taxa máxima de upload (B/s)"
 
 msgctxt "#30036"
 msgid "Share ratio limit (percent)"
-msgstr ""
+msgstr "Limite do rácio de partilha (percentagem)"
 
 msgctxt "#30037"
 msgid "Seed time ratio limit (percent)"
-msgstr ""
+msgstr "Limite do rácio de tempo de seed (percentagem)"
 
 msgctxt "#30038"
 msgid "Seed time limit (seconds)"
-msgstr ""
+msgstr "Tempo limite de seed (segundos)"
 
 msgctxt "#30039"
 msgid "Encryption policy"
-msgstr ""
+msgstr "Política de encriptação"
 
 msgctxt "#30040"
 msgid "Enabled"
-msgstr ""
+msgstr "Ativa"
 
 msgctxt "#30041"
 msgid "Disabled"
-msgstr ""
+msgstr "Desativa"
 
 msgctxt "#30042"
 msgid "Forced"
-msgstr ""
+msgstr "Forçada"
 
 msgctxt "#30043"
 msgid "Proxy"
-msgstr ""
+msgstr "Proxy"
 
 msgctxt "#30044"
 msgid "Proxy type"
-msgstr ""
+msgstr "Tipo de proxy"
 
 msgctxt "#30045"
 msgid "SOCKS4"
@@ -204,166 +204,166 @@ msgstr ""
 
 msgctxt "#30051"
 msgid "Host"
-msgstr ""
+msgstr "Anfitrião"
 
 msgctxt "#30052"
 msgid "Port"
-msgstr ""
+msgstr "Porto"
 
 msgctxt "#30053"
 msgid "Login"
-msgstr ""
+msgstr "Login"
 
 msgctxt "#30054"
 msgid "Password"
-msgstr ""
+msgstr "Senha"
 
 msgctxt "#30055"
 msgid "Minimum video candidate size (MB)"
-msgstr ""
+msgstr "Tamanho mínimo de candidato a vídeo (MB)"
 
 msgctxt "#30056"
 msgid "Ask to remove torrent after streaming"
-msgstr ""
+msgstr "Pedir para remover o torrent após a transmissão"
 
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"
-msgstr ""
+msgstr "Torrest - primeira execução"
 
 msgctxt "#30101"
 msgid "Please set the download path so you can properly use Torrest. Feel free to also change any other settings."
-msgstr ""
+msgstr "Defina a pasta de download para poder usar corretamente o Torrest. Sinta-se à vontade para também alterar outras configurações."
 
 msgctxt "#30102"
 msgid "Error..."
-msgstr ""
+msgstr "Erro..."
 
 # Plugin
 msgctxt "#30200"
 msgid "Insert file or URL"
-msgstr ""
+msgstr "Inserir ficheiro ou URL"
 
 msgctxt "#30201"
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 msgctxt "#30202"
 msgid "File"
-msgstr ""
+msgstr "Ficheiro"
 
 msgctxt "#30203"
 msgid "Insert URL:"
-msgstr ""
+msgstr "Inserir URL:"
 
 msgctxt "#30204"
 msgid "File path:"
-msgstr ""
+msgstr "Caminho do ficheiro:"
 
 msgctxt "#30205"
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 msgctxt "#30206"
 msgid "Torrents"
-msgstr ""
+msgstr "Torrents"
 
 msgctxt "#30207"
 msgid "Add torrent/magnet"
-msgstr ""
+msgstr "Adicionar torrent/magnet"
 
 msgctxt "#30208"
 msgid "Stop downloading"
-msgstr ""
+msgstr "Parar download"
 
 msgctxt "#30209"
 msgid "Download"
-msgstr ""
+msgstr "Download"
 
 msgctxt "#30210"
 msgid "Resume"
-msgstr ""
+msgstr "Resumir"
 
 msgctxt "#30211"
 msgid "Pause"
-msgstr ""
+msgstr "Pausar"
 
 msgctxt "#30212"
 msgid "Remove torrent and files"
-msgstr ""
+msgstr "Remover torrent e ficheiros"
 
 msgctxt "#30220"
 msgid "Queued"
-msgstr ""
+msgstr "Em fila"
 
 msgctxt "#30221"
 msgid "Checking"
-msgstr ""
+msgstr "A verificar"
 
 msgctxt "#30222"
 msgid "Finding"
-msgstr ""
+msgstr "A encontrar"
 
 msgctxt "#30223"
 msgid "Downloading"
-msgstr ""
+msgstr "A transferir"
 
 msgctxt "#30224"
 msgid "Finished"
-msgstr ""
+msgstr "Terminado"
 
 msgctxt "#30225"
 msgid "Seeding"
-msgstr ""
+msgstr "A semear"
 
 msgctxt "#30226"
 msgid "Allocating"
-msgstr ""
+msgstr "A alocar"
 
 msgctxt "#30227"
 msgid "Checking resume data"
-msgstr ""
+msgstr "A verificar data de resumo"
 
 msgctxt "#30228"
 msgid "Paused"
-msgstr ""
+msgstr "Pausado"
 
 msgctxt "#30229"
 msgid "Buffering"
-msgstr ""
+msgstr "Buffering"
 
 msgctxt "#30230"
 msgid "Unknown"
-msgstr ""
+msgstr "Desconhecido"
 
 msgctxt "#30235"
 msgid "Buffer and play"
-msgstr ""
+msgstr "Carregar e reproduzir"
 
 msgctxt "#30236"
 msgid "Timeout reached"
-msgstr ""
+msgstr "Tempo limite atingido"
 
 msgctxt "#30237"
 msgid "Waiting for metadata"
-msgstr ""
+msgstr "À espera de metadata"
 
 msgctxt "#30238"
 msgid "Timed out waiting for metadata"
-msgstr ""
+msgstr "Tempo limite excedido à espera de metadata"
 
 msgctxt "#30239"
 msgid "No candidate files found"
-msgstr ""
+msgstr "Nenhum ficheiro candidato encontrado"
 
 msgctxt "#30240"
 msgid "Please choose what file to play"
-msgstr ""
+msgstr "Escolha que ficheiro reproduzir"
 
 msgctxt "#30241"
 msgid "Do you want to remove the torrent?"
-msgstr ""
+msgstr "Deseja remover o torrent?"
 
 msgctxt "#30242"
 msgid "Remove torrent"
-msgstr ""
+msgstr "Remover torrent"
