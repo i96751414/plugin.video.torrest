@@ -226,6 +226,14 @@ msgctxt "#30056"
 msgid "Ask to remove torrent after streaming"
 msgstr "Pedir para remover o torrent após a transmissão"
 
+msgctxt "#30057"
+msgid "Service log level"
+msgstr "Nível de log do serviço"
+
+msgctxt "#30058"
+msgid "Alerts log level"
+msgstr "Nível de log de alertas"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"

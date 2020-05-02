@@ -30,6 +30,10 @@
         <setting id="s:seed_time_ratio_limit" type="number" label="30037" default="0"/>
         <setting id="s:seed_time_limit" type="number" label="30038" default="0"/>
         <setting id="s:encryption_policy" type="enum" label="30039" lvalues="30040|30041|30042"/>
+        <setting id="s:service_log_level" type="enum" label="30057" values="CRITICAL|ERROR|WARNING|NOTICE|INFO|DEBUG"
+                 default="4"/>
+        <setting id="s:alerts_log_level" type="enum" label="30058" values="CRITICAL|ERROR|WARNING|NOTICE|INFO|DEBUG"
+                 default="0"/>
     </category>
     <!-- Proxy -->
     <category label="30043">
