@@ -5,6 +5,7 @@ import shutil
 import stat
 import subprocess
 import threading
+from io import FileIO
 
 from lib.os_platform import PLATFORM, System
 from lib.utils import bytes_to_str
@@ -120,7 +121,9 @@ class Daemon(object):
 
     @staticmethod
     def _get_sha1(path):
-        with open(path) as f:
+        # Using FileIO instead of open as fseeko with OFF_T=64 is broken in android NDK
+        # See https://trac.kodi.tv/ticket/17827
+        with FileIO(path) as f:
             f.seek(-40, os.SEEK_END)
             return f.read()
 
@@ -144,6 +147,14 @@ class Daemon(object):
             handles = windows_suppress_file_handles_inheritance()
         else:
             kwargs.setdefault("close_fds", True)
+            # Make sure we update LD_LIBRARY_PATH, so libs are loaded
+            env = kwargs.get("env", os.environ).copy()
+            ld_path = env.get("LD_LIBRARY_PATH", "")
+            if ld_path:
+                ld_path += os.pathsep
+            ld_path += self._dir
+            env["LD_LIBRARY_PATH"] = ld_path
+            kwargs["env"] = env
             handles = []
 
         kwargs.setdefault("stdout", subprocess.PIPE)
