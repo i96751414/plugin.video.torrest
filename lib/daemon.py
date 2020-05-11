@@ -98,23 +98,20 @@ class Daemon(object):
         if PLATFORM.system == System.windows:
             self._name += ".exe"
 
-        self._dir = daemon_dir
         if PLATFORM.system == System.android:
             self._dir = os.path.join(os.sep, "data", "data", android_get_current_app_id(), "files", name)
-            if not os.path.exists(self._dir):
-                logging.info("Creating android destination folder '%s'", self._dir)
-                os.makedirs(self._dir)
+        else:
+            self._dir = daemon_dir
+        self._path = os.path.join(self._dir, self._name)
 
+        if self._dir is not daemon_dir:
             src_path = os.path.join(daemon_dir, self._name)
-            self._path = os.path.join(self._dir, self._name)
             if not os.path.exists(self._path) or self._get_sha1(src_path) != self._get_sha1(self._path):
-                logging.info("Updating android daemon '%s'", self._path)
+                logging.info("Updating %s daemon '%s'", PLATFORM.system, self._path)
                 if os.path.exists(self._dir):
-                    logging.debug("Removing old daemon dir")
+                    logging.debug("Removing old daemon dir %s", self._dir)
                     shutil.rmtree(self._dir)
                 shutil.copytree(daemon_dir, self._dir)
-        else:
-            self._path = os.path.join(self._dir, self._name)
 
         self._p = None  # type: subprocess.Popen or None
         self._logger = None  # type: DaemonLogger or None
