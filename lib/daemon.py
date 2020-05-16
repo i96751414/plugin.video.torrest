@@ -189,8 +189,9 @@ class Daemon(object):
             self._logger = None
 
     def start(self, *args, **kwargs):
-        self.start_daemon(*args)
-        self.start_logger(**kwargs)
+        level = kwargs.pop("level", logging.INFO)
+        self.start_daemon(*args, **kwargs)
+        self.start_logger(level=level)
 
     def stop(self):
         self.stop_daemon()
