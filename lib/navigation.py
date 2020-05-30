@@ -13,11 +13,11 @@ from lib.dialog import DialogInsert
 from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture
 from lib.kodi_formats import is_music, is_picture, is_video
 from lib.player import TorrestPlayer
-from lib.settings import get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
+from lib.settings import get_service_ip, get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
     ask_to_delete_torrent
 
 plugin = routing.Plugin()
-api = Torrest("127.0.0.1", get_port())
+api = Torrest(get_service_ip(), get_port())
 
 
 class PlayError(Exception):

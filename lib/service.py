@@ -9,7 +9,7 @@ import xbmcgui
 from lib import kodi
 from lib.daemon import Daemon
 from lib.os_platform import get_platform_arch
-from lib.settings import get_port, get_daemon_timeout
+from lib.settings import get_port, get_daemon_timeout, service_enabled
 
 
 class AbortRequestedError(Exception):
@@ -30,21 +30,22 @@ class DaemonMonitor(xbmc.Monitor):
         super(DaemonMonitor, self).__init__()
         self._daemon = Daemon("torrest", os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch()))
         self._daemon.ensure_exec_permissions()
-        self._port = get_port()
+        self._port = self._enabled = None
         self._settings_path = os.path.join(kodi.ADDON_DATA, "settings.json")
         self._settings_spec = [s for s in kodi.get_all_settings_spec() if s["id"].startswith(
             self._settings_prefix + self._settings_separator)]
+        self.onSettingsChanged()
 
-    def start(self):
+    def _start(self):
         self._daemon.start("-port", str(self._port), "-settings", self._settings_path, level=logging.INFO)
 
-    def stop(self):
+    def _stop(self):
         self._daemon.stop()
 
     def _request(self, method, url, **kwargs):
         return requests.request(method, "http://127.0.0.1:{}/{}".format(self._port, url), **kwargs)
 
-    def wait(self, timeout=-1, notification=False):
+    def _wait(self, timeout=-1, notification=False):
         start = time.time()
         while not 0 < timeout < time.time() - start:
             try:
@@ -57,31 +58,31 @@ class DaemonMonitor(xbmc.Monitor):
                     raise AbortRequestedError("Abort requested")
         raise DaemonTimeoutError("Timeout reached")
 
-    def get_kodi_settings(self):
+    def _get_kodi_settings(self):
         s = kodi.generate_dict_settings(self._settings_spec, separator=self._settings_separator)[self._settings_prefix]
         s["torrents_path"] = os.path.join(s["download_path"], "Torrents")
         return s
 
-    def get_daemon_settings(self):
+    def _get_daemon_settings(self):
         r = self._request("get", self._settings_get_uri)
         if r.status_code != 200:
             logging.error("Failed getting daemon settings with code %d: %s", r.status_code, r.text)
             return None
         return r.json()
 
-    def update_kodi_settings(self):
-        daemon_settings = self.get_daemon_settings()
+    def _update_kodi_settings(self):
+        daemon_settings = self._get_daemon_settings()
         if daemon_settings is None:
             return False
         kodi.set_settings_dict(daemon_settings, prefix=self._settings_prefix, separator=self._settings_separator)
         return True
 
-    def update_daemon_settings(self):
-        daemon_settings = self.get_daemon_settings()
+    def _update_daemon_settings(self):
+        daemon_settings = self._get_daemon_settings()
         if daemon_settings is None:
             return False
 
-        kodi_settings = self.get_kodi_settings()
+        kodi_settings = self._get_kodi_settings()
         if daemon_settings != kodi_settings:
             logging.debug("Need to update daemon settings")
             r = self._request("post", self._settings_set_uri, json=kodi_settings)
@@ -92,20 +93,33 @@ class DaemonMonitor(xbmc.Monitor):
         return True
 
     def onSettingsChanged(self):
+        port_changed = enabled_changed = False
+
         port = get_port()
         if port != self._port:
             self._port = port
-            self.stop()
-            self.start()
+            port_changed = True
 
-        self.update_daemon_settings()
+        enabled = service_enabled()
+        if enabled != self._enabled:
+            self._enabled = enabled
+            enabled_changed = True
+
+        if self._enabled:
+            if port_changed and not enabled_changed:
+                self._stop()
+            if port_changed or enabled_changed:
+                self._start()
+                self._wait(timeout=get_daemon_timeout(), notification=True)
+            self._update_daemon_settings()
+        elif enabled_changed:
+            self._stop()
 
     def __enter__(self):
-        self.start()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.stop()
+        self._stop()
         return exc_type is AbortRequestedError
 
 
@@ -119,7 +133,5 @@ def handle_first_run():
 def run():
     kodi.set_logger(level=logging.INFO)
     with DaemonMonitor() as monitor:
-        monitor.wait(timeout=get_daemon_timeout(), notification=True)
-        monitor.update_kodi_settings()
         handle_first_run()
         monitor.waitForAbort()

@@ -1,4 +1,4 @@
-from lib.kodi import get_int_setting, get_boolean_setting
+from lib.kodi import get_int_setting, get_boolean_setting, get_setting
 
 
 def get_port():
@@ -23,3 +23,11 @@ def get_min_candidate_size():
 
 def ask_to_delete_torrent():
     return get_boolean_setting("ask_to_delete")
+
+
+def service_enabled():
+    return get_boolean_setting("service_enabled")
+
+
+def get_service_ip():
+    return "127.0.0.1" if service_enabled() else get_setting("service_ip")

@@ -234,6 +234,14 @@ msgctxt "#30058"
 msgid "Alerts log level"
 msgstr ""
 
+msgctxt "#30059"
+msgid "Enable Torrest service"
+msgstr ""
+
+msgctxt "#30060"
+msgid "Torrest sevice IP address"
+msgstr ""
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"

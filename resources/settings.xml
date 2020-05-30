@@ -2,6 +2,8 @@
 <settings>
     <!-- General -->
     <category label="30000">
+        <setting id="service_enabled" type="bool" label="30059" default="true"/>
+        <setting id="service_ip" type="ipaddress" label="30060" default="" visible="eq(-1,false)"/>
         <setting id="port" type="number" label="30001" default="61235"/>
         <setting id="overlay" type="bool" label="30004" default="true"/>
         <setting id="timeout" type="number" label="30002" default="20"/>
