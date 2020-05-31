@@ -35,3 +35,7 @@ def set_service_enabled(value):
 
 def get_service_ip():
     return "127.0.0.1" if service_enabled() else get_setting("service_ip")
+
+
+def download_after_insert():
+    return get_boolean_setting("download_after_insert")

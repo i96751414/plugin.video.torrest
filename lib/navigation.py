@@ -14,7 +14,7 @@ from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger
 from lib.kodi_formats import is_music, is_picture, is_video
 from lib.player import TorrestPlayer
 from lib.settings import get_service_ip, get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
-    ask_to_delete_torrent
+    ask_to_delete_torrent, download_after_insert
 
 plugin = routing.Plugin()
 api = Torrest(get_service_ip(), get_port())
@@ -321,9 +321,12 @@ def dialog_insert():
     window = DialogInsert("DialogInsert.xml", ADDON_PATH, "Default")
     window.doModal()
     if window.type == DialogInsert.TYPE_PATH:
-        api.add_torrent(window.ret_val)
+        api.add_torrent(window.ret_val, download=download_after_insert())
     elif window.type == DialogInsert.TYPE_URL:
-        api.add_magnet(window.ret_val)
+        api.add_magnet(window.ret_val, download=download_after_insert())
+    else:
+        return
+    notification(translate(30243), time=2000)
 
 
 def run():
