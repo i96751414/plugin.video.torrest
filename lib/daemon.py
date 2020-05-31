@@ -21,24 +21,26 @@ HANDLE_FLAG_INHERIT = 0x00000001
 
 def windows_suppress_file_handles_inheritance(r=100):
     import stat
-    from ctypes import windll, wintypes, pointer
+    from ctypes import windll, wintypes, byref
     from msvcrt import get_osfhandle
 
     handles = []
     for fd in range(r):
         try:
+            # May raise OSError
             s = os.fstat(fd)
-        except OSError:
-            continue
-        if stat.S_ISREG(s.st_mode):
-            flags = wintypes.DWORD()
-            handle = get_osfhandle(fd)
-            windll.kernel32.GetHandleInformation(handle, pointer(flags))
-            if flags.value & HANDLE_FLAG_INHERIT:
-                if windll.kernel32.SetHandleInformation(handle, HANDLE_FLAG_INHERIT, 0):
-                    handles.append(handle)
-                else:
-                    logging.error("Error clearing inherit flag, disk file handle %x", handle)
+            if stat.S_ISREG(s.st_mode):
+                # May raise IOError
+                handle = get_osfhandle(fd)
+                flags = wintypes.DWORD()
+                windll.kernel32.GetHandleInformation(handle, byref(flags))
+                if flags.value & HANDLE_FLAG_INHERIT:
+                    if windll.kernel32.SetHandleInformation(handle, HANDLE_FLAG_INHERIT, 0):
+                        handles.append(handle)
+                    else:
+                        logging.error("Error clearing inherit flag, disk file handle %x", handle)
+        except (OSError, IOError):
+            pass
 
     return handles
 
@@ -92,11 +94,19 @@ class DaemonLogger(DefaultDaemonLogger):
         return level, line.rstrip("\r\n")
 
 
+class DaemonNotFoundError(Exception):
+    pass
+
+
 class Daemon(object):
     def __init__(self, name, daemon_dir):
         self._name = name
         if PLATFORM.system == System.windows:
             self._name += ".exe"
+
+        src_path = os.path.join(daemon_dir, self._name)
+        if not os.path.exists(src_path):
+            raise DaemonNotFoundError("Daemon source path does not exist")
 
         if PLATFORM.system == System.android:
             self._dir = os.path.join(os.sep, "data", "data", android_get_current_app_id(), "files", name)
@@ -105,7 +115,6 @@ class Daemon(object):
         self._path = os.path.join(self._dir, self._name)
 
         if self._dir is not daemon_dir:
-            src_path = os.path.join(daemon_dir, self._name)
             if not os.path.exists(self._path) or self._get_sha1(src_path) != self._get_sha1(self._path):
                 logging.info("Updating %s daemon '%s'", PLATFORM.system, self._path)
                 if os.path.exists(self._dir):

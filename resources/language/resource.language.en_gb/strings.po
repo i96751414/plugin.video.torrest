@@ -242,6 +242,10 @@ msgctxt "#30060"
 msgid "Torrest sevice IP address"
 msgstr ""
 
+msgctxt "#30061"
+msgid "Disabled"
+msgstr ""
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"
@@ -253,6 +257,10 @@ msgstr ""
 
 msgctxt "#30102"
 msgid "Error..."
+msgstr ""
+
+msgctxt "#30103"
+msgid "Unable to start Torrest service.\nPlease set the service IP address in settings."
 msgstr ""
 
 # Plugin

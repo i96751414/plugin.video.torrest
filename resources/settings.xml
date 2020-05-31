@@ -3,10 +3,10 @@
     <!-- General -->
     <category label="30000">
         <setting id="service_enabled" type="bool" label="30059" default="true"/>
-        <setting id="service_ip" type="ipaddress" label="30060" default="" visible="eq(-1,false)"/>
+        <setting id="service_ip" type="ipaddress" label="30060" default="" enable="eq(-1,false)"/>
         <setting id="port" type="number" label="30001" default="61235"/>
         <setting id="overlay" type="bool" label="30004" default="true"/>
-        <setting id="timeout" type="number" label="30002" default="20"/>
+        <setting id="timeout" type="number" label="30002" default="20" enable="eq(-4,true)"/>
         <setting id="buffer_timeout" type="slider" label="30003" option="int" range="0,30,600" default="300"/>
         <setting id="min_candidate_size" type="slider" label="30055" option="int" range="0,10,200" default="100"/>
         <setting id="ask_to_delete" type="bool" label="30056" default="true"/>
@@ -40,7 +40,7 @@
     <!-- Proxy -->
     <category label="30043">
         <setting id="s:proxy:type" type="enum" label="30044" default="0"
-                 lvalues="30041|30045|30046|30047|30048|30049|30050"/>
+                 lvalues="30061|30045|30046|30047|30048|30049|30050"/>
         <setting id="s:proxy:hostname" type="text" label="30051" default="" visible="!eq(-1,0)"/>
         <setting id="s:proxy:port" type="number" label="30052" default="1080" visible="!eq(-2,0)"/>
         <setting id="s:proxy:username" type="text" label="30053" default="" visible="!eq(-3,0)"/>

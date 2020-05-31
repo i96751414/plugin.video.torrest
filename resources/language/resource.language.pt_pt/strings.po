@@ -160,11 +160,11 @@ msgstr "Política de encriptação"
 
 msgctxt "#30040"
 msgid "Enabled"
-msgstr "Ativa"
+msgstr "Ativada"
 
 msgctxt "#30041"
 msgid "Disabled"
-msgstr "Desativa"
+msgstr "Desativada"
 
 msgctxt "#30042"
 msgid "Forced"
@@ -242,6 +242,10 @@ msgctxt "#30060"
 msgid "Torrest sevice IP address"
 msgstr "Endereço IP do serviço Torrest"
 
+msgctxt "#30061"
+msgid "Disabled"
+msgstr "Desativado"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"
@@ -254,6 +258,10 @@ msgstr "Defina a pasta de download para poder usar corretamente o Torrest. Sinta
 msgctxt "#30102"
 msgid "Error..."
 msgstr "Erro..."
+
+msgctxt "#30103"
+msgid "Unable to start Torrest service.\nPlease set the service IP address in settings."
+msgstr "Não foi possível iniciar o serviço Torrest.\nPor favor, defina o endereço IP do serviço nas configurações."
 
 # Plugin
 msgctxt "#30200"

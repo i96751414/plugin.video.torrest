@@ -7,9 +7,9 @@ import xbmc
 import xbmcgui
 
 from lib import kodi
-from lib.daemon import Daemon
+from lib.daemon import Daemon, DaemonNotFoundError
 from lib.os_platform import get_platform_arch
-from lib.settings import get_port, get_daemon_timeout, service_enabled
+from lib.settings import get_port, get_daemon_timeout, service_enabled, set_service_enabled
 
 
 class AbortRequestedError(Exception):
@@ -132,6 +132,13 @@ def handle_first_run():
 
 def run():
     kodi.set_logger(level=logging.INFO)
-    with DaemonMonitor() as monitor:
-        handle_first_run()
-        monitor.waitForAbort()
+    try:
+        with DaemonMonitor() as monitor:
+            handle_first_run()
+            monitor.waitForAbort()
+    except DaemonNotFoundError:
+        logging.info("Daemon not found. Aborting service...")
+        if service_enabled():
+            set_service_enabled(False)
+            xbmcgui.Dialog().ok(kodi.ADDON_NAME, kodi.translate(30103))
+            kodi.open_settings()
