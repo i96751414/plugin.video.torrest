@@ -37,6 +37,7 @@ Torrent = namedtuple("Torrent", list(TorrentInfo._fields) + [
 FileStatus = namedtuple("FileStatus", [
     "total",  # type:int
     "total_done",  # type:int
+    "buffering_total",  # type:int
     "buffering_progress",  # type:float
     "priority",  # type:int
     "progress",  # type:float

@@ -399,3 +399,7 @@ msgstr "Remover torrent"
 msgctxt "#30243"
 msgid "Torrent added successfully"
 msgstr "Torrent adicionado com sucesso"
+
+msgctxt "#30244"
+msgid "of"
+msgstr "de"

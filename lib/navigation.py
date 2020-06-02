@@ -269,13 +269,15 @@ def buffer_and_play(info_hash, file_id):
             if status.buffering_progress >= 100:
                 break
 
-            speed = float(status.total_done - last_done) / (current_time - last_time)
+            total_done = status.buffering_total * status.buffering_progress / 100
+            speed = float(total_done - last_done) / (current_time - last_time)
             last_time = current_time
-            last_done = status.total_done
+            last_done = total_done
             progress.update(
                 int(status.buffering_progress),
                 "{} - {:.2f}%".format(get_state_string(status.state), status.buffering_progress),
-                "{} of {} - {}/s".format(sizeof_fmt(status.total_done), sizeof_fmt(status.total), sizeof_fmt(speed)))
+                "{} {} {} - {}/s".format(
+                    sizeof_fmt(total_done), translate(30244), sizeof_fmt(status.buffering_total), sizeof_fmt(speed)))
 
             if progress.iscanceled():
                 raise PlayError("User canceled buffering")
