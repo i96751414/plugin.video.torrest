@@ -22,10 +22,5 @@ Get the [latest release](https://github.com/i96751414/torrest/releases/latest).
 Just like any other add-on. No extra steps are required.
 
 ##  Screenshots
-![screen1](https://github.com/i96751414/plugin.video.torrest/raw/master/resources/screenshots/screenshot-1.jpg)
+![screenshots](resources/screenshots/screenshots.gif)
 
-![screen2](https://github.com/i96751414/plugin.video.torrest/raw/master/resources/screenshots/screenshot-2.jpg)
-
-![screen3](https://github.com/i96751414/plugin.video.torrest/raw/master/resources/screenshots/screenshot-3.jpg)
-
-![screen4](https://github.com/i96751414/plugin.video.torrest/raw/master/resources/screenshots/screenshot-4.jpg)
