@@ -7,7 +7,7 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 
-from lib.utils import PY3, str_to_unicode
+from lib.utils import PY3, str_to_unicode, unicode_to_str
 
 # Windows IDs - https://kodi.wiki/view/Window_IDs
 WINDOW_HOME = 10000
@@ -164,7 +164,7 @@ class KodiLogHandler(logging.StreamHandler):
         self.setFormatter(logging.Formatter("[{}] %(message)s".format(ADDON_ID)))
 
     def emit(self, record):
-        xbmc.log(self.format(record), self.levels[record.levelno])
+        xbmc.log(unicode_to_str(self.format(record)), self.levels[record.levelno])
 
     def flush(self):
         pass
