@@ -11,10 +11,10 @@ if PY3:
     def bytes_to_str(b):
         return b.decode()
 
-    def str_to_unicode(s):
+    def assure_unicode(s):
         return s
 
-    def unicode_to_str(s):
+    def assure_str(s):
         return s
 
 else:
@@ -27,8 +27,14 @@ else:
     def bytes_to_str(b):
         return b
 
-    def str_to_unicode(s):
-        return s.decode("utf-8")
+    def assure_unicode(s):
+        if isinstance(s, str):
+            # noinspection PyUnresolvedReferences
+            s = s.decode("utf-8")
+        return s
 
-    def unicode_to_str(s):
-        return s.encode("utf-8")
+    def assure_str(s):
+        # noinspection PyUnresolvedReferences
+        if isinstance(s, unicode):
+            s = s.encode("utf-8")
+        return s
