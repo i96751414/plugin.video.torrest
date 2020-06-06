@@ -35,6 +35,6 @@ else:
 
     def assure_str(s):
         # noinspection PyUnresolvedReferences
-        if isinstance(s, unicode):
+        if isinstance(s, unicode):  # noqa
             s = s.encode("utf-8")
         return s
