@@ -132,9 +132,9 @@ def handle_first_run():
 
 def run():
     kodi.set_logger(level=logging.INFO)
+    handle_first_run()
     try:
         with DaemonMonitor() as monitor:
-            handle_first_run()
             monitor.waitForAbort()
     except DaemonNotFoundError:
         logging.info("Daemon not found. Aborting service...")
