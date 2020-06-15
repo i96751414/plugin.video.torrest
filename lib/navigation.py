@@ -1,6 +1,5 @@
 import logging
 import os
-import sys
 import time
 
 import requests
@@ -69,9 +68,20 @@ def media(func, *args, **kwargs):
     return "PlayMedia({})".format(plugin.url_for(func, *args, **kwargs))
 
 
-def get_plugin_query(key):
-    plugin_action = plugin.args.get(key)
-    return None if plugin_action is None else plugin_action[0]
+def query_arg(name, required=True):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            if name not in kwargs:
+                query_list = plugin.args.get(name)
+                if query_list:
+                    kwargs[name] = query_list[0]
+                elif required:
+                    raise AttributeError("Missing {} required query argument".format(name))
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 def get_state_string(state):
@@ -198,19 +208,19 @@ def display_picture(info_hash, file_id):
     show_picture(api.serve_url(info_hash, file_id))
 
 
-@plugin.route("/play_url/<path:url>")
+@plugin.route("/play_url")
 @check_playable
+@query_arg("url")
 def play_url(url, buffer=True):
-    url += sys.argv[2]
     r = requests.get(url, stream=True)
     info_hash = api.add_torrent_obj(r.raw, ignore_duplicate=True)
     play_info_hash(info_hash, buffer=buffer)
 
 
-@plugin.route("/play_magnet/<path:magnet>")
+@plugin.route("/play_magnet")
 @check_playable
+@query_arg("magnet")
 def play_magnet(magnet, buffer=True):
-    magnet += sys.argv[2]
     info_hash = api.add_magnet(magnet, ignore_duplicate=True)
     play_info_hash(info_hash, buffer=buffer)
 
