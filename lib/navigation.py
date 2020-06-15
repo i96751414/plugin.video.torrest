@@ -3,6 +3,7 @@ import os
 import sys
 import time
 
+import requests
 import routing
 from xbmc import Monitor, executebuiltin, getInfoLabel
 from xbmcgui import ListItem, DialogProgress, Dialog
@@ -197,12 +198,19 @@ def display_picture(info_hash, file_id):
     show_picture(api.serve_url(info_hash, file_id))
 
 
-@plugin.route("/play_magnet/<magnet>")
+@plugin.route("/play_url/<path:url>")
+@check_playable
+def play_url(url, buffer=True):
+    url += sys.argv[2]
+    r = requests.get(url, stream=True)
+    info_hash = api.add_torrent_obj(r.raw, ignore_duplicate=True)
+    play_info_hash(info_hash, buffer=buffer)
+
+
+@plugin.route("/play_magnet/<path:magnet>")
 @check_playable
 def play_magnet(magnet, buffer=True):
-    if "?" not in magnet:
-        magnet += sys.argv[2]
-
+    magnet += sys.argv[2]
     info_hash = api.add_magnet(magnet, ignore_duplicate=True)
     play_info_hash(info_hash, buffer=buffer)
 

@@ -82,10 +82,13 @@ class Torrest(object):
 
     def add_torrent(self, path, ignore_duplicate=False, download=False):
         with open(path, "rb") as f:
-            r = self._post("/add/torrent", files={"torrent": f}, params={
-                "ignore_duplicate": self._bool_str(ignore_duplicate),
-                "download": self._bool_str(download)})
-            return r.json()["info_hash"]
+            return self.add_torrent_obj(f, ignore_duplicate=ignore_duplicate, download=download)
+
+    def add_torrent_obj(self, obj, ignore_duplicate=False, download=False):
+        r = self._post("/add/torrent", files={"torrent": obj}, params={
+            "ignore_duplicate": self._bool_str(ignore_duplicate),
+            "download": self._bool_str(download)})
+        return r.json()["info_hash"]
 
     def torrents(self, status=True):
         """
