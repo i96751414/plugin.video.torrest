@@ -4,7 +4,7 @@ import time
 
 import requests
 import routing
-from xbmc import Monitor, executebuiltin, getInfoLabel
+from xbmc import Monitor, executebuiltin, getInfoLabel, getCondVisibility, sleep
 from xbmcgui import ListItem, DialogProgress, Dialog
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
@@ -108,7 +108,12 @@ def get_status_labels(info_hash):
             status.seeders_total, status.peers, status.peers_total))
 
 
-def handle_player_stop(info_hash, name):
+def handle_player_stop(info_hash, name, initial_delay=0.5, listing_timeout=10):
+    sleep(int(initial_delay * 1000))
+    start_time = time.time()
+    while getCondVisibility("Window.IsActive(busydialog)") and not 0 < listing_timeout < time.time() - start_time:
+        sleep(100)
+
     remove_torrent = Dialog().yesno(ADDON_NAME, name + "\n" + translate(30241))
     if remove_torrent:
         api.remove_torrent(info_hash, delete=True)
