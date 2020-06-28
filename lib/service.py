@@ -28,7 +28,9 @@ class DaemonMonitor(xbmc.Monitor):
 
     def __init__(self):
         super(DaemonMonitor, self).__init__()
-        self._daemon = Daemon("torrest", os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch()))
+        self._daemon = Daemon(
+            "torrest", os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch()),
+            extra_dirs=(xbmc.translatePath("special://xbmcbin"),))
         self._daemon.ensure_exec_permissions()
         self._port = self._enabled = None
         self._settings_path = os.path.join(kodi.ADDON_DATA, "settings.json")
