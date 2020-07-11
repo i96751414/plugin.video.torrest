@@ -1,3 +1,4 @@
+from xbmc import translatePath
 from xbmcgui import Dialog, WindowXMLDialog, ACTION_PARENT_DIR, ACTION_NAV_BACK, ACTION_PREVIOUS_MENU
 
 from lib.kodi import ADDON_NAME, translate
@@ -64,7 +65,7 @@ class DialogInsert(WindowXMLDialog):
             self._ret_val[self.TYPE_URL] = url
 
     def _set_path(self):
-        fn = assure_unicode(Dialog().browse(1, ADDON_NAME, "files", ".torrent"))
+        fn = assure_unicode(translatePath(Dialog().browse(1, ADDON_NAME, "files", ".torrent")))
         if fn != "":
             self.getControl(self._input_button_id).setLabel(fn)
             self._ret_val[self.TYPE_PATH] = fn

@@ -62,6 +62,7 @@ class DaemonMonitor(xbmc.Monitor):
 
     def _get_kodi_settings(self):
         s = kodi.generate_dict_settings(self._settings_spec, separator=self._settings_separator)[self._settings_prefix]
+        s["download_path"] = xbmc.translatePath(s["download_path"])
         s["torrents_path"] = os.path.join(s["download_path"], "Torrents")
         return s
 
