@@ -16,7 +16,7 @@ from lib.player import TorrestPlayer
 from lib.settings import get_service_ip, get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
     ask_to_delete_torrent, download_after_insert
 
-set_logger(level=logging.INFO)
+set_logger()
 plugin = routing.Plugin()
 api = Torrest(get_service_ip(), get_port())
 

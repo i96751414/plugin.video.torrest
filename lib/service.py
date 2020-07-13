@@ -134,7 +134,7 @@ def handle_first_run():
 
 
 def run():
-    kodi.set_logger(level=logging.INFO)
+    kodi.set_logger()
     handle_first_run()
     try:
         with DaemonMonitor() as monitor:
