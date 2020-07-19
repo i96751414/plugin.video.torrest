@@ -299,9 +299,9 @@ def buffer_and_play(info_hash, file_id):
             last_done = total_done
             progress.update(
                 int(status.buffering_progress),
-                "{} - {:.2f}%".format(get_state_string(status.state), status.buffering_progress),
-                "{} {} {} - {}/s".format(
-                    sizeof_fmt(total_done), translate(30244), sizeof_fmt(status.buffering_total), sizeof_fmt(speed)))
+                "{} - {:.2f}%\n{} {} {} - {}/s\n\n".format(
+                    get_state_string(status.state), status.buffering_progress, sizeof_fmt(total_done),
+                    translate(30244), sizeof_fmt(status.buffering_total), sizeof_fmt(speed)))
 
             if progress.iscanceled():
                 raise PlayError("User canceled buffering")
