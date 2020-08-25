@@ -19,6 +19,10 @@ class PlayerTimeoutError(Exception):
     pass
 
 
+class PlayerUrlError(Exception):
+    pass
+
+
 class Player(object):
     def __init__(self, url=None):
         super(Player, self).__init__()
@@ -28,17 +32,20 @@ class Player(object):
 
     def handle_events(self, timeout=60):
         start_time = time.time()
-        while not self.is_active():
+        while True:
+            if self.is_active():
+                if not self._url:
+                    break
+                playing_file = self._player.getPlayingFile()
+                if playing_file == self._url:
+                    break
+                elif playing_file:
+                    raise PlayerUrlError("Expecting url '%s' but found '%s'. Aborting...", self._url, playing_file)
+
             if 0 < timeout < time.time() - start_time:
                 raise PlayerTimeoutError("Player did not start after {} seconds".format(timeout))
             if self._monitor.waitForAbort(0.5):
                 logging.debug("Received abort request. Aborting...")
-                return
-
-        if self._url is not None:
-            playing_file = self._player.getPlayingFile()
-            if playing_file != self._url:
-                logging.warning("Expecting url '%s' but found '%s'. Aborting...", self._url, playing_file)
                 return
 
         current_event = 0
