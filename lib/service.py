@@ -34,12 +34,14 @@ class DaemonMonitor(xbmc.Monitor):
         self._daemon.ensure_exec_permissions()
         self._port = self._enabled = None
         self._settings_path = os.path.join(kodi.ADDON_DATA, "settings.json")
+        self._log_path = os.path.join(kodi.ADDON_DATA, "torrest.log")
         self._settings_spec = [s for s in kodi.get_all_settings_spec() if s["id"].startswith(
             self._settings_prefix + self._settings_separator)]
         self.onSettingsChanged()
 
     def _start(self):
-        self._daemon.start("-port", str(self._port), "-settings", self._settings_path, level=logging.INFO)
+        self._daemon.start(
+            "-port", str(self._port), "-settings", self._settings_path, level=logging.INFO, path=self._log_path)
 
     def _stop(self):
         self._daemon.stop()

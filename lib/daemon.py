@@ -56,11 +56,12 @@ def windows_restore_file_handles_inheritance(handles):
 
 
 class DefaultDaemonLogger(threading.Thread):
-    def __init__(self, fd, default_level=logging.INFO):
+    def __init__(self, fd, default_level=logging.INFO, path=None):
         super(DefaultDaemonLogger, self).__init__()
         self.daemon = True
         self._fd = fd
         self._default_level = default_level
+        self._file = open(path, "wb") if path else None
 
     def _get_level_and_message(self, line):
         return self._default_level, line.rstrip("\r\n")
@@ -68,6 +69,14 @@ class DefaultDaemonLogger(threading.Thread):
     def run(self):
         for line in iter(self._fd.readline, self._fd.read(0)):
             logging.log(*self._get_level_and_message(bytes_to_str(line)))
+            if self._file:
+                self._file.write(line)
+                self._file.flush()
+
+    def stop(self, timeout=None):
+        if self._file:
+            self._file.close()
+        self.join(timeout)
 
 
 class DaemonLogger(DefaultDaemonLogger):
@@ -190,25 +199,26 @@ class Daemon(object):
                 logging.info("Daemon already terminated")
             self._p = None
 
-    def start_logger(self, level=logging.INFO):
+    def start_logger(self, level=logging.INFO, path=None):
         if self._logger is not None:
             raise ValueError("logger was already started")
         if self._p is None:
             raise ValueError("no process to log")
         logging.info("Starting daemon logger")
-        self._logger = DaemonLogger(self._p.stdout, default_level=level)
+        self._logger = DaemonLogger(self._p.stdout, default_level=level, path=path)
         self._logger.start()
 
     def stop_logger(self):
         if self._logger is not None:
             logging.info("Stopping daemon logger")
-            self._logger.join()
+            self._logger.stop()
             self._logger = None
 
     def start(self, *args, **kwargs):
         level = kwargs.pop("level", logging.INFO)
+        path = kwargs.pop("path", None)
         self.start_daemon(*args, **kwargs)
-        self.start_logger(level=level)
+        self.start_logger(level=level, path=path)
 
     def stop(self):
         self.stop_daemon()
