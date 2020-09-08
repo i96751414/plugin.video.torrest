@@ -21,6 +21,15 @@ Get the [latest release](https://github.com/i96751414/torrest/releases/latest).
 
 Just like any other add-on. No extra steps are required.
 
+## Calling torrest from other addon
+
+One can call torrest from other addons. To do so, simply use torrest API:
+
+|Url|Description|
+|---|-----------|
+|`plugin://plugin.video.torrest/play_magnet?magnet=<magnet>`|Plays the provided `<magnet>`|
+|`plugin://plugin.video.torrest/play_url?url=<url>`|Plays the provided torrent file `<url>`|
+
 ##  Screenshots
 ![screenshots](resources/screenshots/screenshots.gif)
 
