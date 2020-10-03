@@ -146,12 +146,15 @@ def torrents():
             (translate(30211), action(torrent_action, torrent.info_hash, "pause")),
             (translate(30242), action(torrent_action, torrent.info_hash, "remove_torrent")),
             (translate(30212), action(torrent_action, torrent.info_hash, "remove_torrent_and_files")),
+            (translate(30245), action(torrent_action, torrent.info_hash, "torrent_status"))
         ])
         addDirectoryItem(plugin.handle, plugin.url_for(torrent_files, torrent.info_hash), torrent_li, isFolder=True)
 
 
 @plugin.route("/torrents/<info_hash>/<action_str>")
 def torrent_action(info_hash, action_str):
+    needs_refresh = True
+
     if action_str == "stop":
         api.stop_torrent(info_hash)
     elif action_str == "download":
@@ -164,10 +167,21 @@ def torrent_action(info_hash, action_str):
         api.remove_torrent(info_hash, delete=False)
     elif action_str == "remove_torrent_and_files":
         api.remove_torrent(info_hash, delete=True)
+    elif action_str == "torrent_status":
+        torrent_status(info_hash)
+        needs_refresh = False
     else:
         logging.error("Unknown action '%s'", action_str)
-        return
-    refresh()
+        needs_refresh = False
+
+    if needs_refresh:
+        refresh()
+
+
+def torrent_status(info_hash):
+    status = api.torrent_status(info_hash)
+    notification("{:s} ({:.2f}%)".format(get_state_string(status.state), status.progress),
+                 api.torrent_info(info_hash).name, sound=False)
 
 
 @plugin.route("/torrents/<info_hash>")

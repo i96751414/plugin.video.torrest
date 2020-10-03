@@ -403,3 +403,7 @@ msgstr ""
 msgctxt "#30244"
 msgid "of"
 msgstr ""
+
+msgctxt "#30245"
+msgid "Torrent status"
+msgstr ""

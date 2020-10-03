@@ -403,3 +403,7 @@ msgstr "Torrent adicionado com sucesso"
 msgctxt "#30244"
 msgid "of"
 msgstr "de"
+
+msgctxt "#30245"
+msgid "Torrent status"
+msgstr "Status do torrent"
