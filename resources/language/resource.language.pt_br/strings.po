@@ -250,6 +250,10 @@ msgctxt "#30062"
 msgid "Start download after adding torrent"
 msgstr "Iniciar download depois de adicionar torrent"
 
+msgctxt "#30063"
+msgid "Piece wait timeout"
+msgstr "Tempo limite de espera de peça"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"
