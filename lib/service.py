@@ -1,5 +1,6 @@
 import logging
 import os
+import threading
 import time
 
 import requests
@@ -28,6 +29,7 @@ class DaemonMonitor(xbmc.Monitor):
 
     def __init__(self):
         super(DaemonMonitor, self).__init__()
+        self._lock = threading.Lock()
         self._daemon = Daemon(
             "torrest", os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch()),
             extra_dirs=(xbmc.translatePath("special://xbmcbin"),))
@@ -55,7 +57,7 @@ class DaemonMonitor(xbmc.Monitor):
             try:
                 self._request("get", "")
                 if notification:
-                    kodi.notification("Torrest daemon started")
+                    kodi.notification(kodi.translate(30104))
                 return
             except requests.exceptions.ConnectionError:
                 if self.waitForAbort(0.5):
@@ -98,27 +100,59 @@ class DaemonMonitor(xbmc.Monitor):
         return True
 
     def onSettingsChanged(self):
-        port_changed = enabled_changed = False
+        with self._lock:
+            port_changed = enabled_changed = False
 
-        port = get_port()
-        if port != self._port:
-            self._port = port
-            port_changed = True
+            port = get_port()
+            if port != self._port:
+                self._port = port
+                port_changed = True
 
-        enabled = service_enabled()
-        if enabled != self._enabled:
-            self._enabled = enabled
-            enabled_changed = True
+            enabled = service_enabled()
+            if enabled != self._enabled:
+                self._enabled = enabled
+                enabled_changed = True
 
-        if self._enabled:
-            if port_changed and not enabled_changed:
+            if self._enabled:
+                if port_changed and not enabled_changed:
+                    self._stop()
+                if port_changed or enabled_changed:
+                    self._start()
+                    self._wait(timeout=get_daemon_timeout(), notification=True)
+                self._update_daemon_settings()
+            elif enabled_changed:
                 self._stop()
-            if port_changed or enabled_changed:
-                self._start()
-                self._wait(timeout=get_daemon_timeout(), notification=True)
-            self._update_daemon_settings()
-        elif enabled_changed:
-            self._stop()
+
+    def handle_crashes(self, max_crashes=5, max_consecutive_crash_time=20):
+        crash_count = 0
+        last_crash = 0
+
+        while not self.waitForAbort(1):
+            # Initial check to avoid using the lock most of the time
+            if self._daemon.daemon_poll() is None:
+                continue
+
+            with self._lock:
+                if self._enabled and self._daemon.daemon_poll() is not None:
+                    logging.info("Deamon crashed")
+                    kodi.notification(kodi.translate(30105))
+                    self._stop()
+
+                    crash_time = time.time()
+                    time_between_crashes = crash_time - last_crash
+                    if 0 < max_consecutive_crash_time < time_between_crashes:
+                        crash_count = 1
+                    else:
+                        crash_count += 1
+
+                    if last_crash > 0:
+                        logging.info("%s seconds passed since last crash", time_between_crashes)
+                    last_crash = crash_time
+
+                    if crash_count <= max_crashes:
+                        logging.info("Re-starting daemon - %s/%s", crash_count, max_crashes)
+                        self._start()
+                        self._wait(timeout=get_daemon_timeout(), notification=True)
 
     def __enter__(self):
         return self
@@ -140,7 +174,7 @@ def run():
     handle_first_run()
     try:
         with DaemonMonitor() as monitor:
-            monitor.waitForAbort()
+            monitor.handle_crashes()
     except DaemonNotFoundError:
         logging.info("Daemon not found. Aborting service...")
         if service_enabled():

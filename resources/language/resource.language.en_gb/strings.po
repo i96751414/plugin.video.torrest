@@ -271,6 +271,14 @@ msgctxt "#30103"
 msgid "Unable to start Torrest service.\nPlease set the service IP address in settings."
 msgstr ""
 
+msgctxt "#30104"
+msgid "Torrest daemon started"
+msgstr ""
+
+msgctxt "#30105"
+msgid "Torrest daemon crashed"
+msgstr ""
+
 # Plugin
 msgctxt "#30200"
 msgid "Insert file or URL"

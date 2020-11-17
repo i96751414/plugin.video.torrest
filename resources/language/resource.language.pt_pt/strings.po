@@ -271,6 +271,14 @@ msgctxt "#30103"
 msgid "Unable to start Torrest service.\nPlease set the service IP address in settings."
 msgstr "Não foi possível iniciar o serviço Torrest.\nPor favor, defina o endereço IP do serviço nas configurações."
 
+msgctxt "#30104"
+msgid "Torrest daemon started"
+msgstr "Daemon torrest iniciado"
+
+msgctxt "#30105"
+msgid "Torrest daemon crashed"
+msgstr "Daemon torrest falhou"
+
 # Plugin
 msgctxt "#30200"
 msgid "Insert file or URL"

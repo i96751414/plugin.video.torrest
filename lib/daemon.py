@@ -203,6 +203,13 @@ class Daemon(object):
                 logging.info("Daemon already terminated")
             self._p = None
 
+    def daemon_poll(self):
+        return self._p and self._p.poll()
+
+    @property
+    def daemon_running(self):
+        return self._p is not None and self._p.poll() is None
+
     def start_logger(self, level=logging.INFO, path=None):
         if self._logger is not None:
             raise ValueError("logger was already started")
@@ -217,6 +224,10 @@ class Daemon(object):
             logging.info("Stopping daemon logger")
             self._logger.stop()
             self._logger = None
+
+    @property
+    def logger_running(self):
+        return self._logger is not None and self._logger.is_alive()
 
     def start(self, *args, **kwargs):
         level = kwargs.pop("level", logging.INFO)
