@@ -1,5 +1,5 @@
-# Torrest
-[![Build Status](https://travis-ci.org/i96751414/plugin.video.torrest.svg?branch=master)](https://travis-ci.org/i96751414/plugin.video.torrest)
+# plugin.video.torrest
+[![Build Status](https://github.com/i96751414/plugin.video.torrest/workflows/build/badge.svg)](https://github.com/i96751414/plugin.video.torrest/actions?query=workflow%3Abuild)
 
 Another torrent streaming engine for Kodi. It uses the [torrest service](https://github.com/i96751414/torrest), which provides an API specially made for streaming.
 
