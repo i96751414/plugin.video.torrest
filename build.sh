@@ -49,7 +49,7 @@ done
 cd "${script_path}"
 
 function createBaseZip() {
-  git archive --format zip --prefix "${name}/" --output "${1}" HEAD
+  git archive --format zip -9 --prefix "${name}/" --output "${1}" HEAD
 }
 
 function info() {
