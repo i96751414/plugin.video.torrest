@@ -7,8 +7,8 @@ repository="torrest"
 release="latest"
 bin_path="${name}/resources/bin"
 
-script_path="$(dirname "$(realpath "${0}")")"
-build_path="${script_path}/build"
+repo_path="$(dirname "$(dirname "$(realpath "${0}")")")"
+build_path="${repo_path}/build"
 version=$(git describe --tags | cut -c2-)
 if [ -z "${version}" ]; then
   version=dev
@@ -46,7 +46,7 @@ while getopts "r:v:ah" flag; do
   esac
 done
 
-cd "${script_path}"
+cd "${repo_path}"
 
 function createBaseZip() {
   git archive --format zip -9 --prefix "${name}/" --output "${1}" HEAD

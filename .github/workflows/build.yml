@@ -45,7 +45,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build assets
-        run: ./build.sh
+        run: ./scripts/build.sh
 
       - name: Perform release
         run: |

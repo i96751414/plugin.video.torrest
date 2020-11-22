@@ -1,56 +1,4 @@
-def _get_duplicates(lists):
-    seen = set()
-    repeated = set()
-    for values in lists:
-        for value in values:  # set(values)
-            repeated.add(value) if value in seen else seen.add(value)
-    return repeated
-
-
-def _print_extensions(all_extensions, excluded_extensions=()):
-    for ext_type, extensions in all_extensions.items():
-        print("{}_extensions = {}".format(
-            ext_type, tuple(sorted(e for e in extensions if e not in excluded_extensions))))
-
-
-def _print_non_duplicate_extensions(all_extensions, excluded_extensions=()):
-    duplicates = _get_duplicates(all_extensions.values())
-    print("Duplicate extensions: {}".format(duplicates))
-    for ext_type, extensions in all_extensions.items():
-        print("{}_extensions = {}".format(
-            ext_type, tuple(sorted(e for e in extensions if e not in duplicates and e not in excluded_extensions))))
-
-
-def _parse_wiki_formats(excluded_extensions=(".zip",)):
-    import requests
-    import re
-    r = requests.get("https://kodi.wiki/view/Advancedsettings.xml")
-    r.raise_for_status()
-    _print_non_duplicate_extensions({
-        ext_type.lower(): set(e.lower() for e in extensions.split())
-        for ext_type, extensions in re.findall(r"Default extensions for (\w+):.*?<pre>(.+?)</pre>", r.text, re.DOTALL)},
-        excluded_extensions)
-
-
-def _parse_git_formats(excluded_extensions=(".zip",)):
-    import requests
-    import re
-    r = requests.get("https://raw.githubusercontent.com/xbmc/xbmc/master/xbmc/settings/AdvancedSettings.cpp")
-    r.raise_for_status()
-    _print_non_duplicate_extensions({
-        ext_type.lower(): set(e.lower() for e in extensions.split("|"))
-        for ext_type, extensions in re.findall(r'm_(\w+)Extensions\s+=\s+"(.+?)";', r.text)},
-        excluded_extensions)
-
-
-def _get_text_extensions():
-    import requests
-    r = requests.get("https://raw.githubusercontent.com/sindresorhus/text-extensions/master/text-extensions.json")
-    r.raise_for_status()
-    _print_extensions({"text": set("." + ext.lower() for ext in r.json())})
-
-
-videos_extensions = (
+video_extensions = (
     '.001', '.3g2', '.3gp', '.asf', '.asx', '.avc', '.avi', '.avs', '.bdm', '.bdmv', '.bin', '.bivx', '.dat', '.divx',
     '.dv', '.dvr-ms', '.evo', '.f4v', '.fli', '.flv', '.h264', '.img', '.iso', '.m2t', '.m2ts', '.m2v', '.m3u8', '.m4v',
     '.mk3d', '.mkv', '.mov', '.mp4', '.mpeg', '.mpg', '.mpl', '.mpls', '.mts', '.nrg', '.nuv', '.ogm', '.ogv', '.pva',
@@ -63,10 +11,10 @@ music_extensions = (
     '.mpc', '.mpdsp', '.mpp', '.mpt', '.mss', '.oga', '.ogg', '.opus', '.rma', '.rmt', '.rsd', '.sap', '.sfx', '.shn',
     '.spt', '.tak', '.tm2', '.tm8', '.tmc', '.tta', '.uni', '.waa', '.wam', '.wav', '.wma', '.wv', '.wvs', '.xwav')
 
-pictures_extensions = (
+picture_extensions = (
     '.apng', '.bmp', '.cbz', '.gif', '.ico', '.jp2', '.jpeg', '.jpg', '.pcx', '.png', '.tga', '.tif', '.tiff', '.webp')
 
-subtitles_extensions = (
+subtitle_extensions = (
     '.aqt', '.ass', '.idx', '.jss', '.rt', '.smi', '.srt', '.ssa', '.sub', '.text', '.txt', '.utf', '.utf-8', '.utf8')
 
 text_extensions = (
@@ -104,7 +52,7 @@ def _contains_extension(s, extensions):
 
 
 def is_video(s):
-    return _contains_extension(s, videos_extensions)
+    return _contains_extension(s, video_extensions)
 
 
 def is_music(s):
@@ -112,11 +60,11 @@ def is_music(s):
 
 
 def is_picture(s):
-    return _contains_extension(s, pictures_extensions)
+    return _contains_extension(s, picture_extensions)
 
 
 def is_subtitle(s):
-    return _contains_extension(s, subtitles_extensions)
+    return _contains_extension(s, subtitle_extensions)
 
 
 def is_text(s):
