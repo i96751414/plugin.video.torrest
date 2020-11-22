@@ -136,6 +136,14 @@ class Torrest(object):
         for f in self._get("/torrents/{}/files".format(info_hash), params={"status": self._bool_str(status)}).json():
             yield from_dict(f, File, status=lambda v: from_dict(v, FileStatus))
 
+    def file_info(self, info_hash, file_id):
+        """
+        :type info_hash: str
+        :type file_id: int
+        :rtype: FileInfo
+        """
+        return from_dict(self._get("/torrents/{}/files/{}/info".format(info_hash, file_id)).json(), FileInfo)
+
     def file_status(self, info_hash, file_id):
         """
         :type info_hash: str

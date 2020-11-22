@@ -11,7 +11,7 @@ from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 from lib.api import Torrest
 from lib.dialog import DialogInsert
 from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture
-from lib.kodi_formats import is_music, is_picture, is_video
+from lib.kodi_formats import is_music, is_picture, is_video, is_text
 from lib.player import TorrestPlayer
 from lib.settings import get_service_ip, get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
     ask_to_delete_torrent, download_after_insert
@@ -197,6 +197,8 @@ def torrent_files(info_hash):
         if is_picture(f.name):
             url = plugin.url_for(display_picture, info_hash, f.id)
             file_li.setInfo("pictures", info_labels)
+        elif is_text(f.name):
+            url = plugin.url_for(display_text, info_hash, f.id)
         else:
             url = serve_url
             if is_video(f.name):
@@ -226,6 +228,12 @@ def torrent_files(info_hash):
 @plugin.route("/display_picture/<info_hash>/<file_id>")
 def display_picture(info_hash, file_id):
     show_picture(api.serve_url(info_hash, file_id))
+
+
+@plugin.route("/display_text/<info_hash>/<file_id>")
+def display_text(info_hash, file_id):
+    r = requests.get(api.serve_url(info_hash, file_id))
+    Dialog().textviewer(api.file_info(info_hash, file_id).name, r.text)
 
 
 @plugin.route("/play_url")
