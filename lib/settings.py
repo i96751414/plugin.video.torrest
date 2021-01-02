@@ -39,3 +39,7 @@ def get_service_ip():
 
 def download_after_insert():
     return get_boolean_setting("download_after_insert")
+
+
+def get_files_order():
+    return get_int_setting("files_order")

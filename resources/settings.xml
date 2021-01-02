@@ -6,6 +6,7 @@
         <setting id="timeout" type="number" label="30002" default="20" enable="eq(-1,true)" subsetting="true"/>
         <setting id="service_ip" type="ipaddress" label="30060" default="127.0.0.1" enable="eq(-2,false)"/>
         <setting id="port" type="number" label="30001" default="61235"/>
+        <setting id="files_order" type="enum" label="30064" default="0" lvalues="30065|30066|30067"/>
         <setting id="overlay" type="bool" label="30004" default="true"/>
         <setting id="buffer_timeout" type="slider" label="30003" option="int" range="0,30,600" default="300"/>
         <setting id="min_candidate_size" type="slider" label="30055" option="int" range="0,10,200" default="100"/>

@@ -14,7 +14,7 @@ from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger
 from lib.kodi_formats import is_music, is_picture, is_video, is_text
 from lib.player import TorrestPlayer
 from lib.settings import get_service_ip, get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
-    ask_to_delete_torrent, download_after_insert
+    ask_to_delete_torrent, download_after_insert, get_files_order
 
 set_logger()
 plugin = routing.Plugin()
@@ -184,10 +184,20 @@ def torrent_status(info_hash):
                  api.torrent_info(info_hash).name, sound=False)
 
 
+def sort_files(files):
+    order = get_files_order()
+    if order == 1:
+        files.sort(key=lambda k: k.name)
+    elif order == 2:
+        files.sort(key=lambda k: k.length)
+
+
 @plugin.route("/torrents/<info_hash>")
 @check_directory
 def torrent_files(info_hash):
-    for f in api.files(info_hash):
+    files = api.files(info_hash)
+    sort_files(files)
+    for f in files:
         serve_url = api.serve_url(info_hash, f.id)
         file_li = list_item(f.name, "download.png")
         file_li.setPath(serve_url)
@@ -284,6 +294,7 @@ def play_info_hash(info_hash, timeout=30, buffer=True):
     elif len(candidate_files) == 1:
         chosen_file = candidate_files[0]
     else:
+        sort_files(candidate_files)
         chosen_index = Dialog().select(translate(30240), [f.name for f in candidate_files])
         if chosen_index < 0:
             raise PlayError("User canceled dialog select")

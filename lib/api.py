@@ -95,8 +95,8 @@ class Torrest(object):
         :type status: bool
         :rtype: typing.List[Torrent]
         """
-        for t in self._get("/torrents", params={"status": self._bool_str(status)}).json():
-            yield from_dict(t, Torrent, status=lambda v: from_dict(v, TorrentStatus))
+        return [from_dict(t, Torrent, status=lambda v: from_dict(v, TorrentStatus))
+                for t in self._get("/torrents", params={"status": self._bool_str(status)}).json()]
 
     def pause_torrent(self, info_hash):
         self._get("/torrents/{}/pause".format(info_hash))
@@ -133,8 +133,9 @@ class Torrest(object):
         :type status: bool
         :rtype: typing.List[File]
         """
-        for f in self._get("/torrents/{}/files".format(info_hash), params={"status": self._bool_str(status)}).json():
-            yield from_dict(f, File, status=lambda v: from_dict(v, FileStatus))
+        return [from_dict(f, File, status=lambda v: from_dict(v, FileStatus))
+                for f in self._get("/torrents/{}/files".format(info_hash),
+                                   params={"status": self._bool_str(status)}).json()]
 
     def file_info(self, info_hash, file_id):
         """

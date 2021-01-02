@@ -254,6 +254,22 @@ msgctxt "#30063"
 msgid "Piece wait timeout"
 msgstr ""
 
+msgctxt "#30064"
+msgid "Order files by"
+msgstr ""
+
+msgctxt "#30065"
+msgid "ID"
+msgstr ""
+
+msgctxt "#30066"
+msgid "Name"
+msgstr ""
+
+msgctxt "#30067"
+msgid "Size"
+msgstr ""
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"

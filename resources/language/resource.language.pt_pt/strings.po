@@ -254,6 +254,22 @@ msgctxt "#30063"
 msgid "Piece wait timeout"
 msgstr "Tempo limite de espera de peça"
 
+msgctxt "#30064"
+msgid "Order files by"
+msgstr "Ordernar ficheiros por"
+
+msgctxt "#30065"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "#30066"
+msgid "Name"
+msgstr "Nome"
+
+msgctxt "#30067"
+msgid "Size"
+msgstr "Tamanho"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"
