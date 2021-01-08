@@ -15,7 +15,7 @@ Minimum supported Kodi version: 16 (Jarvis)
 
 ## Download
 
-Get the [latest release](https://github.com/i96751414/torrest/releases/latest).
+Get the [latest release](https://github.com/i96751414/plugin.video.torrest/releases/latest).  **Do NOT use the `Download ZIP` button on this page.**
 
 ## Installation
 
