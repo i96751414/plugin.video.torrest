@@ -1,0 +1,437 @@
+# Kodi Media Center language file
+# Addon Name: Torrest
+# Addon id: plugin.video.torrest
+# Addon Provider: i96751414
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: Spanish\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Settings
+msgctxt "#30000"
+msgid "General"
+msgstr "General"
+
+msgctxt "#30001"
+msgid "Service port"
+msgstr "Puerto de servicio"
+
+msgctxt "#30002"
+msgid "Daemon start timeout"
+msgstr "Tiempo de espera de inicio del demonio"
+
+msgctxt "#30003"
+msgid "Buffering timeout"
+msgstr "Tiempo de espera de almacenamiento en búfer"
+
+msgctxt "#30004"
+msgid "Show status overlay"
+msgstr "Mostrar superposición de estado"
+
+msgctxt "#30010"
+msgid "Download path"
+msgstr "Ruta de descarga"
+
+msgctxt "#30011"
+msgid "Connections limit"
+msgstr "Límite de conexiones"
+
+msgctxt "#30012"
+msgid "Buffer size (B)"
+msgstr "Tamaño de búfer (B)"
+
+msgctxt "#30013"
+msgid "Listen port"
+msgstr "Puerto de escucha"
+
+msgctxt "#30014"
+msgid "Listen interfaces"
+msgstr "Escuchar interfaces"
+
+msgctxt "#30015"
+msgid "Outgoing interfaces"
+msgstr "Interfaces salientes"
+
+msgctxt "#30016"
+msgid "Disable DHT"
+msgstr "Desactivar DHT"
+
+msgctxt "#30017"
+msgid "Disable UPNP"
+msgstr "Deshabilitar UPNP"
+
+msgctxt "#30018"
+msgid "User-Agent"
+msgstr "User-Agent"
+
+msgctxt "#30019"
+msgid "Default"
+msgstr "Default"
+
+msgctxt "#30020"
+msgid "Libtorrent"
+msgstr "Libtorrent"
+
+msgctxt "#30021"
+msgid "Libtorrent Rasterbar 1.1.0"
+msgstr "Libtorrent Rasterbar 1.1.0"
+
+msgctxt "#30022"
+msgid "BitTorrent 7.5.0"
+msgstr "BitTorrent 7.5.0"
+
+msgctxt "#30023"
+msgid "BitTorrent 7.4.3"
+msgstr "BitTorrent 7.4.3"
+
+msgctxt "#30024"
+msgid "uTorrent 3.4.9"
+msgstr "uTorrent 3.4.9"
+
+msgctxt "#30025"
+msgid "uTorrent 3.2.0"
+msgstr "uTorrent 3.2.0"
+
+msgctxt "#30026"
+msgid "uTorrent 2.2.1"
+msgstr "uTorrent 2.2.1"
+
+msgctxt "#30027"
+msgid "Transmission 2.92"
+msgstr "Transmission 2.92"
+
+msgctxt "#30028"
+msgid "Deluge 1.3.6.0"
+msgstr "Deluge 1.3.6.0"
+
+msgctxt "#30029"
+msgid "Deluge 1.3.12.0"
+msgstr "Deluge 1.3.12.0"
+
+msgctxt "#30030"
+msgid "Vuze 5.7.3.0"
+msgstr "Vuze 5.7.3.0"
+
+msgctxt "#30031"
+msgid "Session saving frequency (seconds)"
+msgstr "Frecuencia de guardado de sesiones (segundos)"
+
+msgctxt "#30032"
+msgid "Enable tuned storage settings"
+msgstr "Habilitar la configuración de almacenamiento ajustada"
+
+msgctxt "#30033"
+msgid "Limit rates after buffering"
+msgstr "Limitar las tasas después del almacenamiento en búfer"
+
+msgctxt "#30034"
+msgid "Max download rate (B/s)"
+msgstr "Tasa de descarga máxima (B / s)"
+
+msgctxt "#30035"
+msgid "Max upload rate (B/s)"
+msgstr "Tasa de carga máxima (B / s)"
+
+msgctxt "#30036"
+msgid "Share ratio limit (percent)"
+msgstr "Límite de proporción de participación (porcentaje)"
+
+msgctxt "#30037"
+msgid "Seed time ratio limit (percent)"
+msgstr "Límite de proporción de tiempo de semilla (porcentaje)"
+
+msgctxt "#30038"
+msgid "Seed time limit (seconds)"
+msgstr "Límite de tiempo de semilla (segundos)"
+
+msgctxt "#30039"
+msgid "Encryption policy"
+msgstr "Política de cifrado"
+
+msgctxt "#30040"
+msgid "Enabled"
+msgstr "Activado"
+
+msgctxt "#30041"
+msgid "Disabled"
+msgstr "Desactivado"
+
+msgctxt "#30042"
+msgid "Forced"
+msgstr "Forzado"
+
+msgctxt "#30043"
+msgid "Proxy"
+msgstr "Proxy"
+
+msgctxt "#30044"
+msgid "Proxy type"
+msgstr "Tipo de Proxy"
+
+msgctxt "#30045"
+msgid "SOCKS4"
+msgstr "SOCKS4"
+
+msgctxt "#30046"
+msgid "SOCKS5"
+msgstr "SOCKS5"
+
+msgctxt "#30047"
+msgid "SOCKS5 Password"
+msgstr "Contraseña SOCKS5"
+
+msgctxt "#30048"
+msgid "HTTP"
+msgstr "HTTP"
+
+msgctxt "#30049"
+msgid "HTTP Password"
+msgstr "Contraseña HTTP"
+
+msgctxt "#30050"
+msgid "i2p"
+msgstr "i2p"
+
+msgctxt "#30051"
+msgid "Host"
+msgstr "Host"
+
+msgctxt "#30052"
+msgid "Port"
+msgstr "Puerto"
+
+msgctxt "#30053"
+msgid "Login"
+msgstr "Iniciar sesión"
+
+msgctxt "#30054"
+msgid "Password"
+msgstr "Contraseña"
+
+msgctxt "#30055"
+msgid "Minimum video candidate size (MB)"
+msgstr "Tamaño mínimo de video candidato (MB)"
+
+msgctxt "#30056"
+msgid "Ask to remove torrent after streaming"
+msgstr "Preguntar eliminar torrent después de la transmisión"
+
+msgctxt "#30057"
+msgid "Service log level"
+msgstr "Nivel de registro de servicio"
+
+msgctxt "#30058"
+msgid "Alerts log level"
+msgstr "Nivel de registro de alertas"
+
+msgctxt "#30059"
+msgid "Enable Torrest service"
+msgstr "Habilitar el servicio Torrest"
+
+msgctxt "#30060"
+msgid "Torrest sevice IP address"
+msgstr "Habilitar el servicio Torrest"
+
+msgctxt "#30061"
+msgid "Disabled"
+msgstr "Desactivado"
+
+msgctxt "#30062"
+msgid "Start download after adding torrent"
+msgstr "Iniciar la descarga después de agregar torrent"
+
+msgctxt "#30063"
+msgid "Piece wait timeout"
+msgstr "Tiempo de espera de pieza"
+
+msgctxt "#30064"
+msgid "Order files by"
+msgstr "Ordenar archivos por"
+
+msgctxt "#30065"
+msgid "ID"
+msgstr "ID"
+
+msgctxt "#30066"
+msgid "Name"
+msgstr "Nombre"
+
+msgctxt "#30067"
+msgid "Size"
+msgstr "Tamaño"
+
+# Service
+msgctxt "#30100"
+msgid "Torrest - first run"
+msgstr "Torrest - primera ejecución"
+
+msgctxt "#30101"
+msgid "Please set the download path so you can properly use Torrest. Feel free to also change any other settings."
+msgstr "Establezca la ruta de descarga para poder utilizar Torrest correctamente. Siéntase libre también de cambiar cualquier otra configuración."
+
+msgctxt "#30102"
+msgid "Error..."
+msgstr "Error..."
+
+msgctxt "#30103"
+msgid "Unable to start Torrest service.\nPlease set the service IP address in settings."
+msgstr "No se puede iniciar el servicio Torrest. \nPor favor, configure la dirección IP del servicio en la configuración."
+
+msgctxt "#30104"
+msgid "Torrest daemon started"
+msgstr "El demonio Torrest iniciado"
+
+msgctxt "#30105"
+msgid "Torrest daemon crashed"
+msgstr "El demonio de Torrest falló"
+
+# Plugin
+msgctxt "#30200"
+msgid "Insert file or URL"
+msgstr "Insertar archivo o URL"
+
+msgctxt "#30201"
+msgid "URL"
+msgstr "URL"
+
+msgctxt "#30202"
+msgid "File"
+msgstr "Archivo"
+
+msgctxt "#30203"
+msgid "Insert URL:"
+msgstr "Insertar URL:"
+
+msgctxt "#30204"
+msgid "File path:"
+msgstr "Ruta de archivo:"
+
+msgctxt "#30205"
+msgid "OK"
+msgstr "OK"
+
+msgctxt "#30206"
+msgid "Torrents"
+msgstr "Torrents"
+
+msgctxt "#30207"
+msgid "Add torrent/magnet"
+msgstr "Agregar torrent/magnet"
+
+msgctxt "#30208"
+msgid "Stop downloading"
+msgstr "Parar descarga"
+
+msgctxt "#30209"
+msgid "Download"
+msgstr "Download"
+
+msgctxt "#30210"
+msgid "Resume"
+msgstr "Reanudar"
+
+msgctxt "#30211"
+msgid "Pause"
+msgstr "Parar"
+
+msgctxt "#30212"
+msgid "Remove torrent and files"
+msgstr "Eliminar torrent y archivos"
+
+msgctxt "#30220"
+msgid "Queued"
+msgstr "Puesto en cola"
+
+msgctxt "#30221"
+msgid "Checking"
+msgstr "Comprobando"
+
+msgctxt "#30222"
+msgid "Finding"
+msgstr "Buscando"
+
+msgctxt "#30223"
+msgid "Downloading"
+msgstr "Descargando"
+
+msgctxt "#30224"
+msgid "Finished"
+msgstr "Acabado"
+
+msgctxt "#30225"
+msgid "Seeding"
+msgstr "Enviando"
+
+msgctxt "#30226"
+msgid "Allocating"
+msgstr "Asignar"
+
+msgctxt "#30227"
+msgid "Checking resume data"
+msgstr "Comprobando los datos"
+
+msgctxt "#30228"
+msgid "Paused"
+msgstr "Parado"
+
+msgctxt "#30229"
+msgid "Buffering"
+msgstr "Buffering"
+
+msgctxt "#30230"
+msgid "Unknown"
+msgstr "Desconocido"
+
+msgctxt "#30235"
+msgid "Buffer and play"
+msgstr "Buffer y reproducir"
+
+msgctxt "#30236"
+msgid "Timeout reached"
+msgstr "Se alcanzó el tiempo de espera"
+
+msgctxt "#30237"
+msgid "Waiting for metadata"
+msgstr "Esperando metadata"
+
+msgctxt "#30238"
+msgid "Timed out waiting for metadata"
+msgstr "Se agotó el tiempo de espera de los metadatos"
+
+msgctxt "#30239"
+msgid "No candidate files found"
+msgstr "No se encontraron archivos candidatos"
+
+msgctxt "#30240"
+msgid "Please choose what file to play"
+msgstr "Elija qué archivo reproducir"
+
+msgctxt "#30241"
+msgid "Do you want to remove the torrent?"
+msgstr "¿Quieres eliminar el torrent?"
+
+msgctxt "#30242"
+msgid "Remove torrent"
+msgstr "Eliminar torrent"
+
+msgctxt "#30243"
+msgid "Torrent added successfully"
+msgstr "Torrent añadido con éxito"
+
+msgctxt "#30244"
+msgid "of"
+msgstr "de"
+
+msgctxt "#30245"
+msgid "Torrent status"
+msgstr "Estado de torrent"
