@@ -38,3 +38,11 @@ else:
         if isinstance(s, unicode):  # noqa
             s = s.encode("utf-8")
         return s
+
+
+def sizeof_fmt(num, suffix="B", divisor=1000.0):
+    for unit in ("", "k", "M", "G", "T", "P", "E", "Z"):
+        if abs(num) < divisor:
+            return "{:.2f}{}{}".format(num, unit, suffix)
+        num /= divisor
+    return "{:.2f}{}{}".format(num, "Y", suffix)

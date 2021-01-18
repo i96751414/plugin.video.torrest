@@ -15,6 +15,7 @@ from lib.kodi_formats import is_music, is_picture, is_video, is_text
 from lib.player import TorrestPlayer
 from lib.settings import get_service_ip, get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
     ask_to_delete_torrent, download_after_insert, get_files_order
+from lib.utils import sizeof_fmt
 
 set_logger()
 plugin = routing.Plugin()
@@ -89,14 +90,6 @@ def get_state_string(state):
     if 0 <= state <= 9:
         return translate(30220 + state)
     return translate(30230)
-
-
-def sizeof_fmt(num, suffix="B", divisor=1000.0):
-    for unit in ("", "k", "M", "G", "T", "P", "E", "Z"):
-        if abs(num) < divisor:
-            return "{:.2f}{}{}".format(num, unit, suffix)
-        num /= divisor
-    return "{:.2f}{}{}".format(num, "Y", suffix)
 
 
 def get_status_labels(info_hash):

@@ -2,6 +2,17 @@ from collections import namedtuple
 
 import requests
 
+STATUS_QUEUED = 0
+STATUS_CHECKING = 1
+STATUS_FINDING = 2
+STATUS_DOWNLOADING = 3
+STATUS_FINISHED = 4
+STATUS_SEEDING = 5
+STATUS_ALLOCATING = 6
+STATUS_CHECKING_RESUME_DATA = 7
+STATUS_PAUSED = 8
+STATUS_BUFFERING = 9
+
 TorrentStatus = namedtuple("TorrentStatus", [
     "active_time",  # type:int
     "all_time_download",  # type:int

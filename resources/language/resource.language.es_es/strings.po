@@ -270,6 +270,10 @@ msgctxt "#30067"
 msgid "Size"
 msgstr "Tamaño"
 
+msgctxt "#30068"
+msgid "Show background progress"
+msgstr "Mostrar progreso en segundo plano"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"
@@ -294,6 +298,10 @@ msgstr "El demonio Torrest iniciado"
 msgctxt "#30105"
 msgid "Torrest daemon crashed"
 msgstr "El demonio de Torrest falló"
+
+msgctxt "#30106"
+msgid "Total"
+msgstr "Total"
 
 # Plugin
 msgctxt "#30200"

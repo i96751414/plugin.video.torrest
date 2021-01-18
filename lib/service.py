@@ -8,9 +8,12 @@ import xbmc
 import xbmcgui
 
 from lib import kodi
+from lib.api import Torrest, STATUS_FINISHED, STATUS_SEEDING, STATUS_PAUSED
 from lib.daemon import Daemon, DaemonNotFoundError
 from lib.os_platform import get_platform_arch
-from lib.settings import get_port, get_daemon_timeout, service_enabled, set_service_enabled
+from lib.settings import get_port, get_daemon_timeout, service_enabled, set_service_enabled, get_service_ip, \
+    show_background_progress
+from lib.utils import sizeof_fmt
 
 
 class AbortRequestedError(Exception):
@@ -162,6 +165,71 @@ class DaemonMonitor(xbmc.Monitor):
         return exc_type is AbortRequestedError
 
 
+class DownloadProgress(xbmc.Monitor, threading.Thread):
+    def __init__(self):
+        super(DownloadProgress, self).__init__()
+        self._api = self._enabled = self._dialog = None
+        self._index = 0
+        self.onSettingsChanged()
+
+    def run(self):
+        while True:
+            if self._enabled:
+                try:
+                    self._update_progress()
+                except requests.exceptions.ConnectionError:
+                    self._close_dialog()
+                    logging.error("Failed to update background progress")
+            else:
+                self._close_dialog()
+
+            if self.waitForAbort(5):
+                break
+
+        self._close_dialog()
+
+    def _update_progress(self):
+        torrents = [t for t in self._api.torrents() if t.status.state not in (
+            STATUS_FINISHED, STATUS_SEEDING, STATUS_PAUSED)]
+        torrents_count = len(torrents)
+
+        if torrents_count > 0:
+            if self._index >= torrents_count:
+                download_rate = sum(t.status.download_rate for t in torrents)
+                upload_rate = sum(t.status.upload_rate for t in torrents)
+                progress = sum(t.status.progress for t in torrents) / torrents_count
+                name = kodi.translate(30106)
+                self._index = 0
+            else:
+                download_rate = torrents[self._index].status.download_rate
+                upload_rate = torrents[self._index].status.upload_rate
+                progress = torrents[self._index].status.progress
+                name = torrents[self._index].name
+                if len(name) > 30:
+                    name = name[:30] + "..."
+                self._index += 1
+
+            message = "{} - D:{}/s U:{}/s".format(name, sizeof_fmt(download_rate), sizeof_fmt(upload_rate))
+            self._get_dialog().update(int(progress), kodi.ADDON_NAME, message)
+        else:
+            self._close_dialog()
+
+    def _get_dialog(self):
+        if self._dialog is None:
+            self._dialog = xbmcgui.DialogProgressBG()
+            self._dialog.create(kodi.ADDON_NAME)
+        return self._dialog
+
+    def _close_dialog(self):
+        if self._dialog is not None:
+            self._dialog.close()
+            self._dialog = None
+
+    def onSettingsChanged(self):
+        self._api = Torrest(get_service_ip(), get_port())
+        self._enabled = show_background_progress()
+
+
 @kodi.once("migrated")
 def handle_first_run():
     logging.info("Handling first run")
@@ -172,6 +240,9 @@ def handle_first_run():
 def run():
     kodi.set_logger()
     handle_first_run()
+    progress = DownloadProgress()
+    progress.start()
+
     try:
         with DaemonMonitor() as monitor:
             monitor.handle_crashes()
@@ -181,3 +252,5 @@ def run():
             set_service_enabled(False)
             xbmcgui.Dialog().ok(kodi.ADDON_NAME, kodi.translate(30103))
             kodi.open_settings()
+
+    progress.join()

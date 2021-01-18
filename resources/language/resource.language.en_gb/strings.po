@@ -270,6 +270,10 @@ msgctxt "#30067"
 msgid "Size"
 msgstr ""
 
+msgctxt "#30068"
+msgid "Show background progress"
+msgstr ""
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"
@@ -293,6 +297,10 @@ msgstr ""
 
 msgctxt "#30105"
 msgid "Torrest daemon crashed"
+msgstr ""
+
+msgctxt "#30106"
+msgid "Total"
 msgstr ""
 
 # Plugin

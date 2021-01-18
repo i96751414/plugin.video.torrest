@@ -43,3 +43,7 @@ def download_after_insert():
 
 def get_files_order():
     return get_int_setting("files_order")
+
+
+def show_background_progress():
+    return get_boolean_setting("show_bg_progress")
