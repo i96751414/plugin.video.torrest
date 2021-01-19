@@ -256,6 +256,14 @@ def play_magnet(magnet, buffer=True):
     play_info_hash(info_hash, buffer=buffer)
 
 
+@plugin.route("/play_path")
+@check_playable
+@query_arg("path")
+def play_file(path, buffer=True):
+    info_hash = api.add_torrent(path, ignore_duplicate=True)
+    play_info_hash(info_hash, buffer=buffer)
+
+
 @plugin.route("/play_info_hash/<info_hash>")
 @check_playable
 def play_info_hash(info_hash, timeout=30, buffer=True):
