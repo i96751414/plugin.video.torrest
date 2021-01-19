@@ -29,6 +29,7 @@ One can call torrest from other addons. To do so, simply use torrest API:
 |---|-----------|
 |`plugin://plugin.video.torrest/play_magnet?magnet=<magnet>`|Plays the provided `<magnet>`|
 |`plugin://plugin.video.torrest/play_url?url=<url>`|Plays the provided torrent file `<url>`|
+|`plugin://plugin.video.torrest/play_path?path=<path>`|Plays the provided torrent file path `<path>`|
 
 ##  Screenshots
 ![screenshots](resources/screenshots/screenshots.gif)
