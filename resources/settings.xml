@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <!-- General -->
-    <category label="30000">
+    <category label="Torrest">
         <setting id="service_enabled" type="bool" label="30059" default="true"/>
         <setting id="timeout" type="number" label="30002" default="20" enable="eq(-1,true)" subsetting="true"/>
         <setting id="service_ip" type="ipaddress" label="30060" default="127.0.0.1" enable="eq(-2,false)"/>
@@ -15,31 +14,44 @@
         <setting id="download_after_insert" type="bool" label="30062" default="false"/>
         <setting id="migrated" type="bool" visible="false" default="false"/>
     </category>
-    <category label="BitTorrent">
+    <!-- General -->
+    <category label="30000">
         <setting id="s:download_path" type="folder" source="auto" option="writeable" label="30010"/>
-        <setting id="s:connections_limit" type="number" label="30011" default="0"/>
         <setting id="s:buffer_size" type="number" label="30012" default="20971520"/>
         <setting id="s:listen_port" type="number" label="30013" default="6889"/>
         <setting id="s:listen_interfaces" type="text" label="30014" default=""/>
         <setting id="s:outgoing_interfaces" type="text" label="30015" default=""/>
-        <setting id="s:disable_dht" type="bool" label="30016" default="false"/>
-        <setting id="s:disable_upnp" type="bool" label="30017" default="false"/>
         <setting id="s:user_agent" type="enum" label="30018"
                  lvalues="30019|30020|30021|30022|30023|30024|30025|30026|30027|30028|30029|30030"/>
+        <setting id="s:disable_dht" type="bool" label="30016" default="false"/>
+        <setting id="s:disable_upnp" type="bool" label="30017" default="false"/>
+        <setting id="s:disable_natpmp" type="bool" label="30069" default="false"/>
+        <setting id="s:disable_lsd" type="bool" label="30070" default="false"/>
         <setting id="s:session_save" type="slider" label="30031" option="int" range="10,10,120" default="30"/>
-        <setting id="s:piece_wait_timeout" type="slider" label="30063" option="int" range="0,10,120" default="60"/>
         <setting id="s:tuned_storage" type="bool" label="30032" default="false"/>
+        <setting id="s:encryption_policy" type="enum" label="30039" lvalues="30040|30041|30042"/>
+        <setting id="s:service_log_level" type="enum" label="30057" values="CRITICAL|ERROR|WARNING|NOTICE|INFO|DEBUG"
+                 default="4"/>
+        <setting id="s:alerts_log_level" type="enum" label="30058" values="CRITICAL|ERROR|WARNING|NOTICE|INFO|DEBUG"
+                 default="0"/>
+    </category>
+    <!-- Limits -->
+    <category label="30078">
+        <setting id="s:connections_limit" type="number" label="30011" default="0"/>
+        <setting id="s:piece_wait_timeout" type="slider" label="30063" option="int" range="0,10,120" default="60"/>
         <setting id="s:limit_after_buffering" type="bool" label="30033" default="false"/>
         <setting id="s:max_download_rate" type="number" label="30034" default="0"/>
         <setting id="s:max_upload_rate" type="number" label="30035" default="0"/>
         <setting id="s:share_ratio_limit" type="number" label="30036" default="0"/>
         <setting id="s:seed_time_ratio_limit" type="number" label="30037" default="0"/>
         <setting id="s:seed_time_limit" type="number" label="30038" default="0"/>
-        <setting id="s:encryption_policy" type="enum" label="30039" lvalues="30040|30041|30042"/>
-        <setting id="s:service_log_level" type="enum" label="30057" values="CRITICAL|ERROR|WARNING|NOTICE|INFO|DEBUG"
-                 default="4"/>
-        <setting id="s:alerts_log_level" type="enum" label="30058" values="CRITICAL|ERROR|WARNING|NOTICE|INFO|DEBUG"
-                 default="0"/>
+        <setting id="s:active_downloads_limit" type="number" label="30071" default="3"/>
+        <setting id="s:active_seeds_limit" type="number" label="30072" default="5"/>
+        <setting id="s:active_checking_limit" type="number" label="30073" default="1"/>
+        <setting id="s:active_dht_limit" type="number" label="30074" default="88"/>
+        <setting id="s:active_tracker_limit" type="number" label="30075" default="1600"/>
+        <setting id="s:active_lsd_limit" type="number" label="30076" default="60"/>
+        <setting id="s:active_limit" type="number" label="30077" default="500"/>
     </category>
     <!-- Proxy -->
     <category label="30043">

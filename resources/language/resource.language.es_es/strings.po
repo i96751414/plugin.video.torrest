@@ -64,7 +64,7 @@ msgstr "Interfaces salientes"
 
 msgctxt "#30016"
 msgid "Disable DHT"
-msgstr "Desactivar DHT"
+msgstr "Deshabilitar DHT"
 
 msgctxt "#30017"
 msgid "Disable UPNP"
@@ -273,6 +273,46 @@ msgstr "Tamaño"
 msgctxt "#30068"
 msgid "Show background progress"
 msgstr "Mostrar progreso en segundo plano"
+
+msgctxt "#30069"
+msgid "Disable NAT-PMP"
+msgstr "Deshabilitar NAT-PMP"
+
+msgctxt "#30070"
+msgid "Disable LSD"
+msgstr "Deshabilitar LSD"
+
+msgctxt "#30071"
+msgid "Maximum number of simultaneous downloading torrents"
+msgstr "Número máximo de torrents descargando simultáneamente"
+
+msgctxt "#30072"
+msgid "Maximum number of simultaneous seeding torrents"
+msgstr "Número máximo de torrents a enviar simultáneamente"
+
+msgctxt "#30073"
+msgid "Maximum number of simultaneous checking torrents"
+msgstr "Número máximo de torrents a comprobar simultáneamente"
+
+msgctxt "#30074"
+msgid "Maximum number of torrents to announce to the DHT"
+msgstr "Número máximo de torrents para anunciar a DHT"
+
+msgctxt "#30075"
+msgid "Maximum number of torrents to announce to their trackers"
+msgstr "Número máximo de torrents para anunciar a sus trackers"
+
+msgctxt "#30076"
+msgid "Maximum number of torrents to announce to local network"
+msgstr "Número máximo de torrents para anunciar en la red local"
+
+msgctxt "#30077"
+msgid "Maximum number of active (auto managed) torrents"
+msgstr "Número máximo de torrents activos (administrados automáticamente)"
+
+msgctxt "#30078"
+msgid "Limits"
+msgstr "Limites"
 
 # Service
 msgctxt "#30100"

@@ -274,6 +274,46 @@ msgctxt "#30068"
 msgid "Show background progress"
 msgstr ""
 
+msgctxt "#30069"
+msgid "Disable NAT-PMP"
+msgstr ""
+
+msgctxt "#30070"
+msgid "Disable LSD"
+msgstr ""
+
+msgctxt "#30071"
+msgid "Maximum number of simultaneous downloading torrents"
+msgstr ""
+
+msgctxt "#30072"
+msgid "Maximum number of simultaneous seeding torrents"
+msgstr ""
+
+msgctxt "#30073"
+msgid "Maximum number of simultaneous checking torrents"
+msgstr ""
+
+msgctxt "#30074"
+msgid "Maximum number of torrents to announce to the DHT"
+msgstr ""
+
+msgctxt "#30075"
+msgid "Maximum number of torrents to announce to their trackers"
+msgstr ""
+
+msgctxt "#30076"
+msgid "Maximum number of torrents to announce to local network"
+msgstr ""
+
+msgctxt "#30077"
+msgid "Maximum number of active (auto managed) torrents"
+msgstr ""
+
+msgctxt "#30078"
+msgid "Limits"
+msgstr ""
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"
