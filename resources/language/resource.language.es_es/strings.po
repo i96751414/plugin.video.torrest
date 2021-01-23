@@ -288,7 +288,7 @@ msgstr "Número máximo de torrents descargando simultáneamente"
 
 msgctxt "#30072"
 msgid "Maximum number of simultaneous seeding torrents"
-msgstr "Número máximo de torrents a enviar simultáneamente"
+msgstr "Número máximo de torrents a semillar simultáneamente"
 
 msgctxt "#30073"
 msgid "Maximum number of simultaneous checking torrents"
@@ -312,7 +312,7 @@ msgstr "Número máximo de torrents activos (administrados automáticamente)"
 
 msgctxt "#30078"
 msgid "Limits"
-msgstr "Limites"
+msgstr "Límites"
 
 # Service
 msgctxt "#30100"
