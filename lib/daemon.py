@@ -112,7 +112,7 @@ class DaemonNotFoundError(Exception):
 
 
 class Daemon(object):
-    def __init__(self, name, daemon_dir, extra_dirs=()):
+    def __init__(self, name, daemon_dir, android_find_dest_dir=True, android_extra_dirs=(), dest_dir=None):
         self._name = name
         if PLATFORM.system == System.windows:
             self._name += ".exe"
@@ -121,18 +121,19 @@ class Daemon(object):
         if not os.path.exists(src_path):
             raise DaemonNotFoundError("Daemon source path does not exist")
 
-        if PLATFORM.system == System.android:
+        if PLATFORM.system == System.android and android_find_dest_dir:
             app_dir = os.path.join(os.sep, "data", "data", android_get_current_app_id())
             if not os.path.exists(app_dir):
                 logging.debug("Default android app dir '%s' does not exist", app_dir)
-                for directory in extra_dirs:
+                for directory in android_extra_dirs:
                     if os.path.exists(directory):
                         app_dir = directory
+                        break
 
             logging.debug("Using android app dir '%s'", app_dir)
             self._dir = os.path.join(app_dir, "files", name)
         else:
-            self._dir = daemon_dir
+            self._dir = dest_dir or daemon_dir
         self._path = os.path.join(self._dir, self._name)
 
         if self._dir is not daemon_dir:
