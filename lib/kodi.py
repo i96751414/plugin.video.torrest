@@ -36,10 +36,9 @@ def notification(message, heading=ADDON_NAME, icon=ADDON_ICON, time=5000, sound=
 
 
 def get_all_settings_spec():
-    with open(os.path.join(ADDON_PATH, "resources", "settings.xml"), "rb") as f:
-        data = ElementTree.XML(f.read())
-        for element in data.findall("*/setting"):
-            yield dict(element.attrib)
+    data = ElementTree.parse(os.path.join(ADDON_PATH, "resources", "settings.xml"))
+    for element in data.findall("*/setting"):
+        yield dict(element.attrib)
 
 
 def get_setting_by_spec(spec):
