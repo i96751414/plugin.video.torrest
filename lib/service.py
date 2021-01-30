@@ -168,13 +168,15 @@ class DaemonMonitor(xbmc.Monitor):
 
 class DownloadProgress(xbmc.Monitor, threading.Thread):
     def __init__(self):
-        super(DownloadProgress, self).__init__()
+        xbmc.Monitor.__init__(self)
+        threading.Thread.__init__(self)
+        self.daemon = True
         self._api = self._enabled = self._dialog = None
         self._index = 0
         self.onSettingsChanged()
 
     def run(self):
-        while True:
+        while not self.waitForAbort(5):
             if self._enabled:
                 try:
                     self._update_progress()
@@ -183,10 +185,6 @@ class DownloadProgress(xbmc.Monitor, threading.Thread):
                     logging.error("Failed to update background progress")
             else:
                 self._close_dialog()
-
-            if self.waitForAbort(5):
-                break
-
         self._close_dialog()
 
     def _update_progress(self):
@@ -230,6 +228,14 @@ class DownloadProgress(xbmc.Monitor, threading.Thread):
         self._api = Torrest(get_service_ip(), get_port())
         self._enabled = show_background_progress()
 
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.join()
+        return False
+
 
 @kodi.once("migrated")
 def handle_first_run():
@@ -241,17 +247,14 @@ def handle_first_run():
 def run():
     kodi.set_logger()
     handle_first_run()
-    progress = DownloadProgress()
-    progress.start()
 
-    try:
-        with DaemonMonitor() as monitor:
-            monitor.handle_crashes()
-    except DaemonNotFoundError:
-        logging.info("Daemon not found. Aborting service...")
-        if service_enabled():
-            set_service_enabled(False)
-            xbmcgui.Dialog().ok(kodi.ADDON_NAME, kodi.translate(30103))
-            kodi.open_settings()
-
-    progress.join()
+    with DownloadProgress():
+        try:
+            with DaemonMonitor() as monitor:
+                monitor.handle_crashes()
+        except DaemonNotFoundError:
+            logging.info("Daemon not found. Aborting service...")
+            if service_enabled():
+                set_service_enabled(False)
+                xbmcgui.Dialog().ok(kodi.ADDON_NAME, kodi.translate(30103))
+                kodi.open_settings()
