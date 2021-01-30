@@ -62,7 +62,7 @@ class DefaultDaemonLogger(threading.Thread):
         self._fd = fd
         self._default_level = default_level
         self._file = open(path, "wb") if path else None
-        self._stop = False
+        self._stopped = False
 
     def _get_level_and_message(self, line):
         return self._default_level, line.rstrip("\r\n")
@@ -73,11 +73,11 @@ class DefaultDaemonLogger(threading.Thread):
             if self._file:
                 self._file.write(line)
                 self._file.flush()
-            if self._stop:
+            if self._stopped:
                 break
 
     def stop(self, timeout=None):
-        self._stop = True
+        self._stopped = True
         self.join(timeout)
         if self._file:
             self._file.close()
