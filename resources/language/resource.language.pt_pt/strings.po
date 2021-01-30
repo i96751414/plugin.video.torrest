@@ -314,6 +314,10 @@ msgctxt "#30078"
 msgid "Limits"
 msgstr "Limites"
 
+msgctxt "#30079"
+msgid "Torrents folder"
+msgstr "Pasta de torrents"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <category label="Torrest">
+    <category label="$INFO[System.AddonTitle(Window.Property(Addon.ID))]">
         <setting id="service_enabled" type="bool" label="30059" default="true"/>
         <setting id="timeout" type="number" label="30002" default="20" enable="eq(-1,true)" subsetting="true"/>
         <setting id="service_ip" type="ipaddress" label="30060" default="127.0.0.1" enable="eq(-2,false)"/>
@@ -16,7 +16,10 @@
     </category>
     <!-- General -->
     <category label="30000">
-        <setting id="s:download_path" type="folder" source="auto" option="writeable" label="30010"/>
+        <setting id="s:download_path" type="folder" source="auto" option="writeable" label="30010"
+                 default="special://userdata/addon_data/plugin.video.torrest/downloads"/>
+        <setting id="s:torrents_path" type="folder" source="auto" option="writeable" label="30079"
+                 default="special://userdata/addon_data/plugin.video.torrest/torrents"/>
         <setting id="s:buffer_size" type="number" label="30012" default="20971520"/>
         <setting id="s:listen_port" type="number" label="30013" default="6889"/>
         <setting id="s:listen_interfaces" type="text" label="30014" default=""/>
