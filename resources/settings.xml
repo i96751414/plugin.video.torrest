@@ -32,6 +32,7 @@
         <setting id="s:disable_lsd" type="bool" label="30070" default="false"/>
         <setting id="s:session_save" type="slider" label="30031" option="int" range="10,10,120" default="30"/>
         <setting id="s:tuned_storage" type="bool" label="30032" default="false"/>
+        <setting id="s:check_available_space" type="bool" label="30080" default="true"/>
         <setting id="s:encryption_policy" type="enum" label="30039" lvalues="30040|30041|30042"/>
         <setting id="s:service_log_level" type="enum" label="30057" values="CRITICAL|ERROR|WARNING|NOTICE|INFO|DEBUG"
                  default="4"/>

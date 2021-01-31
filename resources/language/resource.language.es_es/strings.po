@@ -318,6 +318,10 @@ msgctxt "#30079"
 msgid "Torrents folder"
 msgstr "Carpeta de torrents"
 
+msgctxt "#30080"
+msgid "Check available space before downloading torrent"
+msgstr "Verificar el espacio disponible antes de descargar torrent"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"
