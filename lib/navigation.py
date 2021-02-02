@@ -311,6 +311,8 @@ def play_info_hash(info_hash, timeout=30, buffer=True):
 @check_playable
 def buffer_and_play(info_hash, file_id):
     api.download_file(info_hash, file_id, buffer=True)
+    info = api.file_info(info_hash, file_id)
+    of = translate(30244)
 
     monitor = Monitor()
     progress = DialogProgress()
@@ -333,9 +335,9 @@ def buffer_and_play(info_hash, file_id):
             last_done = total_done
             progress.update(
                 int(status.buffering_progress),
-                "{} - {:.2f}%\n{} {} {} - {}/s\n\n".format(
+                "{} - {:.2f}%\n{} {} {} - {}/s\n{}\n".format(
                     get_state_string(status.state), status.buffering_progress, sizeof_fmt(total_done),
-                    translate(30244), sizeof_fmt(status.buffering_total), sizeof_fmt(speed)))
+                    of, sizeof_fmt(status.buffering_total), sizeof_fmt(speed), info.name))
 
             if progress.iscanceled():
                 raise PlayError("User canceled buffering")
