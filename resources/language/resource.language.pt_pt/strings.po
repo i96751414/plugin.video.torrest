@@ -322,6 +322,10 @@ msgctxt "#30080"
 msgid "Check available space before downloading torrent"
 msgstr "Verificar espaço disponível antes do download do torrent"
 
+msgctxt "#30081"
+msgid "Metadata timeout"
+msgstr "Tempo limite de espera de metadados"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"

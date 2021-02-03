@@ -14,7 +14,7 @@ from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger
 from lib.kodi_formats import is_music, is_picture, is_video, is_text
 from lib.player import TorrestPlayer
 from lib.settings import get_service_ip, get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
-    ask_to_delete_torrent, download_after_insert, get_files_order
+    ask_to_delete_torrent, download_after_insert, get_files_order, get_metadata_timeout
 from lib.utils import sizeof_fmt
 
 set_logger()
@@ -266,7 +266,9 @@ def play_file(path, buffer=True):
 
 @plugin.route("/play_info_hash/<info_hash>")
 @check_playable
-def play_info_hash(info_hash, timeout=30, buffer=True):
+def play_info_hash(info_hash, buffer=True):
+    percent = 0
+    timeout = get_metadata_timeout()
     start_time = time.time()
     monitor = Monitor()
     progress = DialogProgress()
@@ -277,10 +279,14 @@ def play_info_hash(info_hash, timeout=30, buffer=True):
             if monitor.waitForAbort(0.5):
                 raise PlayError("Abort requested")
             passed_time = time.time() - start_time
-            if 0 < timeout < passed_time:
-                notification(translate(30238))
-                raise PlayError("No metadata after timeout")
-            progress.update(int(100 * passed_time / timeout))
+            if 0 < timeout:
+                if timeout < passed_time:
+                    notification(translate(30238))
+                    raise PlayError("No metadata after timeout")
+                percent = int(100 * passed_time / timeout)
+            else:
+                percent = 0 if percent == 100 else (percent + 5)
+            progress.update(percent)
             if progress.iscanceled():
                 raise PlayError("User canceled metadata")
     finally:

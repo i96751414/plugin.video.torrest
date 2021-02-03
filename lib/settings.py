@@ -9,6 +9,10 @@ def get_daemon_timeout():
     return get_int_setting("timeout")
 
 
+def get_metadata_timeout():
+    return get_int_setting("metadata_timeout")
+
+
 def get_buffering_timeout():
     return get_int_setting("buffer_timeout")
 
