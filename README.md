@@ -1,7 +1,9 @@
 # plugin.video.torrest
+
 [![Build Status](https://github.com/i96751414/plugin.video.torrest/workflows/build/badge.svg)](https://github.com/i96751414/plugin.video.torrest/actions?query=workflow%3Abuild)
 
-Another torrent streaming engine for Kodi. It uses the [torrest service](https://github.com/i96751414/torrest), which provides an API specially made for streaming.
+Another torrent streaming engine for Kodi. It uses the [torrest service](https://github.com/i96751414/torrest), which
+provides an API specially made for streaming.
 
 ## Supported platforms
 
@@ -13,13 +15,15 @@ Another torrent streaming engine for Kodi. It uses the [torrest service](https:/
 
 Minimum supported Kodi version: 16 (Jarvis)
 
-## Download
-
-Get the [latest release](https://github.com/i96751414/plugin.video.torrest/releases/latest).  **Do NOT use the `Download ZIP` button on this page.**
-
 ## Installation
 
-Just like any other add-on. No extra steps are required.
+The recommended way of installing this addon is through its [repository](https://github.com/i96751414/repository.github#installation)
+. This way, any updates will be automatically installed.
+
+Although **not recommended**, one can install the addon without installing its repository. To do so, get the
+[latest release](https://github.com/i96751414/plugin.video.torrest/releases/latest) from github.
+**Do NOT use the `Download ZIP` button on this page.** Please note that, if there are any additional dependencies, 
+they won't be resolved unless the repository is installed.
 
 ## Calling torrest from other addon
 
@@ -31,6 +35,7 @@ One can call torrest from other addons. To do so, simply use torrest API:
 |`plugin://plugin.video.torrest/play_url?url=<url>`|Plays the provided torrent file `<url>`|
 |`plugin://plugin.video.torrest/play_path?path=<path>`|Plays the provided torrent file path `<path>`|
 
-##  Screenshots
+## Screenshots
+
 ![screenshots](resources/screenshots/screenshots.gif)
 
