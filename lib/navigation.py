@@ -23,7 +23,17 @@ api = Torrest(get_service_ip(), get_port())
 
 
 class PlayError(Exception):
-    pass
+    def handle(self):
+        pass
+
+
+class CanceledError(PlayError):
+    def __init__(self, e, info_hash):
+        super(CanceledError, self).__init__(e)
+        self._info_hash = info_hash
+
+    def handle(self):
+        handle_player_stop(self._info_hash)
 
 
 def check_playable(func):
@@ -34,6 +44,7 @@ def check_playable(func):
             setResolvedUrl(plugin.handle, False, ListItem())
             if isinstance(e, PlayError):
                 logging.debug(e)
+                e.handle()
             else:
                 raise e
 
@@ -101,7 +112,12 @@ def get_status_labels(info_hash):
             status.seeders_total, status.peers, status.peers_total))
 
 
-def handle_player_stop(info_hash, name, initial_delay=0.5, listing_timeout=10):
+def handle_player_stop(info_hash, name=None, initial_delay=0.5, listing_timeout=10):
+    if not ask_to_delete_torrent():
+        return
+    if name is None:
+        name = api.torrent_info(info_hash).name
+
     sleep(int(initial_delay * 1000))
     start_time = time.time()
     while getCondVisibility("Window.IsActive(busydialog)") and not 0 < listing_timeout < time.time() - start_time:
@@ -288,7 +304,7 @@ def play_info_hash(info_hash, buffer=True):
                 percent = 0 if percent == 100 else (percent + 5)
             progress.update(percent)
             if progress.iscanceled():
-                raise PlayError("User canceled metadata")
+                raise CanceledError("User canceled metadata", info_hash)
     finally:
         progress.close()
 
@@ -346,7 +362,7 @@ def buffer_and_play(info_hash, file_id):
                     of, sizeof_fmt(status.buffering_total), sizeof_fmt(speed), info.name))
 
             if progress.iscanceled():
-                raise PlayError("User canceled buffering")
+                raise CanceledError("User canceled buffering", info_hash)
             if 0 < timeout < current_time - start_time:
                 notification(translate(30236))
                 raise PlayError("Buffering timeout reached")
@@ -368,7 +384,7 @@ def play(info_hash, file_id):
     TorrestPlayer(
         url=serve_url,
         text_handler=(lambda: get_status_labels(info_hash) + (name,)) if show_status_overlay() else None,
-        on_close_handler=(lambda: handle_player_stop(info_hash, name)) if ask_to_delete_torrent() else None,
+        on_close_handler=lambda: handle_player_stop(info_hash, name=name),
     ).handle_events()
 
 
