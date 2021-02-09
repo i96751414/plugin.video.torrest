@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o pipefail
 set -e
 
 name="plugin.video.torrest"
@@ -59,7 +60,7 @@ function info() {
 # More on https://developer.github.com/v3/repos/releases/
 info "Getting ${release} release from ${username}/${repository}"
 response=$(curl -s -X GET "https://api.github.com/repos/${username}/${repository}/releases/${release}")
-for url in $(jq -r ".assets | .[] | .browser_download_url" <<<"${response}"); do
+for url in $(jq -er ".assets | .[] | .browser_download_url" <<<"${response}"); do
   platform=$(awk -F. '{print $(NF-1)}' <<<"${url}")
   binary_path="${bin_path}/${platform}"
   mkdir -p "${build_path}/${binary_path}"
