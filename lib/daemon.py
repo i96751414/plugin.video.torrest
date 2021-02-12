@@ -85,26 +85,27 @@ class DefaultDaemonLogger(threading.Thread):
 
 class DaemonLogger(DefaultDaemonLogger):
     levels_mapping = {
-        "CRIT": logging.CRITICAL,
-        "ERRO": logging.ERROR,
-        "WARN": logging.WARNING,
-        "DEBU": logging.DEBUG,
-        "NOTI": logging.INFO,
+        "CRITICAL": logging.CRITICAL,
+        "ERROR": logging.ERROR,
+        "WARNING": logging.WARNING,
+        "NOTICE": logging.INFO,
         "INFO": logging.INFO,
+        "DEBUG": logging.DEBUG,
     }
 
-    tag_regex = re.compile("\x1b\\[\\d+m")
-    level_regex = re.compile("^(?:{})*({})".format(tag_regex.pattern, "|".join(levels_mapping)))
+    tag_regex = re.compile("\x1b\\[[\\d;]+m")
+    level_regex = re.compile(r"^(?:{})*\d+-\d+-\d+ \d+:\d+:\d+\.\d+ ({})".format(
+        tag_regex.pattern, "|".join(levels_mapping)))
 
     def _get_level_and_message(self, line):
         m = self.level_regex.search(line)
         if m:
-            line = self.tag_regex.sub("", line[len(m.group(0)):].lstrip(" "))
+            line = line[len(m.group(0)):].lstrip(" ")
             level = self.levels_mapping[m.group(1)]
         else:
             level = self._default_level
 
-        return level, line.rstrip("\r\n")
+        return level, self.tag_regex.sub("", line).rstrip("\r\n")
 
 
 class DaemonNotFoundError(Exception):
