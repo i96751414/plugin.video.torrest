@@ -326,6 +326,10 @@ msgctxt "#30081"
 msgid "Metadata timeout"
 msgstr "Tempo limite de espera de metadados"
 
+msgctxt "#30082"
+msgid "API log level"
+msgstr "Nível de log da API"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"

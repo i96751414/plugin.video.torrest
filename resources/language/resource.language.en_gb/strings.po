@@ -326,6 +326,10 @@ msgctxt "#30081"
 msgid "Metadata timeout"
 msgstr ""
 
+msgctxt "#30082"
+msgid "API log level"
+msgstr ""
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"

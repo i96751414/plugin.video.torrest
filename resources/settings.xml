@@ -39,6 +39,8 @@
                  default="4"/>
         <setting id="s:alerts_log_level" type="enum" label="30058" values="CRITICAL|ERROR|WARNING|NOTICE|INFO|DEBUG"
                  default="0"/>
+        <setting id="s:api_log_level" type="enum" label="30082" values="CRITICAL|ERROR|WARNING|NOTICE|INFO|DEBUG"
+                 default="1"/>
     </category>
     <!-- Limits -->
     <category label="30078">

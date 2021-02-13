@@ -2,7 +2,6 @@
 <addon id="plugin.video.torrest" name="Torrest" provider-name="i96751414" version="0.0.9">
     <requires>
         <import addon="xbmc.python" version="2.24.0"/>
-        <import addon="xbmc.addon" version="16.0.0"/>
         <import addon="script.module.requests" version="2.22.0"/>
         <import addon="script.module.routing" version="0.2.3"/>
     </requires>
@@ -16,7 +15,6 @@
         <source>https://github.com/i96751414/plugin.video.torrest</source>
         <summary lang="en">Torrest on Kodi</summary>
         <description lang="en">Torrest is a service with a rest API which allows torrent streaming.</description>
-        <platform>all</platform>
         <news>
         </news>
         <assets>
