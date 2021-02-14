@@ -20,7 +20,6 @@ HANDLE_FLAG_INHERIT = 0x00000001
 
 
 def windows_suppress_file_handles_inheritance(r=100):
-    import stat
     from ctypes import windll, wintypes, byref
     from msvcrt import get_osfhandle
 
