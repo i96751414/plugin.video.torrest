@@ -41,12 +41,14 @@ def check_playable(func):
         try:
             func(*args, **kwargs)
         except Exception as e:
-            setResolvedUrl(plugin.handle, False, ListItem())
-            if isinstance(e, PlayError):
-                logging.debug(e)
-                e.handle()
-            else:
-                raise e
+            if not getattr(e, "%_checked", False):
+                setResolvedUrl(plugin.handle, False, ListItem())
+                if isinstance(e, PlayError):
+                    logging.debug(e)
+                    e.handle()
+                    return
+                setattr(e, "%_checked", True)
+            raise e
 
     return wrapper
 
