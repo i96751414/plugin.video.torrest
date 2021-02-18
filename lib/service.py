@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import threading
 import time
 
@@ -30,6 +31,9 @@ class DaemonMonitor(xbmc.Monitor):
     _settings_get_uri = "settings/get"
     _settings_set_uri = "settings/set"
 
+    settings_name = "settings.json"
+    log_name = "torrest.log"
+
     def __init__(self):
         super(DaemonMonitor, self).__init__()
         self._lock = threading.Lock()
@@ -39,8 +43,8 @@ class DaemonMonitor(xbmc.Monitor):
             dest_dir=os.path.join(kodi.ADDON_DATA, "bin"))
         self._daemon.ensure_exec_permissions()
         self._port = self._enabled = None
-        self._settings_path = os.path.join(kodi.ADDON_DATA, "settings.json")
-        self._log_path = os.path.join(kodi.ADDON_DATA, "torrest.log")
+        self._settings_path = os.path.join(kodi.ADDON_DATA, self.settings_name)
+        self._log_path = os.path.join(kodi.ADDON_DATA, self.log_name)
         self._settings_spec = [s for s in kodi.get_all_settings_spec() if s["id"].startswith(
             self._settings_prefix + self._settings_separator)]
         self.onSettingsChanged()
@@ -141,6 +145,10 @@ class DaemonMonitor(xbmc.Monitor):
                     logging.info("Deamon crashed")
                     kodi.notification(kodi.translate(30105))
                     self._stop()
+
+                    if os.path.exists(self._log_path):
+                        path = os.path.join(kodi.ADDON_DATA, time.strftime("%Y%m%d_%H%M%S.") + self.log_name)
+                        shutil.copy(self._log_path, path)
 
                     crash_time = time.time()
                     time_between_crashes = crash_time - last_crash
