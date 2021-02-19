@@ -4,11 +4,12 @@ import re
 import shutil
 import stat
 import subprocess
+import sys
 import threading
 from io import FileIO
 
 from lib.os_platform import PLATFORM, System
-from lib.utils import bytes_to_str
+from lib.utils import bytes_to_str, PY3
 
 
 def android_get_current_app_id():
@@ -16,42 +17,34 @@ def android_get_current_app_id():
         return fp.read().rstrip("\0")
 
 
+# https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-sethandleinformation
 HANDLE_FLAG_INHERIT = 0x00000001
+# https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfiletype
+FILE_TYPE_DISK = 0x0001
 
 
-def windows_suppress_file_handles_inheritance(r=100):
+def windows_suppress_file_handles_inheritance(r=0xFFFF):
     from ctypes import windll, wintypes, byref
-    from msvcrt import get_osfhandle
 
     handles = []
-    for fd in range(r):
-        try:
-            # May raise OSError
-            s = os.fstat(fd)
-            if stat.S_ISREG(s.st_mode):
-                # May raise IOError
-                handle = get_osfhandle(fd)
-                flags = wintypes.DWORD()
-                windll.kernel32.GetHandleInformation(handle, byref(flags))
-                if flags.value & HANDLE_FLAG_INHERIT:
-                    if windll.kernel32.SetHandleInformation(handle, HANDLE_FLAG_INHERIT, 0):
-                        handles.append(handle)
-                    else:
-                        logging.error("Error clearing inherit flag, disk file handle %x", handle)
-        except (OSError, IOError):
-            pass
+    for handle in range(r):
+        if windll.kernel32.GetFileType(handle) == FILE_TYPE_DISK:
+            flags = wintypes.DWORD()
+            if windll.kernel32.GetHandleInformation(handle, byref(flags)) and flags.value & HANDLE_FLAG_INHERIT:
+                if windll.kernel32.SetHandleInformation(handle, HANDLE_FLAG_INHERIT, 0):
+                    handles.append(handle)
+                else:
+                    logging.error("Error clearing inherit flag, disk file handle %x", handle)
 
     return handles
 
 
 def windows_restore_file_handles_inheritance(handles):
-    import ctypes
+    from ctypes import windll
 
-    for osf_handle in handles:
-        try:
-            ctypes.windll.kernel32.SetHandleInformation(osf_handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT)
-        except (ctypes.WinError, WindowsError, OSError):
-            pass
+    for handle in handles:
+        if not windll.kernel32.SetHandleInformation(handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT):
+            logging.debug("Failed restoring handle %x inherit flag", handle)
 
 
 class DefaultDaemonLogger(threading.Thread):
@@ -166,29 +159,39 @@ class Daemon(object):
             raise ValueError("daemon already running")
         logging.info("Starting daemon with args: %s", args)
         cmd = [self._path] + list(args)
+        work_dir = self._dir
 
         if PLATFORM.system == System.windows:
+            if not PY3:
+                # Attempt to solve https://bugs.python.org/issue1759845
+                encoding = sys.getfilesystemencoding()
+                for i, arg in enumerate(cmd):
+                    cmd[i] = arg.encode(encoding)
+                work_dir = work_dir.encode(encoding)
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
             kwargs.setdefault("startupinfo", si)
+            # Attempt to solve https://bugs.python.org/issue19575
             handles = windows_suppress_file_handles_inheritance()
         else:
             kwargs.setdefault("close_fds", True)
-            # Make sure we update LD_LIBRARY_PATH, so libs are loaded
-            env = kwargs.get("env", os.environ).copy()
-            ld_path = env.get("LD_LIBRARY_PATH", "")
-            if ld_path:
-                ld_path += os.pathsep
-            ld_path += self._dir
-            env["LD_LIBRARY_PATH"] = ld_path
-            kwargs["env"] = env
+            if kwargs.get("update_ld_lib_path", True):
+                # Make sure we update LD_LIBRARY_PATH, so libs are loaded
+                env = kwargs.get("env", os.environ).copy()
+                ld_path = env.get("LD_LIBRARY_PATH", "")
+                if ld_path:
+                    ld_path += os.pathsep
+                ld_path += self._dir
+                env["LD_LIBRARY_PATH"] = ld_path
+                kwargs["env"] = env
             handles = []
 
         kwargs.setdefault("stdout", subprocess.PIPE)
         kwargs.setdefault("stderr", subprocess.STDOUT)
-        kwargs.setdefault("cwd", self._dir)
+        kwargs.setdefault("cwd", work_dir)
 
+        logging.debug("Creating process with command %s and params %s", cmd, kwargs)
         try:
             self._p = subprocess.Popen(cmd, **kwargs)
         finally:
@@ -231,10 +234,8 @@ class Daemon(object):
         return self._logger is not None and self._logger.is_alive()
 
     def start(self, *args, **kwargs):
-        level = kwargs.pop("level", logging.INFO)
-        path = kwargs.pop("path", None)
-        self.start_daemon(*args, **kwargs)
-        self.start_logger(level=level, path=path)
+        self.start_daemon(*args)
+        self.start_logger(**kwargs)
 
     def stop(self):
         self.stop_daemon()
