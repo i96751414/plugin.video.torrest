@@ -153,7 +153,7 @@ class KodiLogHandler(logging.StreamHandler):
         logging.CRITICAL: xbmc.LOGFATAL,
         logging.ERROR: xbmc.LOGERROR,
         logging.WARNING: xbmc.LOGWARNING,
-        logging.INFO: xbmc.LOGINFO,
+        logging.INFO: xbmc.LOGINFO if PY3 else xbmc.LOGNOTICE,
         logging.DEBUG: xbmc.LOGDEBUG,
         logging.NOTSET: xbmc.LOGNONE,
     }
