@@ -40,8 +40,10 @@ class DaemonMonitor(xbmc.Monitor):
         self._daemon = Daemon(
             "torrest", os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch()),
             android_extra_dirs=(xbmc.translatePath("special://xbmcbin"),),
-            dest_dir=os.path.join(kodi.ADDON_DATA, "bin"))
+            dest_dir=os.path.join(kodi.ADDON_DATA, "bin"),
+            pid_file=os.path.join(kodi.ADDON_DATA, ".pid"))
         self._daemon.ensure_exec_permissions()
+        self._daemon.kill_leftover_process()
         self._port = self._enabled = None
         self._settings_path = os.path.join(kodi.ADDON_DATA, self.settings_name)
         self._log_path = os.path.join(kodi.ADDON_DATA, self.log_name)
@@ -142,7 +144,7 @@ class DaemonMonitor(xbmc.Monitor):
 
             with self._lock:
                 if self._enabled and self._daemon.daemon_poll() is not None:
-                    logging.info("Deamon crashed")
+                    logging.warning("Deamon crashed")
                     kodi.notification(kodi.translate(30105))
                     self._stop()
 
@@ -165,6 +167,8 @@ class DaemonMonitor(xbmc.Monitor):
                         logging.info("Re-starting daemon - %s/%s", crash_count, max_crashes)
                         self._start()
                         self._wait(timeout=get_daemon_timeout(), notification=True)
+                    else:
+                        logging.info("Max crashes (%d) reached", max_crashes)
 
     def __enter__(self):
         return self

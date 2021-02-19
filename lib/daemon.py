@@ -105,8 +105,10 @@ class DaemonNotFoundError(Exception):
 
 
 class Daemon(object):
-    def __init__(self, name, daemon_dir, android_find_dest_dir=True, android_extra_dirs=(), dest_dir=None):
+    def __init__(self, name, daemon_dir, android_find_dest_dir=True,
+                 android_extra_dirs=(), dest_dir=None, pid_file=None):
         self._name = name
+        self._pid_file = pid_file
         if PLATFORM.system == System.windows:
             self._name += ".exe"
 
@@ -147,6 +149,18 @@ class Daemon(object):
         with FileIO(path) as f:
             f.seek(-40, os.SEEK_END)
             return f.read()
+
+    def kill_leftover_process(self):
+        if self._pid_file and os.path.exists(self._pid_file):
+            try:
+                with open(self._pid_file) as f:
+                    pid = int(f.read().rstrip("\r\n\0"))
+                logging.warning("Killing process with pid %d", pid)
+                os.kill(pid, 9)
+            except Exception as e:
+                logging.error("Failed killing process: %s", e)
+            finally:
+                os.remove(self._pid_file)
 
     def ensure_exec_permissions(self):
         st = os.stat(self._path)
@@ -198,6 +212,11 @@ class Daemon(object):
             if PLATFORM.system == System.windows:
                 windows_restore_file_handles_inheritance(handles)
 
+        if self._pid_file:
+            logging.debug("Saving pid file %s", self._pid_file)
+            with open(self._pid_file, "w") as f:
+                f.write(str(self._p.pid))
+
     def stop_daemon(self):
         if self._p is not None:
             logging.info("Terminating daemon")
@@ -205,6 +224,8 @@ class Daemon(object):
                 self._p.terminate()
             except OSError:
                 logging.info("Daemon already terminated")
+            if self._pid_file and os.path.exists(self._pid_file):
+                os.remove(self._pid_file)
             self._p = None
 
     def daemon_poll(self):
