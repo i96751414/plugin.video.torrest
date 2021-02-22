@@ -14,7 +14,7 @@ from lib.daemon import Daemon, DaemonNotFoundError
 from lib.os_platform import get_platform_arch
 from lib.settings import get_port, get_daemon_timeout, service_enabled, set_service_enabled, get_service_ip, \
     show_background_progress
-from lib.utils import sizeof_fmt
+from lib.utils import sizeof_fmt, assure_unicode
 
 
 class AbortRequestedError(Exception):
@@ -76,8 +76,8 @@ class DaemonMonitor(xbmc.Monitor):
 
     def _get_kodi_settings(self):
         s = kodi.generate_dict_settings(self._settings_spec, separator=self._settings_separator)[self._settings_prefix]
-        s["download_path"] = xbmc.translatePath(s["download_path"])
-        s["torrents_path"] = xbmc.translatePath(s["torrents_path"])
+        s["download_path"] = assure_unicode(xbmc.translatePath(s["download_path"]))
+        s["torrents_path"] = assure_unicode(xbmc.translatePath(s["torrents_path"]))
         return s
 
     def _get_daemon_settings(self):
