@@ -8,7 +8,7 @@ from xbmc import Monitor, executebuiltin, getInfoLabel, getCondVisibility, sleep
 from xbmcgui import ListItem, DialogProgress, Dialog
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
-from lib.api import Torrest
+from lib.api import Torrest, TorrestError
 from lib.dialog import DialogInsert
 from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture
 from lib.kodi_formats import is_music, is_picture, is_video, is_text
@@ -117,8 +117,12 @@ def get_status_labels(info_hash):
 def handle_player_stop(info_hash, name=None, initial_delay=0.5, listing_timeout=10):
     if not ask_to_delete_torrent():
         return
+    try:
+        info = api.torrent_info(info_hash)
+    except TorrestError:
+        return
     if name is None:
-        name = api.torrent_info(info_hash).name
+        name = info.name
 
     sleep(int(initial_delay * 1000))
     start_time = time.time()
