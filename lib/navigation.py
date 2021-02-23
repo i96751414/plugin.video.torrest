@@ -10,7 +10,8 @@ from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
 from lib.api import Torrest, TorrestError
 from lib.dialog import DialogInsert
-from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture
+from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture, \
+    close_busy_dialog
 from lib.kodi_formats import is_music, is_picture, is_video, is_text
 from lib.player import TorrestPlayer
 from lib.settings import get_service_ip, get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
@@ -289,6 +290,32 @@ def play_file(path, buffer=True):
 @plugin.route("/play_info_hash/<info_hash>")
 @check_playable
 def play_info_hash(info_hash, buffer=True):
+    if not api.torrent_status(info_hash).has_metadata:
+        wait_for_metadata(info_hash)
+
+    files = api.files(info_hash, status=False)
+    min_candidate_size = get_min_candidate_size() * 1024 * 1024
+    candidate_files = [f for f in files if is_video(f.path) and f.length >= min_candidate_size]
+    if not candidate_files:
+        notification(translate(30239))
+        raise PlayError("No candidate files found for {}".format(info_hash))
+    elif len(candidate_files) == 1:
+        chosen_file = candidate_files[0]
+    else:
+        sort_files(candidate_files)
+        chosen_index = Dialog().select(translate(30240), [f.name for f in candidate_files])
+        if chosen_index < 0:
+            raise PlayError("User canceled dialog select")
+        chosen_file = candidate_files[chosen_index]
+
+    if buffer:
+        buffer_and_play(info_hash, chosen_file.id)
+    else:
+        play(info_hash, chosen_file.id)
+
+
+def wait_for_metadata(info_hash):
+    close_busy_dialog()
     percent = 0
     timeout = get_metadata_timeout()
     start_time = time.time()
@@ -314,43 +341,29 @@ def play_info_hash(info_hash, buffer=True):
     finally:
         progress.close()
 
-    files = api.files(info_hash, status=False)
-    min_candidate_size = get_min_candidate_size() * 1024 * 1024
-    candidate_files = [f for f in files if is_video(f.path) and f.length >= min_candidate_size]
-    if not candidate_files:
-        notification(translate(30239))
-        raise PlayError("No candidate files found for {}".format(info_hash))
-    elif len(candidate_files) == 1:
-        chosen_file = candidate_files[0]
-    else:
-        sort_files(candidate_files)
-        chosen_index = Dialog().select(translate(30240), [f.name for f in candidate_files])
-        if chosen_index < 0:
-            raise PlayError("User canceled dialog select")
-        chosen_file = candidate_files[chosen_index]
-
-    if buffer:
-        buffer_and_play(info_hash, chosen_file.id)
-    else:
-        play(info_hash, chosen_file.id)
-
 
 @plugin.route("/buffer_and_play/<info_hash>/<file_id>")
 @check_playable
 def buffer_and_play(info_hash, file_id):
     api.download_file(info_hash, file_id, buffer=True)
+    if api.file_status(info_hash, file_id).buffering_progress < 100:
+        wait_for_buffering_completion(info_hash, file_id)
+    play(info_hash, file_id)
+
+
+def wait_for_buffering_completion(info_hash, file_id):
+    close_busy_dialog()
     info = api.file_info(info_hash, file_id)
     of = translate(30244)
+    timeout = get_buffering_timeout()
+    last_time = last_done = 0
+    start_time = time.time()
 
     monitor = Monitor()
     progress = DialogProgress()
     progress.create(ADDON_NAME)
 
     try:
-        timeout = get_buffering_timeout()
-        start_time = time.time()
-        last_time = 0
-        last_done = 0
         while True:
             current_time = time.time()
             status = api.file_status(info_hash, file_id)
@@ -376,8 +389,6 @@ def buffer_and_play(info_hash, file_id):
                 raise PlayError("Abort requested")
     finally:
         progress.close()
-
-    play(info_hash, file_id)
 
 
 @plugin.route("/play/<info_hash>/<file_id>")
