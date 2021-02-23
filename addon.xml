@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.torrest" name="Torrest" provider-name="i96751414" version="0.0.9">
+<addon id="plugin.video.torrest" name="Torrest" provider-name="i96751414" version="0.0.10">
     <requires>
-        <import addon="xbmc.python" version="2.24.0"/>
+        <!--<import addon="xbmc.python" version="3.0.0"/>-->
         <import addon="script.module.requests" version="2.22.0"/>
         <import addon="script.module.routing" version="0.2.3"/>
     </requires>
