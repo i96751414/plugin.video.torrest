@@ -4,6 +4,7 @@ import os
 from xbmcgui import Window, ControlImage, ControlLabel
 
 from lib.kodi import WINDOW_FULLSCREEN_VIDEO, ADDON_PATH, get_resolution
+from lib.utils import assure_str
 
 
 class OverlayText(object):
@@ -27,8 +28,9 @@ class OverlayText(object):
         self._label2 = ControlLabel(label_x, label_y, label_w, label_h, "", alignment=0x2 | 0x4)
         label_y += label_h
         self._label3 = ControlLabel(label_x, label_y, label_w, label_h, "", alignment=0x2 | 0x4)
+        # ControlImage won't work with unicode special characters
         self._background = ControlImage(
-            x, y, 0, 0, os.path.join(ADDON_PATH, "resources", "images", "black.png"),
+            x, y, 0, 0, assure_str(os.path.join(ADDON_PATH, "resources", "images", "black.png")),
             colorDiffuse="0xD0000000")
         self._controls = [self._background, self._label1, self._label2, self._label3]
         self._window.addControls(self._controls)

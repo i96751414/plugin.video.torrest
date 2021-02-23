@@ -99,22 +99,23 @@ class TorrestPlayer(Player):
         self._stopped = False
         self._text_handler = text_handler
         self._on_close_handler = on_close_handler
+        self._overlay = self._overlay_thread = None
 
     # noinspection PyAttributeOutsideInit
     def on_playback_started(self):
-        if self._text_handler is not None:
+        if self._text_handler:
             self._overlay = OverlayText()
             self._overlay_thread = threading.Thread(target=self._overlay_updater)
             self._overlay_thread.daemon = True
             self._overlay_thread.start()
 
     def on_playback_paused(self):
-        if self._text_handler is not None:
+        if self._overlay:
             self._overlay.show()
             self._update_overlay_text()
 
     def on_playback_resumed(self):
-        if self._text_handler is not None:
+        if self._overlay:
             self._overlay.hide()
 
     def on_playback_stopped(self):
