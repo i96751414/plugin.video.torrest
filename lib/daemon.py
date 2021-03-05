@@ -26,7 +26,7 @@ def join_cmd(cmd):
 def read_select(fd, timeout):
     r, _, _ = select.select([fd], [], [], timeout)
     if fd not in r:
-        raise TimeoutError("Timed out waiting for pipe read")
+        raise SelectTimeoutError("Timed out waiting for pipe read")
 
 
 # https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-sethandleinformation
@@ -57,6 +57,10 @@ def windows_restore_file_handles_inheritance(handles):
     for handle in handles:
         if not windll.kernel32.SetHandleInformation(handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT):
             logging.debug("Failed restoring handle %x inherit flag", handle)
+
+
+class SelectTimeoutError(Exception):
+    pass
 
 
 class Pipe(object):
