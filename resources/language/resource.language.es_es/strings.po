@@ -330,6 +330,10 @@ msgctxt "#30082"
 msgid "API log level"
 msgstr "Nivel de registro de API"
 
+msgctxt "#30083"
+msgid "Run as root (Android)"
+msgstr "Ejecutar como root (Android)"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"

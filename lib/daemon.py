@@ -1,6 +1,8 @@
 import logging
 import os
+import pipes
 import re
+import select
 import shutil
 import stat
 import subprocess
@@ -15,6 +17,16 @@ from lib.utils import bytes_to_str, PY3
 def android_get_current_app_id():
     with open("/proc/{:d}/cmdline".format(os.getpid())) as fp:
         return fp.read().rstrip("\0")
+
+
+def join_cmd(cmd):
+    return " ".join(pipes.quote(arg) for arg in cmd)
+
+
+def read_select(fd, timeout):
+    r, _, _ = select.select([fd], [], [], timeout)
+    if fd not in r:
+        raise TimeoutError("Timed out waiting for pipe read")
 
 
 # https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-sethandleinformation
@@ -45,6 +57,47 @@ def windows_restore_file_handles_inheritance(handles):
     for handle in handles:
         if not windll.kernel32.SetHandleInformation(handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT):
             logging.debug("Failed restoring handle %x inherit flag", handle)
+
+
+class Pipe(object):
+    def __init__(self):
+        self._r, self._w = os.pipe()
+
+    @property
+    def r(self):
+        return self._r
+
+    @property
+    def w(self):
+        return self._w
+
+    def read(self, buf, timeout=0):
+        if self._r < 0:
+            raise ValueError("read file descriptor is closed")
+        if timeout > 0:
+            read_select(self._r, timeout)
+        return os.read(self._r, buf)
+
+    def write(self, data):
+        if self._w < 0:
+            raise ValueError("write file descriptor is closed")
+        return os.write(self._w, data)
+
+    def close(self, read=False, write=False):
+        both = not (read or write)
+        if (both or read) and self._r >= 0:
+            os.close(self._r)
+            self._r = -1
+        if (both or write) and self._w >= 0:
+            os.close(self._w)
+            self._w = -1
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
 
 
 class DefaultDaemonLogger(threading.Thread):
@@ -106,9 +159,11 @@ class DaemonNotFoundError(Exception):
 
 class Daemon(object):
     def __init__(self, name, daemon_dir, android_find_dest_dir=True,
-                 android_extra_dirs=(), dest_dir=None, pid_file=None):
+                 android_extra_dirs=(), dest_dir=None, pid_file=None, root=False):
         self._name = name
         self._pid_file = pid_file
+        self._root = root
+        self._root_pid = -1
         if PLATFORM.system == System.windows:
             self._name += ".exe"
 
@@ -156,11 +211,21 @@ class Daemon(object):
                 with open(self._pid_file) as f:
                     pid = int(f.read().rstrip("\r\n\0"))
                 logging.warning("Killing process with pid %d", pid)
-                os.kill(pid, 9)
+                self._kill(pid, 9)
             except Exception as e:
                 logging.error("Failed killing process: %s", e)
             finally:
                 os.remove(self._pid_file)
+
+    def _kill(self, pid, signal):
+        if self._root:
+            if PLATFORM.system == System.android:
+                subprocess.check_call(["su", "-c", "kill -{} {}".format(signal, pid)])
+            else:
+                logging.debug("Not possible to use root on this platform. Falling back to os.kill.")
+                os.kill(pid, signal)
+        else:
+            os.kill(pid, signal)
 
     def ensure_exec_permissions(self):
         st = os.stat(self._path)
@@ -168,12 +233,13 @@ class Daemon(object):
             logging.info("Setting exec permissions")
             os.chmod(self._path, st.st_mode | stat.S_IEXEC)
 
-    def start_daemon(self, *args, **kwargs):
+    def start_daemon(self, *args):
         if self._p is not None:
             raise ValueError("daemon already running")
         logging.info("Starting daemon with args: %s", args)
         cmd = [self._path] + list(args)
         work_dir = self._dir
+        kwargs = {}
 
         if PLATFORM.system == System.windows:
             if not PY3:
@@ -185,25 +251,40 @@ class Daemon(object):
             si = subprocess.STARTUPINFO()
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             si.wShowWindow = subprocess.SW_HIDE
-            kwargs.setdefault("startupinfo", si)
+            kwargs["startupinfo"] = si
             # Attempt to solve https://bugs.python.org/issue19575
             handles = windows_suppress_file_handles_inheritance()
         else:
-            kwargs.setdefault("close_fds", True)
-            if kwargs.get("update_ld_lib_path", True):
-                # Make sure we update LD_LIBRARY_PATH, so libs are loaded
-                env = kwargs.get("env", os.environ).copy()
-                ld_path = env.get("LD_LIBRARY_PATH", "")
-                if ld_path:
-                    ld_path += os.pathsep
-                ld_path += self._dir
-                env["LD_LIBRARY_PATH"] = ld_path
-                kwargs["env"] = env
+            kwargs["close_fds"] = True
+            # Make sure we update LD_LIBRARY_PATH, so libs are loaded
+            env = os.environ.copy()
+            ld_path = env.get("LD_LIBRARY_PATH", "")
+            if ld_path:
+                ld_path += os.pathsep
+            ld_path += self._dir
+            env["LD_LIBRARY_PATH"] = ld_path
+            kwargs["env"] = env
             handles = []
 
-        kwargs.setdefault("stdout", subprocess.PIPE)
-        kwargs.setdefault("stderr", subprocess.STDOUT)
-        kwargs.setdefault("cwd", work_dir)
+        kwargs["stdout"] = subprocess.PIPE
+        kwargs["stderr"] = subprocess.STDOUT
+        kwargs["cwd"] = work_dir
+
+        root_pipe = None
+        if self._root:
+            if PLATFORM.system == System.android:
+                root_pipe = Pipe()
+                if sys.version_info >= (3, 2):
+                    fd = root_pipe.w
+                    kwargs["pass_fds"] = [fd]
+                else:
+                    # Workaround for py < 3.2
+                    # we use stdin as a pipe for getting root pid
+                    fd = 0
+                    kwargs["stdin"] = root_pipe.w
+                cmd = ["su", "-c", "echo $$>&{} && exec ".format(fd) + join_cmd(cmd)]
+            else:
+                logging.warning("Not possible to use root on this platform")
 
         logging.debug("Creating process with command %s and params %s", cmd, kwargs)
         try:
@@ -211,22 +292,35 @@ class Daemon(object):
         finally:
             if PLATFORM.system == System.windows:
                 windows_restore_file_handles_inheritance(handles)
+            if root_pipe:
+                with root_pipe:
+                    self._root_pid = int(root_pipe.read(16, timeout=2).rstrip())
 
         if self._pid_file:
             logging.debug("Saving pid file %s", self._pid_file)
             with open(self._pid_file, "w") as f:
-                f.write(str(self._p.pid))
+                f.write(str(self._root_pid if root_pipe else self._p.pid))
 
     def stop_daemon(self):
         if self._p is not None:
             logging.info("Terminating daemon")
             try:
-                self._p.terminate()
-            except OSError:
+                self._terminate()
+            except (OSError, subprocess.CalledProcessError):
                 logging.info("Daemon already terminated")
             if self._pid_file and os.path.exists(self._pid_file):
                 os.remove(self._pid_file)
             self._p = None
+
+    def _terminate(self):
+        if self._root:
+            if PLATFORM.system == System.android:
+                subprocess.check_call(["su", "-c", "kill {}".format(self._root_pid)])
+            else:
+                logging.debug("Not possible to use root on this platform. Falling back to terminate.")
+                self._p.terminate()
+        else:
+            self._p.terminate()
 
     def daemon_poll(self):
         return self._p and self._p.poll()

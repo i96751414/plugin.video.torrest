@@ -33,6 +33,10 @@ def service_enabled():
     return get_boolean_setting("service_enabled")
 
 
+def run_as_root():
+    return get_boolean_setting("run_as_root")
+
+
 def set_service_enabled(value):
     set_boolean_setting("service_enabled", value)
 

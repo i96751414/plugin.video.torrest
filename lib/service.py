@@ -13,7 +13,7 @@ from lib.api import Torrest, STATUS_FINISHED, STATUS_SEEDING, STATUS_PAUSED
 from lib.daemon import Daemon, DaemonNotFoundError
 from lib.os_platform import get_platform_arch
 from lib.settings import get_port, get_daemon_timeout, service_enabled, set_service_enabled, get_service_ip, \
-    show_background_progress
+    show_background_progress, run_as_root
 from lib.utils import sizeof_fmt, assure_unicode
 
 
@@ -41,7 +41,8 @@ class DaemonMonitor(xbmc.Monitor):
             "torrest", os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch()),
             android_extra_dirs=(xbmc.translatePath("special://xbmcbin"),),
             dest_dir=os.path.join(kodi.ADDON_DATA, "bin"),
-            pid_file=os.path.join(kodi.ADDON_DATA, ".pid"))
+            pid_file=os.path.join(kodi.ADDON_DATA, ".pid"),
+            root=run_as_root())
         self._daemon.ensure_exec_permissions()
         self._daemon.kill_leftover_process()
         self._port = self._enabled = None
