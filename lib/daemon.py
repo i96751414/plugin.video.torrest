@@ -14,7 +14,7 @@ from lib.os_platform import PLATFORM, System
 from lib.utils import bytes_to_str, PY3
 
 
-def android_get_current_app_id():
+def get_current_app_id():
     with open("/proc/{:d}/cmdline".format(os.getpid())) as fp:
         return fp.read().rstrip("\0")
 
@@ -176,7 +176,7 @@ class Daemon(object):
             raise DaemonNotFoundError("Daemon source path does not exist")
 
         if PLATFORM.system == System.android and android_find_dest_dir:
-            app_dir = os.path.join(os.sep, "data", "data", android_get_current_app_id())
+            app_dir = os.path.join(os.sep, "data", "data", get_current_app_id())
             if not os.path.exists(app_dir):
                 logging.debug("Default android app dir '%s' does not exist", app_dir)
                 for directory in android_extra_dirs:
@@ -274,36 +274,27 @@ class Daemon(object):
         kwargs["stderr"] = subprocess.STDOUT
         kwargs["cwd"] = work_dir
 
-        root_pipe = None
         if self._root:
             if PLATFORM.system == System.android:
-                root_pipe = Pipe()
-                if sys.version_info >= (3, 2):
-                    fd = root_pipe.w
-                    kwargs["pass_fds"] = [fd]
-                else:
-                    # Workaround for py < 3.2
-                    # we use stdin as a pipe for getting root pid
-                    fd = 0
-                    kwargs["stdin"] = root_pipe.w
-                cmd = ["su", "-c", "echo $$>&{} && exec ".format(fd) + join_cmd(cmd)]
+                cmd = ["su", "-c", "echo $$ && exec " + join_cmd(cmd)]
             else:
                 logging.warning("Not possible to use root on this platform")
 
         logging.debug("Creating process with command %s and params %s", cmd, kwargs)
         try:
             self._p = subprocess.Popen(cmd, **kwargs)
+
+            if self._root and PLATFORM.system == System.android:
+                read_select(self._p.stdout.fileno(), 2)
+                self._root_pid = int(self._p.stdout.readline().rstrip())
+
+            if self._pid_file:
+                logging.debug("Saving pid file %s", self._pid_file)
+                with open(self._pid_file, "w") as f:
+                    f.write(str(self._root_pid if self._root_pid >= 0 else self._p.pid))
         finally:
             if PLATFORM.system == System.windows:
                 windows_restore_file_handles_inheritance(handles)
-            if root_pipe:
-                with root_pipe:
-                    self._root_pid = int(root_pipe.read(16, timeout=2).rstrip())
-
-        if self._pid_file:
-            logging.debug("Saving pid file %s", self._pid_file)
-            with open(self._pid_file, "w") as f:
-                f.write(str(self._root_pid if root_pipe else self._p.pid))
 
     def stop_daemon(self):
         if self._p is not None:
@@ -314,10 +305,11 @@ class Daemon(object):
                 logging.info("Daemon already terminated")
             if self._pid_file and os.path.exists(self._pid_file):
                 os.remove(self._pid_file)
+            self._root_pid = -1
             self._p = None
 
     def _terminate(self):
-        if self._root:
+        if self._root and self._root_pid >= 0:
             if PLATFORM.system == System.android:
                 subprocess.check_call(["su", "-c", "kill {}".format(self._root_pid)])
             else:
