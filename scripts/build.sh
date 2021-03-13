@@ -25,17 +25,24 @@ version of the torrest binary (see https://github.com/${username}/${repository})
 optional arguments:
   -v <version>  Build version (default: ${version})
   -r <version>  Torrest binary version (default: ${release})
+  -p <platform> Only build specified platform
   -a            Also build zip with all binaries
+  -c            Clean build directory
   -h            Show this message
 EOF
 }
 
 all=false
-while getopts "r:v:ah" flag; do
+clean=false
+platforms=()
+
+while getopts "r:v:p:ach" flag; do
   case "${flag}" in
   r) release="${OPTARG}" ;;
   v) version="${OPTARG}" ;;
+  p) platforms+=("${OPTARG}") ;;
   a) all=true ;;
+  c) clean=true ;;
   h)
     printUsage
     exit 0
@@ -49,6 +56,13 @@ done
 
 cd "${repo_path}"
 
+elementIn() {
+  local e match="$1"
+  shift
+  for e; do [ "${e}" == "${match}" ] && return 0; done
+  return 1
+}
+
 function createBaseZip() {
   git archive --format zip -9 --prefix "${name}/" --output "${1}" HEAD
 }
@@ -57,11 +71,20 @@ function info() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') - ${1}"
 }
 
+if [ "${clean}" == true ]; then
+  info "Cleaning build directory"
+  rm -rf "${build_path}"
+fi
+
 # More on https://developer.github.com/v3/repos/releases/
 info "Getting ${release} release from ${username}/${repository}"
 response=$(curl -s -X GET "https://api.github.com/repos/${username}/${repository}/releases/${release}")
 for url in $(jq -er ".assets | .[] | .browser_download_url" <<<"${response}"); do
   platform=$(awk -F. '{print $(NF-1)}' <<<"${url}")
+  if [ ${#platforms[@]} -gt 0 ] && ! elementIn "${platform}" "${platforms[@]}"; then
+    continue
+  fi
+
   binary_path="${bin_path}/${platform}"
   mkdir -p "${build_path}/${binary_path}"
   info "Downloading ${url}"
