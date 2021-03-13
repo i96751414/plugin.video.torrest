@@ -5,14 +5,20 @@ import sys
 from collections import namedtuple
 
 
-class System:
+class Enum:
+    @classmethod
+    def values(cls):
+        return [value for name, value in vars(cls).items() if not name.startswith("_")]
+
+
+class System(Enum):
     linux = "linux"
     android = "android"
     darwin = "darwin"
     windows = "windows"
 
 
-class Arch:
+class Arch(Enum):
     x64 = "x64"
     x86 = "x86"
     arm = "arm"
@@ -32,6 +38,8 @@ def get_platform():
     version = platform.release()
     arch = Arch.x64 if sys.maxsize > 2 ** 32 else Arch.x86
     machine = platform.machine().lower()
+
+    logging.debug("Resolving platform - system=%s, version=%s, arch=%s, machine=%s", system, version, arch, machine)
 
     if "ANDROID_STORAGE" in os.environ:
         system = System.android
@@ -53,6 +61,9 @@ def get_platform():
             arch = Arch.x64
     elif system == System.darwin:
         arch = Arch.x64
+
+    if system not in System.values() or arch not in Arch.values():
+        logging.warning("Unknown system (%s) and/or arch (%s) values", system, arch)
 
     return Platform(system, version, arch)
 

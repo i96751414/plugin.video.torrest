@@ -265,8 +265,8 @@ def run():
         try:
             with DaemonMonitor() as monitor:
                 monitor.handle_crashes()
-        except DaemonNotFoundError:
-            logging.info("Daemon not found. Aborting service...")
+        except DaemonNotFoundError as e:
+            logging.info("Daemon not found. Aborting service (%s).", e)
             if service_enabled():
                 set_service_enabled(False)
                 xbmcgui.Dialog().ok(kodi.ADDON_NAME, kodi.translate(30103))

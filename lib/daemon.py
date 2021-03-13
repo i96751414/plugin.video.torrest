@@ -173,7 +173,7 @@ class Daemon(object):
 
         src_path = os.path.join(daemon_dir, self._name)
         if not os.path.exists(src_path):
-            raise DaemonNotFoundError("Daemon source path does not exist")
+            raise DaemonNotFoundError("Daemon source path does not exist: " + src_path)
 
         if PLATFORM.system == System.android and android_find_dest_dir:
             app_dir = os.path.join(os.sep, "data", "data", get_current_app_id())
