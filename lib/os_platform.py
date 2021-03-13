@@ -78,7 +78,8 @@ try:
 except Exception as _e:
     logging.fatal(_e, exc_info=True)
     logging.fatal(dump_platform())
+    raise _e
 
 
-def get_platform_arch():
-    return "{}_{}".format(PLATFORM.system, PLATFORM.arch)
+def get_platform_arch(sep="_"):
+    return PLATFORM.system + sep + PLATFORM.arch
