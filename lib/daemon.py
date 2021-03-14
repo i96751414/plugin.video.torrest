@@ -285,7 +285,7 @@ class Daemon(object):
             self._p = subprocess.Popen(cmd, **kwargs)
 
             if self._root and PLATFORM.system == System.android:
-                read_select(self._p.stdout.fileno(), 2)
+                read_select(self._p.stdout.fileno(), 10)
                 self._root_pid = int(self._p.stdout.readline().rstrip())
 
             if self._pid_file:
