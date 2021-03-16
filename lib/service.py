@@ -50,7 +50,6 @@ class DaemonMonitor(xbmc.Monitor):
         self._log_path = os.path.join(kodi.ADDON_DATA, self.log_name)
         self._settings_spec = [s for s in kodi.get_all_settings_spec() if s["id"].startswith(
             self._settings_prefix + self._settings_separator)]
-        self.onSettingsChanged()
 
     def _start(self):
         self._daemon.start(
@@ -161,17 +160,32 @@ class DaemonMonitor(xbmc.Monitor):
                         crash_count += 1
 
                     if last_crash > 0:
-                        logging.info("%s seconds passed since last crash", time_between_crashes)
+                        logging.info("%.2f seconds passed since last crash", time_between_crashes)
                     last_crash = crash_time
 
                     if crash_count <= max_crashes:
                         logging.info("Re-starting daemon - %s/%s", crash_count, max_crashes)
+
+                        if crash_count > 1 and os.path.exists(self._settings_path):
+                            logging.info("Removing old settings file")
+                            os.remove(self._settings_path)
+
                         self._start()
-                        self._wait(timeout=get_daemon_timeout(), notification=True)
+
+                        try:
+                            self._wait(timeout=get_daemon_timeout(), notification=True)
+                            self._update_daemon_settings()
+                        except DaemonTimeoutError:
+                            logging.error("Timed out waiting for daemon")
+                            last_crash = time.time()
                     else:
                         logging.info("Max crashes (%d) reached", max_crashes)
 
     def __enter__(self):
+        try:
+            self.onSettingsChanged()
+        except DaemonTimeoutError:
+            logging.error("Timed out waiting for daemon")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
