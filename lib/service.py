@@ -39,6 +39,7 @@ class DaemonMonitor(xbmc.Monitor):
         self._lock = threading.Lock()
         self._daemon = Daemon(
             "torrest", os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch()),
+            work_dir=kodi.ADDON_DATA,
             android_extra_dirs=(xbmc.translatePath("special://xbmcbin"),),
             dest_dir=os.path.join(kodi.ADDON_DATA, "bin"),
             pid_file=os.path.join(kodi.ADDON_DATA, ".pid"),

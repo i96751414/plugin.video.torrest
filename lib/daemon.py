@@ -162,9 +162,10 @@ class DaemonNotFoundError(Exception):
 
 
 class Daemon(object):
-    def __init__(self, name, daemon_dir, android_find_dest_dir=True,
+    def __init__(self, name, daemon_dir, work_dir=None, android_find_dest_dir=True,
                  android_extra_dirs=(), dest_dir=None, pid_file=None, root=False):
         self._name = name
+        self._work_dir = work_dir
         self._pid_file = pid_file
         self._root = root
         self._root_pid = -1
@@ -242,7 +243,7 @@ class Daemon(object):
             raise ValueError("daemon already running")
         logging.info("Starting daemon with args: %s", args)
         cmd = [self._path] + list(args)
-        work_dir = self._dir
+        work_dir = self._work_dir or self._dir
         kwargs = {}
 
         if PLATFORM.system == System.windows:
