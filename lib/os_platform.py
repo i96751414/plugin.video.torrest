@@ -38,24 +38,21 @@ def get_platform():
     version = platform.release()
     arch = Arch.x64 if sys.maxsize > 2 ** 32 else Arch.x86
     machine = platform.machine().lower()
+    is_arch64 = "64" in machine and arch == Arch.x64
 
     logging.debug("Resolving platform - system=%s, version=%s, arch=%s, machine=%s", system, version, arch, machine)
 
     if "ANDROID_STORAGE" in os.environ:
         system = System.android
         if "arm" in machine or "aarch" in machine:
-            if "64" in machine and arch == Arch.x64:
-                arch = Arch.arm64
-            else:
-                arch = Arch.arm
+            arch = Arch.arm64 if is_arch64 else Arch.arm
     elif system == System.linux:
         if "armv7" in machine:
             arch = Arch.armv7
+        elif "aarch" in machine:
+            arch = Arch.arm64 if is_arch64 else Arch.armv7
         elif "arm" in machine:
-            if "64" in machine and arch == Arch.x64:
-                arch = Arch.arm64
-            else:
-                arch = Arch.arm
+            arch = Arch.arm64 if is_arch64 else Arch.arm
     elif system == System.windows:
         if machine.endswith("64"):
             arch = Arch.x64
