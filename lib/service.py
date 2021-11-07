@@ -54,7 +54,7 @@ class DaemonMonitor(xbmc.Monitor):
 
     def _start(self):
         self._daemon.start(
-            "-port", str(self._port), "-settings", self._settings_path, level=logging.INFO, path=self._log_path)
+            "--port", str(self._port), "--settings", self._settings_path, level=logging.INFO, path=self._log_path)
 
     def _stop(self):
         self._daemon.stop()
