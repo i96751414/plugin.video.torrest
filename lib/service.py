@@ -29,7 +29,7 @@ class DaemonMonitor(xbmc.Monitor):
     _settings_prefix = "s"
     _settings_separator = ":"
     _settings_get_uri = "settings/get"
-    _settings_set_uri = "settings/set/?reset=true"
+    _settings_set_uri = "settings/set?reset=true"
 
     settings_name = "settings.json"
     log_name = "torrest.log"
