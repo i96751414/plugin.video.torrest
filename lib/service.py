@@ -40,7 +40,7 @@ class DaemonMonitor(xbmc.Monitor):
         self._daemon = Daemon(
             "torrest", os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch()),
             work_dir=kodi.ADDON_DATA,
-            android_extra_dirs=(xbmc.translatePath("special://xbmcbin"),),
+            android_extra_dirs=(kodi.translatePath("special://xbmcbin"),),
             dest_dir=os.path.join(kodi.ADDON_DATA, "bin"),
             pid_file=os.path.join(kodi.ADDON_DATA, ".pid"),
             root=run_as_root())
@@ -77,8 +77,8 @@ class DaemonMonitor(xbmc.Monitor):
 
     def _get_kodi_settings(self):
         s = kodi.generate_dict_settings(self._settings_spec, separator=self._settings_separator)[self._settings_prefix]
-        s["download_path"] = assure_unicode(xbmc.translatePath(s["download_path"]))
-        s["torrents_path"] = assure_unicode(xbmc.translatePath(s["torrents_path"]))
+        s["download_path"] = assure_unicode(kodi.translatePath(s["download_path"]))
+        s["torrents_path"] = assure_unicode(kodi.translatePath(s["torrents_path"]))
         return s
 
     def _get_daemon_settings(self):
