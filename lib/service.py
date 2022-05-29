@@ -210,7 +210,7 @@ class DownloadProgress(xbmc.Monitor, threading.Thread):
                     self._update_progress()
                 except requests.exceptions.ConnectionError:
                     self._close_dialog()
-                    logging.error("Failed to update background progress")
+                    logging.debug("Failed to update background progress")
             else:
                 self._close_dialog()
         self._close_dialog()
