@@ -16,10 +16,11 @@
         <summary lang="en">Torrest on Kodi</summary>
         <description lang="en">Torrest is a service with a rest API which allows torrent streaming.</description>
         <news>
-            - Fix arch detection for aarch with 32 bits
-            - Add support for Kodi 20
-            - Start using torrest-cpp (https://github.com/i96751414/torrest-cpp) binaries
-            - Daemon related minor improvements
+- Fix arch detection for aarch with 32 bits
+- Add support for Kodi 20
+- Start using torrest-cpp (https://github.com/i96751414/torrest-cpp) binaries
+- Daemon related minor improvements
+- Fix stop/download context menu actions
         </news>
         <assets>
             <icon>icon.png</icon>

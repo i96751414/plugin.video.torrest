@@ -8,7 +8,7 @@ from xbmc import Monitor, executebuiltin, getInfoLabel, getCondVisibility, sleep
 from xbmcgui import ListItem, DialogProgress, Dialog
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
-from lib.api import Torrest, TorrestError
+from lib.api import Torrest, TorrestError, STATUS_SEEDING, STATUS_PAUSED
 from lib.dialog import DialogInsert
 from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture, \
     close_busy_dialog
@@ -151,12 +151,18 @@ def index():
 @check_directory
 def torrents():
     for torrent in api.torrents():
-        torrent_li = list_item(torrent.name, "download.png")
-        torrent_li.addContextMenuItems([
-            (translate(30235), media(play_info_hash, info_hash=torrent.info_hash)),
-            (translate(30208), action(torrent_action, torrent.info_hash, "stop"))
-            if torrent.status.total == torrent.status.total_wanted else
-            (translate(30209), action(torrent_action, torrent.info_hash, "download")),
+        context_menu_items = [
+            (translate(30235), media(play_info_hash, info_hash=torrent.info_hash))
+        ]
+
+        if torrent.status.state not in (STATUS_SEEDING, STATUS_PAUSED):
+            context_menu_items.append(
+                (translate(30208), action(torrent_action, torrent.info_hash, "stop"))
+                if torrent.status.total == torrent.status.total_wanted else
+                (translate(30209), action(torrent_action, torrent.info_hash, "download"))
+            )
+
+        context_menu_items.extend([
             (translate(30210), action(torrent_action, torrent.info_hash, "resume"))
             if torrent.status.paused else
             (translate(30211), action(torrent_action, torrent.info_hash, "pause")),
@@ -164,6 +170,9 @@ def torrents():
             (translate(30212), action(torrent_action, torrent.info_hash, "remove_torrent_and_files")),
             (translate(30245), action(torrent_action, torrent.info_hash, "torrent_status"))
         ])
+
+        torrent_li = list_item(torrent.name, "download.png")
+        torrent_li.addContextMenuItems(context_menu_items)
         addDirectoryItem(plugin.handle, plugin.url_for(torrent_files, torrent.info_hash), torrent_li, isFolder=True)
 
 
