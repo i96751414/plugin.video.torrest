@@ -4,7 +4,7 @@ set -e
 
 name="plugin.video.torrest"
 username="i96751414"
-repository="torrest"
+repository="torrest-cpp"
 release="latest"
 bin_path="${name}/resources/bin"
 
