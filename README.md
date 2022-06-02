@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/i96751414/plugin.video.torrest/workflows/build/badge.svg)](https://github.com/i96751414/plugin.video.torrest/actions?query=workflow%3Abuild)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/02d656339d9e4d8fb3ced0211c34c9b4)](https://www.codacy.com/gh/i96751414/plugin.video.torrest/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=i96751414/plugin.video.torrest&amp;utm_campaign=Badge_Grade)
 
-Another torrent streaming engine for Kodi. It uses the [torrest service](https://github.com/i96751414/torrest), which
+Another torrent streaming engine for Kodi. It uses the [torrest service](https://github.com/i96751414/torrest-cpp), which
 provides an API specially made for streaming.
 
 ## Supported platforms
