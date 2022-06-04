@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.torrest" name="Torrest" provider-name="i96751414" version="0.0.13">
+<addon id="plugin.video.torrest" name="Torrest" provider-name="i96751414" version="0.0.14">
     <requires>
         <!--<import addon="xbmc.python" version="3.0.0"/>-->
         <import addon="script.module.requests" version="2.22.0"/>
@@ -21,6 +21,8 @@
 - Start using torrest-cpp (https://github.com/i96751414/torrest-cpp) binaries
 - Daemon related minor improvements
 - Fix stop/download context menu actions
+- Fix linux-armX devices
+- Update daemon logger to support new torrest-cpp logging format
         </news>
         <assets>
             <icon>icon.png</icon>

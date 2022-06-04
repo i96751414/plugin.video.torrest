@@ -143,23 +143,24 @@ class DefaultDaemonLogger(threading.Thread):
 
 class DaemonLogger(DefaultDaemonLogger):
     levels_mapping = {
-        "CRITICAL": logging.CRITICAL,
-        "ERROR": logging.ERROR,
-        "WARNING": logging.WARNING,
-        "NOTICE": logging.INFO,
-        "INFO": logging.INFO,
-        "DEBUG": logging.DEBUG,
+        "critical": logging.CRITICAL,
+        "error": logging.ERROR,
+        "warning": logging.WARNING,
+        "notice": logging.INFO,
+        "info": logging.INFO,
+        "debug": logging.DEBUG,
+        "trace": logging.DEBUG,
     }
 
     tag_regex = re.compile("\x1b\\[[\\d;]+m")
     level_regex = re.compile(r"^(?:{})*\d+-\d+-\d+ \d+:\d+:\d+\.\d+ ({})".format(
-        tag_regex.pattern, "|".join(levels_mapping)))
+        tag_regex.pattern, "|".join(levels_mapping)), re.IGNORECASE)
 
     def _get_level_and_message(self, line):
         m = self.level_regex.search(line)
         if m:
             line = line[len(m.group(0)):].lstrip(" ")
-            level = self.levels_mapping[m.group(1)]
+            level = self.levels_mapping[m.group(1).lower()]
         else:
             level = self._default_level
 
