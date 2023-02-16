@@ -334,6 +334,10 @@ msgctxt "#30083"
 msgid "Run as root (Android)"
 msgstr "Executar como root (Android)"
 
+msgctxt "#30084"
+msgid "Piece expiration time"
+msgstr "Tempo de validade de peça"
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"

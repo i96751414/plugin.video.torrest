@@ -48,6 +48,7 @@
     <category label="30078">
         <setting id="s:connections_limit" type="number" label="30011" default="0"/>
         <setting id="s:piece_wait_timeout" type="slider" label="30063" option="int" range="0,10,120" default="60"/>
+        <setting id="s:piece_expiration" type="slider" label="30084" option="int" range="5,5,120" default="5"/>
         <setting id="s:limit_after_buffering" type="bool" label="30033" default="false"/>
         <setting id="s:max_download_rate" type="number" label="30034" default="0"/>
         <setting id="s:max_upload_rate" type="number" label="30035" default="0"/>
