@@ -172,6 +172,9 @@ class KodiLogHandler(logging.StreamHandler):
     def flush(self):
         pass
 
+    def __repr__(self):
+        return "<{}({})>".format(self.__class__.__name__, logging.getLevelName(self.level))
+
 
 def set_logger(name=None, level=logging.NOTSET):
     logger = logging.getLogger(name)

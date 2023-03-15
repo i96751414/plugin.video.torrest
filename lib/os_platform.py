@@ -32,6 +32,9 @@ Platform = namedtuple("Platform", [
     "arch",  # type:str
 ])
 
+SHARED_LIB_EXTENSION = {System.linux: ".so", System.android: ".so", System.darwin: ".dylib", System.windows: ".dll"}
+EXECUTABLE_EXTENSION = {System.linux: "", System.android: "", System.darwin: "", System.windows: ".exe"}
+
 
 def get_platform():
     system = platform.system().lower()
@@ -80,3 +83,11 @@ except Exception as _e:
 
 def get_platform_arch(sep="_"):
     return PLATFORM.system + sep + PLATFORM.arch
+
+
+def get_shared_lib_extension():
+    return SHARED_LIB_EXTENSION.get(PLATFORM.system, "")
+
+
+def get_executable_extension():
+    return EXECUTABLE_EXTENSION.get(PLATFORM.system, "")

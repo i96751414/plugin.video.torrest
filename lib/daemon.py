@@ -1,31 +1,16 @@
-import hashlib
 import logging
 import os
 import pipes
 import re
-import select
-import shutil
 import stat
 import subprocess
 import sys
 import threading
-from io import FileIO
+
+import select
 
 from lib.os_platform import PLATFORM, System
 from lib.utils import bytes_to_str, PY3
-
-
-def compute_hex_digest(file_path, hash_type, buff_size=4096):
-    h = hash_type()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(buff_size), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def get_current_app_id():
-    with open("/proc/{:d}/cmdline".format(os.getpid())) as fp:
-        return fp.read().rstrip("\0")
 
 
 def join_cmd(cmd):
@@ -70,47 +55,6 @@ def windows_restore_file_handles_inheritance(handles):
 
 class SelectTimeoutError(Exception):
     pass
-
-
-class Pipe(object):
-    def __init__(self):
-        self._r, self._w = os.pipe()
-
-    @property
-    def r(self):
-        return self._r
-
-    @property
-    def w(self):
-        return self._w
-
-    def read(self, buf, timeout=0):
-        if self._r < 0:
-            raise ValueError("read file descriptor is closed")
-        if timeout > 0:
-            read_select(self._r, timeout)
-        return os.read(self._r, buf)
-
-    def write(self, data):
-        if self._w < 0:
-            raise ValueError("write file descriptor is closed")
-        return os.write(self._w, data)
-
-    def close(self, read=False, write=False):
-        both = not (read or write)
-        if (both or read) and self._r >= 0:
-            os.close(self._r)
-            self._r = -1
-        if (both or write) and self._w >= 0:
-            os.close(self._w)
-            self._w = -1
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-        return False
 
 
 class DefaultDaemonLogger(threading.Thread):
@@ -172,59 +116,20 @@ class DaemonNotFoundError(Exception):
 
 
 class Daemon(object):
-    def __init__(self, name, daemon_dir, work_dir=None, android_find_dest_dir=True,
-                 android_extra_dirs=(), dest_dir=None, pid_file=None, root=False, contains_sha1=False):
+    def __init__(self, name, daemon_dir, work_dir=None, pid_file=None, root=False):
         self._name = name
+        self._dir = daemon_dir
         self._work_dir = work_dir
         self._pid_file = pid_file
         self._root = root
         self._root_pid = -1
-        self._contains_sha1 = contains_sha1
-        if PLATFORM.system == System.windows:
-            self._name += ".exe"
-
-        src_path = os.path.join(daemon_dir, self._name)
-        if not os.path.exists(src_path):
-            raise DaemonNotFoundError("Daemon source path does not exist: " + src_path)
-
-        if PLATFORM.system == System.android and android_find_dest_dir:
-            app_dir = os.path.join(os.sep, "data", "data", get_current_app_id())
-            if not os.path.exists(app_dir):
-                logging.debug("Default android app dir '%s' does not exist", app_dir)
-                for directory in android_extra_dirs:
-                    if os.path.exists(directory):
-                        app_dir = directory
-                        break
-
-            logging.debug("Using android app dir '%s'", app_dir)
-            self._dir = os.path.join(app_dir, "files", name)
-        else:
-            self._dir = dest_dir or daemon_dir
         self._path = os.path.join(self._dir, self._name)
 
-        if self._dir is not daemon_dir:
-            if not os.path.exists(self._path) or self._compute_sha1(src_path) != self._compute_sha1(self._path):
-                logging.info("Updating %s daemon '%s'", PLATFORM.system, self._path)
-                if os.path.exists(self._dir):
-                    logging.debug("Removing old daemon dir %s", self._dir)
-                    shutil.rmtree(self._dir)
-                shutil.copytree(daemon_dir, self._dir)
+        if not os.path.exists(self._path):
+            raise DaemonNotFoundError("Daemon source path does not exist: " + self._path)
 
         self._p = None  # type: subprocess.Popen or None
         self._logger = None  # type: DaemonLogger or None
-
-    def _compute_sha1(self, path):
-        if self._contains_sha1:
-            # Legacy code
-            # Using FileIO instead of open as fseeko with OFF_T=64 is broken in android NDK
-            # See https://trac.kodi.tv/ticket/17827
-            with FileIO(path) as f:
-                f.seek(-40, os.SEEK_END)
-                digest = f.read()
-        else:
-            digest = compute_hex_digest(path, hashlib.sha1)
-
-        return digest
 
     def kill_leftover_process(self):
         if self._pid_file and os.path.exists(self._pid_file):
@@ -323,6 +228,7 @@ class Daemon(object):
             if self._pid_file and os.path.exists(self._pid_file):
                 os.remove(self._pid_file)
             self._root_pid = -1
+            self._p.stdout.close()
             self._p = None
 
     def _terminate(self):

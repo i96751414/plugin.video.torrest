@@ -81,9 +81,9 @@ class TorrestError(Exception):
 
 
 class Torrest(object):
-    def __init__(self, host, port):
+    def __init__(self, host, port, session=None):
         self._base_url = "http://{}:{}".format(host, port)
-        self._session = requests.Session()
+        self._session = session or requests
 
     def add_magnet(self, magnet, ignore_duplicate=False, download=False):
         r = self._get("/add/magnet", params={

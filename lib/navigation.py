@@ -8,7 +8,6 @@ from xbmc import Monitor, executebuiltin, getInfoLabel, getCondVisibility, sleep
 from xbmcgui import ListItem, DialogProgress, Dialog
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
-from lib.api import Torrest, TorrestError, STATUS_SEEDING, STATUS_PAUSED
 from lib.dialog import DialogInsert
 from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture, \
     close_busy_dialog
@@ -16,6 +15,7 @@ from lib.kodi_formats import is_music, is_picture, is_video, is_text
 from lib.player import TorrestPlayer
 from lib.settings import get_service_ip, get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
     ask_to_delete_torrent, download_after_insert, get_files_order, get_metadata_timeout
+from lib.torrest.api import Torrest, TorrestError, STATUS_SEEDING, STATUS_PAUSED
 from lib.utils import sizeof_fmt
 
 set_logger()
