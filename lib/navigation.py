@@ -58,10 +58,11 @@ def check_directory(func):
     def wrapper(*args, **kwargs):
         try:
             func(*args, **kwargs)
-            endOfDirectory(plugin.handle)
         except Exception as e:
             endOfDirectory(plugin.handle, succeeded=False)
             raise e
+        else:
+            endOfDirectory(plugin.handle)
 
     return wrapper
 
