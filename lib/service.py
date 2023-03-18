@@ -28,8 +28,8 @@ class DaemonTimeoutError(Exception):
 class DaemonMonitor(xbmc.Monitor):
     _settings_prefix = "s"
     _settings_separator = ":"
-    _settings_get_uri = "settings/get"
-    _settings_set_uri = "settings/set?reset=true"
+    _settings_get_uri = "settings"
+    _settings_set_uri = "settings?reset=true"
 
     settings_name = "settings.json"
     log_name = "torrest.log"
@@ -102,7 +102,7 @@ class DaemonMonitor(xbmc.Monitor):
         kodi_settings = self._get_kodi_settings()
         if daemon_settings != kodi_settings:
             logging.debug("Need to update daemon settings")
-            r = self._request("post", self._settings_set_uri, json=kodi_settings)
+            r = self._request("put", self._settings_set_uri, json=kodi_settings)
             if r.status_code != 200:
                 xbmcgui.Dialog().ok(kodi.translate(30102), r.json()["error"])
                 return False

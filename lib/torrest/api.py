@@ -86,7 +86,7 @@ class Torrest(object):
         self._session = session or requests
 
     def add_magnet(self, magnet, ignore_duplicate=False, download=False):
-        r = self._get("/add/magnet", params={
+        r = self._post("/add/magnet", params={
             "uri": magnet, "ignore_duplicate": self._bool_str(ignore_duplicate),
             "download": self._bool_str(download)})
         return r.json()["info_hash"]
@@ -110,19 +110,19 @@ class Torrest(object):
                 for t in self._get("/torrents", params={"status": self._bool_str(status)}).json()]
 
     def pause_torrent(self, info_hash):
-        self._get("/torrents/{}/pause".format(info_hash))
+        self._put("/torrents/{}/pause".format(info_hash))
 
     def resume_torrent(self, info_hash):
-        self._get("/torrents/{}/resume".format(info_hash))
+        self._put("/torrents/{}/resume".format(info_hash))
 
     def download_torrent(self, info_hash):
-        self._get("/torrents/{}/download".format(info_hash))
+        self._put("/torrents/{}/download".format(info_hash))
 
     def stop_torrent(self, info_hash):
-        self._get("/torrents/{}/stop".format(info_hash))
+        self._put("/torrents/{}/stop".format(info_hash))
 
     def remove_torrent(self, info_hash, delete=True):
-        self._get("/torrents/{}/remove".format(info_hash), params={"delete": self._bool_str(delete)})
+        self._delete("/torrents/{}".format(info_hash), params={"delete": self._bool_str(delete)})
 
     def torrent_info(self, info_hash):
         """
@@ -165,11 +165,11 @@ class Torrest(object):
         return from_dict(self._get("/torrents/{}/files/{}/status".format(info_hash, file_id)).json(), FileStatus)
 
     def download_file(self, info_hash, file_id, buffer=False):
-        self._get("/torrents/{}/files/{}/download".format(info_hash, file_id),
+        self._put("/torrents/{}/files/{}/download".format(info_hash, file_id),
                   params={"buffer": self._bool_str(buffer)})
 
     def stop_file(self, info_hash, file_id):
-        self._get("/torrents/{}/files/{}/stop".format(info_hash, file_id))
+        self._put("/torrents/{}/files/{}/stop".format(info_hash, file_id))
 
     def serve_url(self, info_hash, file_id):
         return "{}/torrents/{}/files/{}/serve".format(self._base_url, info_hash, file_id)
@@ -181,8 +181,14 @@ class Torrest(object):
     def _post(self, url, **kwargs):
         return self._request("post", url, **kwargs)
 
+    def _put(self, url, **kwargs):
+        return self._request("put", url, **kwargs)
+
     def _get(self, url, **kwargs):
         return self._request("get", url, **kwargs)
+
+    def _delete(self, url, **kwargs):
+        return self._request("delete", url, **kwargs)
 
     def _request(self, method, url, validate=True, **kwargs):
         r = self._session.request(method, self._base_url + url, **kwargs)
