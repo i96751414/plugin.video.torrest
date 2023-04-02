@@ -43,20 +43,18 @@ class DaemonMonitor(xbmc.Monitor):
         self._settings_spec = [s for s in kodi.get_all_settings_spec() if s["id"].startswith(
             self._settings_prefix + self._settings_separator)]
 
-        config = dict(settings_path=self._settings_path, log_path=self._log_path, port=None)
-        dest_dir = os.path.join(kodi.ADDON_DATA, "bin")
         base_directory = os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch())
         lib_name = "libtorrest" + get_shared_lib_extension()
         exe_name = "torrest" + get_executable_extension()
+        config = dict(settings_path=self._settings_path, log_path=self._log_path, port=None)
+        kwargs = dict(config=config, dest_dir=os.path.join(kodi.ADDON_DATA, "bin"), work_dir=kodi.ADDON_DATA,
+                      android_extra_dirs=(kodi.translatePath("special://xbmcbin"),))
 
         if os.path.exists(os.path.join(base_directory, lib_name)):
-            self._daemon = TorrestLibraryDaemon(
-                lib_name, base_directory, config=config, dest_dir=dest_dir, work_dir=kodi.ADDON_DATA)
+            self._daemon = TorrestLibraryDaemon(lib_name, base_directory, **kwargs)
         else:
             self._daemon = TorrestExecutableDaemon(
-                exe_name, base_directory, config=config, dest_dir=dest_dir, work_dir=kodi.ADDON_DATA,
-                android_extra_dirs=(kodi.translatePath("special://xbmcbin"),),
-                pid_file=os.path.join(kodi.ADDON_DATA, ".pid"), root=run_as_root())
+                exe_name, base_directory, pid_file=os.path.join(kodi.ADDON_DATA, ".pid"), root=run_as_root(), **kwargs)
 
     def _request(self, method, url, **kwargs):
         return requests.request(method, "http://127.0.0.1:{}/{}".format(self._daemon.get_config("port"), url), **kwargs)

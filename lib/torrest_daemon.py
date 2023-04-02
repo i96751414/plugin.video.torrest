@@ -36,16 +36,30 @@ class ConfigError(LookupError):
 class TorrestDaemon(object):
     _sentinel = object()
 
-    def __init__(self, name, directory, config=None, dest_dir=None):
+    def __init__(self, name, directory, config=None, dest_dir=None, android_find_dest_dir=True, android_extra_dirs=()):
         self._name = name
         self._src_dir = directory
-        self._dir = directory if dest_dir is None else dest_dir
-        self._config = {} if config is None else config
         self._src_path = os.path.join(self._src_dir, self._name)
-        self._path = os.path.join(self._dir, self._name)
+        self._config = {} if config is None else config
 
         if not os.path.exists(self._src_path):
             raise TorrestDaemonNotFoundError("Torrest daemon source path does not exist: " + self._src_path)
+
+        if PLATFORM.system == System.android and android_find_dest_dir:
+            app_dir = os.path.join(os.sep, "data", "data", get_current_app_id())
+            if not os.path.exists(app_dir):
+                logging.debug("Default android app dir '%s' does not exist", app_dir)
+                for extra_dir in android_extra_dirs:
+                    if os.path.exists(extra_dir):
+                        app_dir = extra_dir
+                        break
+
+            logging.debug("Using android app dir '%s'", app_dir)
+            self._dir = os.path.join(app_dir, "files", "torrest")
+        else:
+            self._dir = directory if dest_dir is None else dest_dir
+
+        self._path = os.path.join(self._dir, self._name)
 
         self._copy_to_dest()
 
@@ -83,19 +97,9 @@ class TorrestDaemon(object):
 class TorrestExecutableDaemon(TorrestDaemon):
     def __init__(self, name, directory, config=None, dest_dir=None,
                  android_find_dest_dir=True, android_extra_dirs=(), **kwargs):
-        if PLATFORM.system == System.android and android_find_dest_dir:
-            app_dir = os.path.join(os.sep, "data", "data", get_current_app_id())
-            if not os.path.exists(app_dir):
-                logging.debug("Default android app dir '%s' does not exist", app_dir)
-                for extra_dir in android_extra_dirs:
-                    if os.path.exists(extra_dir):
-                        app_dir = extra_dir
-                        break
-
-            logging.debug("Using android app dir '%s'", app_dir)
-            dest_dir = os.path.join(app_dir, "files", name)
-
-        super(TorrestExecutableDaemon, self).__init__(name, directory, config=config, dest_dir=dest_dir)
+        super(TorrestExecutableDaemon, self).__init__(
+            name, directory, config=config, dest_dir=dest_dir,
+            android_find_dest_dir=android_find_dest_dir, android_extra_dirs=android_extra_dirs)
         self._daemon = Daemon(self._name, self._dir, **kwargs)
 
     def setup(self):
@@ -116,8 +120,11 @@ class TorrestExecutableDaemon(TorrestDaemon):
 
 
 class TorrestLibraryDaemon(TorrestDaemon):
-    def __init__(self, name, directory, config=None, dest_dir=None, work_dir=None):
-        super(TorrestLibraryDaemon, self).__init__(name, directory, config=config, dest_dir=dest_dir)
+    def __init__(self, name, directory, config=None, dest_dir=None,
+                 android_find_dest_dir=True, android_extra_dirs=(), work_dir=None):
+        super(TorrestLibraryDaemon, self).__init__(
+            name, directory, config=config, dest_dir=dest_dir,
+            android_find_dest_dir=android_find_dest_dir, android_extra_dirs=android_extra_dirs)
         self._daemon = TorrestLib(self._path)
         self._work_dir = work_dir
 
