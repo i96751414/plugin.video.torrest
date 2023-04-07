@@ -132,16 +132,17 @@ class TorrestLibraryDaemon(TorrestDaemon):
         # TODO check other way to do this
         if self._work_dir is not None:
             os.chdir(self._work_dir)
+
+    def start(self):
         self._daemon.clear_logging_sinks()
         self._daemon.add_logging_callback_sink()
         self._daemon.add_logging_file_sink(self.get_config("log_path"), truncate=True)
-
-    def start(self):
         self._daemon.start_threaded(self.get_config("port"), self.get_config("settings_path"), daemon=True)
 
     def stop(self):
         self._daemon.stop()
         self._daemon.join_thread()
+        self._daemon.clear_logging_sinks()
 
     def poll(self):
         return self._daemon.poll()
