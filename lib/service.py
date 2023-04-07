@@ -11,7 +11,7 @@ import xbmcgui
 from lib import kodi
 from lib.os_platform import get_platform_arch, get_shared_lib_extension, get_executable_extension
 from lib.settings import get_port, get_daemon_timeout, service_enabled, set_service_enabled, get_service_ip, \
-    show_background_progress, run_as_root
+    show_background_progress
 from lib.torrest.api import Torrest, STATUS_FINISHED, STATUS_SEEDING, STATUS_PAUSED
 from lib.torrest_daemon import TorrestLibraryDaemon, TorrestExecutableDaemon, TorrestDaemonNotFoundError
 from lib.utils import sizeof_fmt, assure_unicode
@@ -54,7 +54,7 @@ class DaemonMonitor(xbmc.Monitor):
             self._daemon = TorrestLibraryDaemon(lib_name, base_directory, **kwargs)
         else:
             self._daemon = TorrestExecutableDaemon(
-                exe_name, base_directory, pid_file=os.path.join(kodi.ADDON_DATA, ".pid"), root=run_as_root(), **kwargs)
+                exe_name, base_directory, pid_file=os.path.join(kodi.ADDON_DATA, ".pid"), **kwargs)
 
     def _request(self, method, url, **kwargs):
         return requests.request(method, "http://127.0.0.1:{}/{}".format(self._daemon.get_config("port"), url), **kwargs)

@@ -1,27 +1,13 @@
 import logging
 import os
-import pipes
 import re
 import stat
 import subprocess
 import sys
 import threading
 
-import select
-
 from lib.os_platform import PLATFORM, System
 from lib.utils import bytes_to_str, PY3
-
-
-def join_cmd(cmd):
-    return " ".join(pipes.quote(arg) for arg in cmd)
-
-
-def read_select(fd, timeout):
-    r, _, _ = select.select([fd], [], [], timeout)
-    if fd not in r:
-        raise SelectTimeoutError("Timed out waiting for pipe read")
-
 
 # https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-sethandleinformation
 HANDLE_FLAG_INHERIT = 0x00000001
@@ -116,13 +102,11 @@ class DaemonNotFoundError(Exception):
 
 
 class Daemon(object):
-    def __init__(self, name, daemon_dir, work_dir=None, pid_file=None, root=False):
+    def __init__(self, name, daemon_dir, work_dir=None, pid_file=None):
         self._name = name
         self._dir = daemon_dir
         self._work_dir = work_dir
         self._pid_file = pid_file
-        self._root = root
-        self._root_pid = -1
         self._path = os.path.join(self._dir, self._name)
 
         if not os.path.exists(self._path):
@@ -137,21 +121,11 @@ class Daemon(object):
                 with open(self._pid_file) as f:
                     pid = int(f.read().rstrip("\r\n\0"))
                 logging.warning("Killing process with pid %d", pid)
-                self._kill(pid, 9)
+                os.kill(pid, 9)
             except Exception as e:
                 logging.error("Failed killing process: %s", e)
             finally:
                 os.remove(self._pid_file)
-
-    def _kill(self, pid, signal):
-        if self._root:
-            if PLATFORM.system == System.android:
-                subprocess.check_call(["su", "-c", "kill -{} {}".format(signal, pid)])
-            else:
-                logging.debug("Not possible to use root on this platform. Falling back to os.kill.")
-                os.kill(pid, signal)
-        else:
-            os.kill(pid, signal)
 
     def ensure_exec_permissions(self):
         st = os.stat(self._path)
@@ -196,24 +170,14 @@ class Daemon(object):
         kwargs["stderr"] = subprocess.STDOUT
         kwargs["cwd"] = work_dir
 
-        if self._root:
-            if PLATFORM.system == System.android:
-                cmd = ["su", "-c", "echo $$ && exec " + join_cmd(cmd)]
-            else:
-                logging.warning("Not possible to use root on this platform")
-
         logging.debug("Creating process with command %s and params %s", cmd, kwargs)
         try:
             self._p = subprocess.Popen(cmd, **kwargs)
 
-            if self._root and PLATFORM.system == System.android:
-                read_select(self._p.stdout.fileno(), 10)
-                self._root_pid = int(self._p.stdout.readline().rstrip())
-
             if self._pid_file:
                 logging.debug("Saving pid file %s", self._pid_file)
                 with open(self._pid_file, "w") as f:
-                    f.write(str(self._root_pid if self._root_pid >= 0 else self._p.pid))
+                    f.write(str(self._p.pid))
         finally:
             if PLATFORM.system == System.windows:
                 windows_restore_file_handles_inheritance(handles)
@@ -222,24 +186,13 @@ class Daemon(object):
         if self._p is not None:
             logging.info("Terminating daemon")
             try:
-                self._terminate()
+                self._p.terminate()
             except (OSError, subprocess.CalledProcessError):
                 logging.info("Daemon already terminated")
             if self._pid_file and os.path.exists(self._pid_file):
                 os.remove(self._pid_file)
-            self._root_pid = -1
             self._p.stdout.close()
             self._p = None
-
-    def _terminate(self):
-        if self._root and self._root_pid >= 0:
-            if PLATFORM.system == System.android:
-                subprocess.check_call(["su", "-c", "kill {}".format(self._root_pid)])
-            else:
-                logging.debug("Not possible to use root on this platform. Falling back to terminate.")
-                self._p.terminate()
-        else:
-            self._p.terminate()
 
     def daemon_poll(self):
         return self._p and self._p.poll()
