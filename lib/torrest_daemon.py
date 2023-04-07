@@ -60,7 +60,7 @@ class TorrestDaemon(object):
             self._dir = directory if dest_dir is None else dest_dir
 
         self._path = os.path.join(self._dir, self._name)
-
+        logging.debug("Using torrest path '%s'", self._path)
         self._copy_to_dest()
 
     def setup(self):

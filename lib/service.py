@@ -44,15 +44,18 @@ class DaemonMonitor(xbmc.Monitor):
             self._settings_prefix + self._settings_separator)]
 
         base_directory = os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch())
-        lib_name = "libtorrest" + get_shared_lib_extension()
-        exe_name = "torrest" + get_executable_extension()
+        logging.info("Using '%s' as torrest base directory", base_directory)
         config = dict(settings_path=self._settings_path, log_path=self._log_path, port=None)
         kwargs = dict(config=config, dest_dir=os.path.join(kodi.ADDON_DATA, "bin"), work_dir=kodi.ADDON_DATA,
                       android_extra_dirs=(kodi.translatePath("special://xbmcbin"),))
 
+        lib_name = "libtorrest" + get_shared_lib_extension()
         if os.path.exists(os.path.join(base_directory, lib_name)):
+            logging.info("Configuring torrest libray (%s)", lib_name)
             self._daemon = TorrestLibraryDaemon(lib_name, base_directory, **kwargs)
         else:
+            exe_name = "torrest" + get_executable_extension()
+            logging.info("Configuring torrest executable (%s)", exe_name)
             self._daemon = TorrestExecutableDaemon(
                 exe_name, base_directory, pid_file=os.path.join(kodi.ADDON_DATA, ".pid"), **kwargs)
 
