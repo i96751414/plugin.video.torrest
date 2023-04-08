@@ -8,6 +8,7 @@ repository="torrest-cpp"
 release="latest"
 bin_path="${name}/resources/bin"
 
+declare -A platform_types=([android]=lib)
 repo_path="$(dirname "$(dirname "$(realpath "${0}")")")"
 build_path="${repo_path}/build"
 version=$(git describe --tags | cut -c2-)
@@ -56,7 +57,7 @@ done
 
 cd "${repo_path}"
 
-elementIn() {
+function elementIn() {
   local e match="$1"
   shift
   for e; do [ "${e}" == "${match}" ] && return 0; done
@@ -65,6 +66,21 @@ elementIn() {
 
 function createBaseZip() {
   git archive --format zip -9 --prefix "${name}/" --output "${1}" HEAD
+}
+
+function checkPlatformType() {
+  for p in "${!platform_types[@]}"; do
+    case "${1}" in
+    "${p}"*)
+      case "${2}" in
+      "${platform_types["${p}"]}"*) return 0 ;;
+      esac
+      return 1
+      ;;
+    esac
+  done
+  # Default type is torrest
+  [ "${2}" = "torrest" ]
 }
 
 function info() {
@@ -80,14 +96,16 @@ fi
 info "Getting ${release} release from ${username}/${repository}"
 response=$(curl -s -X GET "https://api.github.com/repos/${username}/${repository}/releases/${release}")
 for url in $(jq -er ".assets | .[] | .browser_download_url" <<<"${response}"); do
-  platform=$(awk -F. '{print $(NF-1)}' <<<"${url}")
-  if [ ${#platforms[@]} -gt 0 ] && ! elementIn "${platform}" "${platforms[@]}"; then
+  file_name="$(basename "${url}")"
+  platform=$(awk -F. '{print $(NF-1)}' <<<"${file_name}")
+  type=$(awk -F. '{print $1}' <<<"${file_name}")
+  if [ ${#platforms[@]} -gt 0 ] && ! elementIn "${platform}" "${platforms[@]}" || ! checkPlatformType "${platform}" "${type}"; then
     continue
   fi
 
   binary_path="${bin_path}/${platform}"
   mkdir -p "${build_path}/${binary_path}"
-  info "Downloading ${url}"
+  info "Downloading ${type} (${platform}) : ${url}"
   (cd "${build_path}/${binary_path}" && curl -sSL "${url}" >tmp.zip && unzip -o tmp.zip && rm tmp.zip)
   # generate the zip file
   zip_name="${name}-${version}.${platform}.zip"
