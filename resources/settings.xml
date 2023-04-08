@@ -3,7 +3,7 @@
     <category label="$INFO[System.AddonTitle(Window.Property(Addon.ID))]">
         <setting id="service_enabled" type="bool" label="30059" default="true"/>
         <setting id="timeout" type="number" label="30002" default="20" enable="eq(-1,true)" subsetting="true"/>
-        <setting id="service_ip" type="ipaddress" label="30060" default="127.0.0.1" enable="eq(-3,false)"/>
+        <setting id="service_ip" type="ipaddress" label="30060" default="127.0.0.1" enable="eq(-2,false)"/>
         <setting id="port" type="number" label="30001" default="61235"/>
         <setting id="files_order" type="enum" label="30064" default="0" lvalues="30065|30066|30067"/>
         <setting id="overlay" type="bool" label="30004" default="true"/>
