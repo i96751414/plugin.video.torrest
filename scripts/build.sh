@@ -8,7 +8,7 @@ repository="torrest-cpp"
 release="latest"
 bin_path="${name}/resources/bin"
 
-declare -A platform_types=([android]=lib)
+declare -A platform_types=(["android.*"]=".*")
 repo_path="$(dirname "$(dirname "$(realpath "${0}")")")"
 build_path="${repo_path}/build"
 version=$(git describe --tags | cut -c2-)
@@ -70,14 +70,12 @@ function createBaseZip() {
 
 function checkPlatformType() {
   for p in "${!platform_types[@]}"; do
-    case "${1}" in
-    "${p}"*)
-      case "${2}" in
-      "${platform_types["${p}"]}"*) return 0 ;;
-      esac
+    if grep -Eq -- "^${p}" <<<"${1}"; then
+      if grep -Eq -- "^${platform_types["${p}"]}" <<<"${2}"; then
+        return 0
+      fi
       return 1
-      ;;
-    esac
+    fi
   done
   # Default type is torrest
   [ "${2}" = "torrest" ]
@@ -106,12 +104,16 @@ for url in $(jq -er ".assets | .[] | .browser_download_url" <<<"${response}"); d
   binary_path="${bin_path}/${platform}"
   mkdir -p "${build_path}/${binary_path}"
   info "Downloading ${type} (${platform}) : ${url}"
-  (cd "${build_path}/${binary_path}" && curl -sSL "${url}" >tmp.zip && unzip -o tmp.zip && rm tmp.zip)
-  # generate the zip file
+  (cd "${build_path}/${binary_path}" && curl -sSL "${url}" >tmp.zip && unzip -q -o tmp.zip && rm tmp.zip)
+
   zip_name="${name}-${version}.${platform}.zip"
-  info "Creating ${zip_name}"
-  createBaseZip "${build_path}/${zip_name}"
-  (cd "${build_path}" && zip -9 -r -g "${zip_name}" "${binary_path}")
+  if [ ! -f "${build_path}/${zip_name}" ]; then
+    info "Creating ${zip_name}"
+    createBaseZip "${build_path}/${zip_name}"
+  fi
+
+  info "Updating ${zip_name} with (${platform}) binary"
+  (cd "${build_path}" && zip -9 -r -u "${zip_name}" "${binary_path}")
 done
 
 if [ "${all}" = true ] && [ -d "${build_path}/${bin_path}" ] && [ -n "$(ls -A "${build_path}/${bin_path}")" ]; then
