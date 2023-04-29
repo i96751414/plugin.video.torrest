@@ -338,6 +338,10 @@ msgctxt "#30084"
 msgid "Piece expiration time"
 msgstr ""
 
+msgctxt "#30085"
+msgid "Force torrest binary - Requires restart"
+msgstr ""
+
 # Service
 msgctxt "#30100"
 msgid "Torrest - first run"

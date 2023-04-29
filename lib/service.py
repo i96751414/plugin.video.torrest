@@ -11,10 +11,14 @@ import xbmcgui
 from lib import kodi
 from lib.os_platform import get_platform_arch, get_shared_lib_extension, get_executable_extension
 from lib.settings import get_port, get_daemon_timeout, service_enabled, set_service_enabled, get_service_ip, \
-    show_background_progress
+    show_background_progress, set_has_libtorrest, get_force_torrest
 from lib.torrest.api import Torrest, STATUS_FINISHED, STATUS_SEEDING, STATUS_PAUSED
 from lib.torrest_daemon import TorrestLibraryDaemon, TorrestExecutableDaemon, TorrestDaemonNotFoundError
 from lib.utils import sizeof_fmt, assure_unicode
+
+BASE_DIRECTORY = os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch())
+LIB_NAME = "libtorrest" + get_shared_lib_extension()
+LIB_PATH = os.path.join(BASE_DIRECTORY, LIB_NAME)
 
 
 class AbortRequestedError(Exception):
@@ -43,21 +47,19 @@ class DaemonMonitor(xbmc.Monitor):
         self._settings_spec = [s for s in kodi.get_all_settings_spec() if s["id"].startswith(
             self._settings_prefix + self._settings_separator)]
 
-        base_directory = os.path.join(kodi.ADDON_PATH, "resources", "bin", get_platform_arch())
-        logging.info("Using '%s' as torrest base directory", base_directory)
+        logging.info("Using '%s' as torrest base directory", BASE_DIRECTORY)
         config = dict(settings_path=self._settings_path, log_path=self._log_path, port=None)
         kwargs = dict(config=config, dest_dir=os.path.join(kodi.ADDON_DATA, "bin"), work_dir=kodi.ADDON_DATA,
                       android_extra_dirs=(kodi.translatePath("special://xbmcbin"),))
 
-        lib_name = "libtorrest" + get_shared_lib_extension()
-        if os.path.exists(os.path.join(base_directory, lib_name)):
-            logging.info("Configuring torrest libray (%s)", lib_name)
-            self._daemon = TorrestLibraryDaemon(lib_name, base_directory, **kwargs)
+        if os.path.exists(LIB_PATH) and not get_force_torrest():
+            logging.info("Configuring torrest libray (%s)", LIB_NAME)
+            self._daemon = TorrestLibraryDaemon(LIB_NAME, BASE_DIRECTORY, **kwargs)
         else:
             exe_name = "torrest" + get_executable_extension()
             logging.info("Configuring torrest executable (%s)", exe_name)
             self._daemon = TorrestExecutableDaemon(
-                exe_name, base_directory, pid_file=os.path.join(kodi.ADDON_DATA, ".pid"), **kwargs)
+                exe_name, BASE_DIRECTORY, pid_file=os.path.join(kodi.ADDON_DATA, ".pid"), **kwargs)
 
     def _request(self, method, url, **kwargs):
         return requests.request(method, "http://127.0.0.1:{}/{}".format(self._daemon.get_config("port"), url), **kwargs)
@@ -282,6 +284,7 @@ def handle_first_run():
 
 def run():
     kodi.set_logger()
+    set_has_libtorrest(os.path.exists(LIB_PATH))
     handle_first_run()
 
     try:
