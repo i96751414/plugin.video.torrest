@@ -28,8 +28,7 @@
         <setting id="s:listen_port" type="number" label="30013" default="6889"/>
         <setting id="s:listen_interfaces" type="text" label="30014" default=""/>
         <setting id="s:outgoing_interfaces" type="text" label="30015" default=""/>
-        <setting id="s:user_agent" type="enum" label="30018"
-                 lvalues="30019|30020|30021|30022|30023|30024|30025|30026|30027|30028|30029|30030"/>
+        <setting id="s:user_agent" type="text" label="30018" default=""/>
         <setting id="s:disable_dht" type="bool" label="30016" default="false"/>
         <setting id="s:disable_upnp" type="bool" label="30017" default="false"/>
         <setting id="s:disable_natpmp" type="bool" label="30069" default="false"/>

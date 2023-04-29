@@ -74,54 +74,6 @@ msgctxt "#30018"
 msgid "User-Agent"
 msgstr "User-Agent"
 
-msgctxt "#30019"
-msgid "Default"
-msgstr "Padrão"
-
-msgctxt "#30020"
-msgid "Libtorrent"
-msgstr ""
-
-msgctxt "#30021"
-msgid "Libtorrent Rasterbar 1.1.0"
-msgstr ""
-
-msgctxt "#30022"
-msgid "BitTorrent 7.5.0"
-msgstr ""
-
-msgctxt "#30023"
-msgid "BitTorrent 7.4.3"
-msgstr ""
-
-msgctxt "#30024"
-msgid "uTorrent 3.4.9"
-msgstr ""
-
-msgctxt "#30025"
-msgid "uTorrent 3.2.0"
-msgstr ""
-
-msgctxt "#30026"
-msgid "uTorrent 2.2.1"
-msgstr ""
-
-msgctxt "#30027"
-msgid "Transmission 2.92"
-msgstr ""
-
-msgctxt "#30028"
-msgid "Deluge 1.3.6.0"
-msgstr ""
-
-msgctxt "#30029"
-msgid "Deluge 1.3.12.0"
-msgstr ""
-
-msgctxt "#30030"
-msgid "Vuze 5.7.3.0"
-msgstr ""
-
 msgctxt "#30031"
 msgid "Session saving frequency (seconds)"
 msgstr "Frequência de gravação da sessão (segundos)"
