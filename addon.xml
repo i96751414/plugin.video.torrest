@@ -16,10 +16,9 @@
         <summary lang="en">Torrest on Kodi</summary>
         <description lang="en">Torrest is a service with a rest API which allows torrent streaming.</description>
         <news>
-- Update for torrest 0.0.3 (https://github.com/i96751414/torrest-cpp/releases/tag/v0.0.3)
-- Add support to Android (shared library)
-- Remove daemon root support
-- Other small improvements
+- Update for torrest 0.0.4 (https://github.com/i96751414/torrest-cpp/releases/tag/v0.0.4)
+- Allow forcing torrest binary
+- Allow custom user-agent definitions
         </news>
         <assets>
             <icon>icon.png</icon>
