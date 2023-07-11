@@ -191,7 +191,7 @@ msgid "Enable Torrest service"
 msgstr "Habilitar el servicio Torrest"
 
 msgctxt "#30060"
-msgid "Torrest sevice IP address"
+msgid "Torrest service IP address"
 msgstr "Habilitar el servicio Torrest"
 
 msgctxt "#30061"
