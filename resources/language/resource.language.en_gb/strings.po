@@ -23,7 +23,7 @@ msgid "General"
 msgstr ""
 
 msgctxt "#30001"
-msgid "Service port"
+msgid "Server port"
 msgstr ""
 
 msgctxt "#30002"
@@ -72,6 +72,10 @@ msgstr ""
 
 msgctxt "#30018"
 msgid "User-Agent"
+msgstr ""
+
+msgctxt "#30019"
+msgid "SSL connection"
 msgstr ""
 
 msgctxt "#30031"
@@ -191,7 +195,7 @@ msgid "Enable Torrest service"
 msgstr ""
 
 msgctxt "#30060"
-msgid "Torrest service IP address"
+msgid "Torrest Server IP/Domain"
 msgstr ""
 
 msgctxt "#30061"

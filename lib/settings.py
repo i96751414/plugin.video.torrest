@@ -33,12 +33,16 @@ def service_enabled():
     return get_boolean_setting("service_enabled")
 
 
+def ssl_enabled():
+    return get_boolean_setting("ssl_connection")
+
+
 def set_service_enabled(value):
     set_boolean_setting("service_enabled", value)
 
 
-def get_service_ip():
-    return "127.0.0.1" if service_enabled() else get_setting("service_ip")
+def get_service_address():
+    return "127.0.0.1" if service_enabled() else get_setting("service_address")
 
 
 def download_after_insert():

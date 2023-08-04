@@ -13,14 +13,15 @@ from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger
     close_busy_dialog
 from lib.kodi_formats import is_music, is_picture, is_video, is_text
 from lib.player import TorrestPlayer
-from lib.settings import get_service_ip, get_port, get_buffering_timeout, show_status_overlay, get_min_candidate_size, \
-    ask_to_delete_torrent, download_after_insert, get_files_order, get_metadata_timeout
+from lib.settings import get_service_address, get_port, get_buffering_timeout, show_status_overlay, \
+    get_min_candidate_size, ask_to_delete_torrent, download_after_insert, get_files_order, get_metadata_timeout, \
+    ssl_enabled
 from lib.torrest.api import Torrest, TorrestError, STATUS_SEEDING, STATUS_PAUSED
 from lib.utils import sizeof_fmt
 
 set_logger()
 plugin = routing.Plugin()
-api = Torrest(get_service_ip(), get_port())
+api = Torrest(get_service_address(), get_port(), ssl_enabled())
 
 
 class PlayError(Exception):
