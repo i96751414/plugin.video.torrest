@@ -1,6 +1,6 @@
 from collections import namedtuple
-
 import requests
+
 
 STATUS_QUEUED = 0
 STATUS_CHECKING = 1
@@ -81,8 +81,8 @@ class TorrestError(Exception):
 
 
 class Torrest(object):
-    def __init__(self, host, port, session=None):
-        self._base_url = "http://{}:{}".format(host, port)
+    def __init__(self, host, port, ssl_enabled=False, session=None):
+        self._base_url = "{}://{}:{}".format("https" if ssl_enabled else "http", host, port)
         self._session = session or requests
 
     def add_magnet(self, magnet, ignore_duplicate=False, download=False):

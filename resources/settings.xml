@@ -4,10 +4,10 @@
         <setting id="has_libtorrest" type="bool" default="false" visible="false"/>
         <setting id="service_enabled" type="bool" label="30059" default="true"/>
         <setting id="timeout" type="number" label="30002" default="20" enable="eq(-1,true)" subsetting="true"/>
-        <setting id="force_torrest" type="bool" label="30085" default="false" subsetting="true"
-                 enable="eq(-2,true)" visible="eq(-3,true)"/>
-        <setting id="service_ip" type="ipaddress" label="30060" default="127.0.0.1" enable="eq(-3,false)"/>
+        <setting id="force_torrest" type="bool" label="30085" default="false" subsetting="true" enable="eq(-2,true)" visible="eq(-3,true)"/>
+        <setting id="service_address" type="text" label="30060" default="127.0.0.1" enable="eq(-3,false)"/>
         <setting id="port" type="number" label="30001" default="61235"/>
+        <setting id="ssl_connection" type="bool" label="30019" default="false"/>
         <setting id="files_order" type="enum" label="30064" default="0" lvalues="30065|30066|30067"/>
         <setting id="overlay" type="bool" label="30004" default="true"/>
         <setting id="metadata_timeout" type="slider" label="30081" option="int" range="0,10,120" default="30"/>

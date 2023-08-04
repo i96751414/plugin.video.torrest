@@ -10,8 +10,8 @@ import xbmcgui
 
 from lib import kodi
 from lib.os_platform import get_platform_arch, get_shared_lib_extension, get_executable_extension
-from lib.settings import get_port, get_daemon_timeout, service_enabled, set_service_enabled, get_service_ip, \
-    show_background_progress, set_has_libtorrest, get_force_torrest
+from lib.settings import get_port, get_daemon_timeout, service_enabled, set_service_enabled, get_service_address, \
+    show_background_progress, set_has_libtorrest, get_force_torrest, ssl_enabled
 from lib.torrest.api import Torrest, STATUS_FINISHED, STATUS_SEEDING, STATUS_PAUSED
 from lib.torrest_daemon import TorrestLibraryDaemon, TorrestExecutableDaemon, TorrestDaemonNotFoundError
 from lib.utils import sizeof_fmt, assure_unicode
@@ -263,7 +263,7 @@ class DownloadProgress(xbmc.Monitor, threading.Thread):
             self._dialog = None
 
     def onSettingsChanged(self):
-        self._api = Torrest(get_service_ip(), get_port())
+        self._api = Torrest(get_service_address(), get_port(), ssl_enabled())
         self._enabled = show_background_progress()
 
     def __enter__(self):

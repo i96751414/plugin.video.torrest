@@ -23,7 +23,7 @@ msgid "General"
 msgstr "Geral"
 
 msgctxt "#30001"
-msgid "Service port"
+msgid "Server port"
 msgstr "Porto do serviço"
 
 msgctxt "#30002"
@@ -73,6 +73,10 @@ msgstr "Desativar UPNP"
 msgctxt "#30018"
 msgid "User-Agent"
 msgstr "User-Agent"
+
+msgctxt "#30019"
+msgid "SSL connection"
+msgstr "Conexão SSL"
 
 msgctxt "#30031"
 msgid "Session saving frequency (seconds)"
@@ -191,8 +195,8 @@ msgid "Enable Torrest service"
 msgstr "Ativar o serviço Torrest"
 
 msgctxt "#30060"
-msgid "Torrest service IP address"
-msgstr "Endereço IP do serviço Torrest"
+msgid "Torrest Server IP/Domain"
+msgstr "IP/Domain do serviço Torrest"
 
 msgctxt "#30061"
 msgid "Disabled"
