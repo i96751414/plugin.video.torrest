@@ -14,8 +14,8 @@ from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger
 from lib.kodi_formats import is_music, is_picture, is_video, is_text
 from lib.player import TorrestPlayer
 from lib.settings import get_service_address, get_port, get_buffering_timeout, show_status_overlay, \
-    get_min_candidate_size, ask_to_delete_torrent, download_after_insert, get_files_order, get_metadata_timeout, \
-    ssl_enabled
+    get_min_candidate_size, get_on_playback_stop_action, download_after_insert, get_files_order, get_metadata_timeout, \
+    ssl_enabled, FilesOrder, PlaybackStopAction
 from lib.torrest.api import Torrest, TorrestError, STATUS_SEEDING, STATUS_PAUSED
 from lib.utils import sizeof_fmt
 
@@ -118,7 +118,8 @@ def get_status_labels(info_hash):
 
 
 def handle_player_stop(info_hash, name=None, initial_delay=0.5, listing_timeout=10):
-    if not ask_to_delete_torrent():
+    stop_action = get_on_playback_stop_action()
+    if stop_action == PlaybackStopAction.IGNORE:
         return
     try:
         info = api.torrent_info(info_hash)
@@ -132,8 +133,8 @@ def handle_player_stop(info_hash, name=None, initial_delay=0.5, listing_timeout=
     while getCondVisibility("Window.IsActive(busydialog)") and not 0 < listing_timeout < time.time() - start_time:
         sleep(100)
 
-    remove_torrent = Dialog().yesno(ADDON_NAME, name + "\n" + translate(30241))
-    if remove_torrent:
+    if (stop_action == PlaybackStopAction.DELETE
+            or Dialog().yesno(ADDON_NAME, name + "\n" + translate(30241))):
         api.remove_torrent(info_hash, delete=True)
         current_folder = getInfoLabel("Container.FolderPath")
         if current_folder == plugin.url_for(torrent_files, info_hash):
@@ -213,9 +214,9 @@ def torrent_status(info_hash):
 
 def sort_files(files):
     order = get_files_order()
-    if order == 1:
+    if order == FilesOrder.NAME:
         files.sort(key=lambda k: k.name)
-    elif order == 2:
+    elif order == FilesOrder.SIZE:
         files.sort(key=lambda k: k.length)
 
 

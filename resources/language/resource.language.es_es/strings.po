@@ -178,10 +178,6 @@ msgctxt "#30055"
 msgid "Minimum video candidate size (MB)"
 msgstr "Tamaño mínimo de video candidato (MB)"
 
-msgctxt "#30056"
-msgid "Ask to remove torrent after streaming"
-msgstr "Preguntar eliminar torrent después de la transmisión"
-
 msgctxt "#30057"
 msgid "Service log level"
 msgstr "Nivel de registro de servicio"
@@ -297,6 +293,22 @@ msgstr "Tiempo de caducidad de pieza"
 msgctxt "#30085"
 msgid "Force torrest binary - Requires restart"
 msgstr "Forzar binario de torrest - Requiere reiniciar"
+
+msgctxt "#30086"
+msgid "Action to perform on playback stop"
+msgstr "Acción a realizar al parar la reproducción"
+
+msgctxt "#30087"
+msgid "Ask to delete torrent"
+msgstr "Preguntar eliminar torrent"
+
+msgctxt "#30088"
+msgid "Delete torrent"
+msgstr "Eliminar torrent"
+
+msgctxt "#30089"
+msgid "Do nothing"
+msgstr "Hacer nada"
 
 # Service
 msgctxt "#30100"

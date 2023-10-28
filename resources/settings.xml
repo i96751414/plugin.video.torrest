@@ -13,7 +13,7 @@
         <setting id="metadata_timeout" type="slider" label="30081" option="int" range="0,10,120" default="30"/>
         <setting id="buffer_timeout" type="slider" label="30003" option="int" range="0,30,600" default="300"/>
         <setting id="min_candidate_size" type="slider" label="30055" option="int" range="0,10,200" default="100"/>
-        <setting id="ask_to_delete" type="bool" label="30056" default="true"/>
+        <setting id="on_playback_stop" type="enum" label="30086" default="0" lvalues="30087|30088|30089"/>
         <setting id="show_bg_progress" type="bool" label="30068" default="true"/>
         <setting id="download_after_insert" type="bool" label="30062" default="false"/>
         <setting id="migrated" type="bool" visible="false" default="false"/>

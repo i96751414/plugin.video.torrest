@@ -178,10 +178,6 @@ msgctxt "#30055"
 msgid "Minimum video candidate size (MB)"
 msgstr "Tamanho mínimo de candidato a vídeo (MB)"
 
-msgctxt "#30056"
-msgid "Ask to remove torrent after streaming"
-msgstr "Pedir para remover o torrent após a transmissão"
-
 msgctxt "#30057"
 msgid "Service log level"
 msgstr "Nível de log do serviço"
@@ -297,6 +293,22 @@ msgstr "Tempo de validade de peça"
 msgctxt "#30085"
 msgid "Force torrest binary - Requires restart"
 msgstr "Forçar binário torrest - Requer reinicialização"
+
+msgctxt "#30086"
+msgid "Action to perform on playback stop"
+msgstr "Ação a executar na parada da reprodução"
+
+msgctxt "#30087"
+msgid "Ask to delete torrent"
+msgstr "Pedir para remover o torrent"
+
+msgctxt "#30088"
+msgid "Delete torrent"
+msgstr "Remover o torrent"
+
+msgctxt "#30089"
+msgid "Do nothing"
+msgstr "Nenhuma"
 
 # Service
 msgctxt "#30100"
