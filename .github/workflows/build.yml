@@ -49,11 +49,7 @@ jobs:
 
       - name: Perform release
         run: |
-          assets=()
-          for asset in ./build/*.zip; do
-            assets+=("-a" "${asset}")
-          done
           git_tag="$(sed 's|refs/tags/||' <<< "${{ github.ref }}")"
-          hub release create "${assets[@]}" -m "${git_tag}" "${git_tag}"
+          gh release create "${git_tag}" build/*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
