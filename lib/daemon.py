@@ -1,18 +1,20 @@
 import logging
 import os
+import platform
 import re
 import stat
 import subprocess
 import sys
 import threading
 
-from lib.os_platform import PLATFORM, System
 from lib.utils import bytes_to_str, PY3
 
 # https://docs.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-sethandleinformation
 HANDLE_FLAG_INHERIT = 0x00000001
 # https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfiletype
 FILE_TYPE_DISK = 0x0001
+
+_IS_WINDOWS = platform.system() == "Windows"
 
 
 def windows_suppress_file_handles_inheritance(r=0xFFFF):
@@ -110,7 +112,7 @@ class Daemon(object):
         self._path = os.path.join(self._dir, self._name)
 
         if not os.path.exists(self._path):
-            raise DaemonNotFoundError("Daemon source path does not exist: " + self._path)
+            raise DaemonNotFoundError("Daemon source path does not exist: {}".format(self._path))
 
         self._p = None  # type: subprocess.Popen or None
         self._logger = None  # type: DaemonLogger or None
@@ -141,7 +143,7 @@ class Daemon(object):
         work_dir = self._work_dir or self._dir
         kwargs = {}
 
-        if PLATFORM.system == System.windows:
+        if _IS_WINDOWS:
             if not PY3:
                 # Attempt to solve https://bugs.python.org/issue1759845
                 encoding = sys.getfilesystemencoding()
@@ -179,7 +181,7 @@ class Daemon(object):
                 with open(self._pid_file, "w") as f:
                     f.write(str(self._p.pid))
         finally:
-            if PLATFORM.system == System.windows:
+            if _IS_WINDOWS:
                 windows_restore_file_handles_inheritance(handles)
 
     def stop_daemon(self):

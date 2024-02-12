@@ -7,8 +7,12 @@ username="i96751414"
 repository="torrest-cpp"
 release="latest"
 bin_path="${name}/resources/bin"
+lib_path="${name}/lib"
 
 declare -A platform_types=(["android.*"]=".*")
+declare -A shared_lib_extensions=([linux]=".so" [android]=".so" [darwin]=".dylib" [windows]=".dll")
+declare -A executable_extensions=([windows]=".exe")
+
 repo_path="$(dirname "$(dirname "$(realpath "${0}")")")"
 build_path="${repo_path}/build"
 version=$(git describe --tags | cut -c2-)
@@ -81,6 +85,18 @@ function checkPlatformType() {
   [ "${2}" = "torrest" ]
 }
 
+function generatePlatformConstants() {
+  local platform="${1}"
+  local system="${platform%%_*}"
+  cat <<EOF
+# Automatically generated file, do not edit.
+
+PLATFORM = "${platform}"
+LIB_NAME = "libtorrest${shared_lib_extensions["${system}"]}"
+EXE_NAME = "torrest${executable_extensions["${system}"]}"
+EOF
+}
+
 function info() {
   echo "$(date '+%Y-%m-%d %H:%M:%S') - ${1}"
 }
@@ -112,8 +128,12 @@ for url in $(jq -er ".assets | .[] | .browser_download_url" <<<"${response}"); d
     createBaseZip "${build_path}/${zip_name}"
   fi
 
-  info "Updating ${zip_name} with (${platform}) binary"
-  (cd "${build_path}" && zip -9 -r -u "${zip_name}" "${binary_path}")
+  mkdir -p "${build_path}/${lib_path}"
+  info "Generating platform (${platform}) constants"
+  (cd "${build_path}/${lib_path}" && generatePlatformConstants "${platform}" >"constants.py")
+
+  info "Updating ${zip_name} with (${platform}) binary and constants"
+  (cd "${build_path}" && zip -9 -r -u "${zip_name}" "${binary_path}" "${lib_path}")
 done
 
 if [ "${all}" = true ] && [ -d "${build_path}/${bin_path}" ] && [ -n "$(ls -A "${build_path}/${bin_path}")" ]; then

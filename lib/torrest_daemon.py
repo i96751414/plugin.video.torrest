@@ -4,7 +4,6 @@ import os
 import shutil
 
 from lib.daemon import Daemon
-from lib.os_platform import PLATFORM, System
 from lib.torrest.lib import TorrestLib
 
 
@@ -43,9 +42,9 @@ class TorrestDaemon(object):
         self._config = {} if config is None else config
 
         if not os.path.exists(self._src_path):
-            raise TorrestDaemonNotFoundError("Torrest daemon source path does not exist: " + self._src_path)
+            raise TorrestDaemonNotFoundError("Torrest daemon source path does not exist: {}".format(self._src_path))
 
-        if PLATFORM.system == System.android and android_find_dest_dir:
+        if "ANDROID_STORAGE" in os.environ and android_find_dest_dir:
             app_dir = os.path.join(os.sep, "data", "data", get_current_app_id())
             if not os.path.exists(app_dir):
                 logging.debug("Default android app dir '%s' does not exist", app_dir)
@@ -87,7 +86,7 @@ class TorrestDaemon(object):
     def _copy_to_dest(self):
         if self._dir is not self._src_dir and (
                 not os.path.exists(self._path) or compute_sha1(self._src_path) != compute_sha1(self._path)):
-            logging.info("Updating %s daemon '%s'", PLATFORM.system, self._path)
+            logging.info("Updating daemon '%s'", self._path)
             if os.path.exists(self._dir):
                 logging.debug("Removing old daemon dir %s", self._dir)
                 shutil.rmtree(self._dir)
