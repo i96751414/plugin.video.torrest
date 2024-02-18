@@ -57,13 +57,14 @@ def check_playable(func):
 
 def check_directory(func):
     def wrapper(*args, **kwargs):
+        succeeded = False
+
         try:
-            func(*args, **kwargs)
-        except Exception as e:
-            endOfDirectory(plugin.handle, succeeded=False)
-            raise e
-        else:
-            endOfDirectory(plugin.handle)
+            ret = func(*args, **kwargs)
+            succeeded = True
+            return ret
+        finally:
+            endOfDirectory(plugin.handle, succeeded=succeeded)
 
     return wrapper
 
@@ -144,10 +145,10 @@ def handle_player_stop(info_hash, name=None, initial_delay=0.5, listing_timeout=
 
 
 @plugin.route("/")
+@check_directory
 def index():
     addDirectoryItem(plugin.handle, plugin.url_for(torrents), li(30206, "torrents.png"), isFolder=True)
     addDirectoryItem(plugin.handle, plugin.url_for(dialog_insert), li(30207, "add.png"), isFolder=False)
-    endOfDirectory(plugin.handle)
 
 
 @plugin.route("/torrents")
