@@ -1,4 +1,5 @@
 import sys
+import threading
 
 PY3 = sys.version_info.major >= 3
 
@@ -46,3 +47,15 @@ def sizeof_fmt(num, suffix="B", divisor=1000.0):
             return "{:.2f}{}{}".format(num, unit, suffix)
         num /= divisor
     return "{:.2f}{}{}".format(num, "Y", suffix)
+
+
+class ThreadLocal(object):
+    def __init__(self, default=None):
+        self._thread_local = threading.local()
+        self._thread_local.value = default
+
+    def get(self):
+        return self._thread_local.value
+
+    def set(self, value):
+        self._thread_local.value = value

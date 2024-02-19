@@ -17,7 +17,7 @@ from lib.settings import get_service_address, get_port, get_buffering_timeout, s
     get_min_candidate_size, get_on_playback_stop_action, download_after_insert, get_files_order, get_metadata_timeout, \
     ssl_enabled, FilesOrder, PlaybackStopAction
 from lib.torrest.api import Torrest, TorrestError, STATUS_SEEDING, STATUS_PAUSED
-from lib.utils import sizeof_fmt
+from lib.utils import sizeof_fmt, ThreadLocal
 
 set_logger()
 plugin = routing.Plugin()
@@ -38,19 +38,25 @@ class CanceledError(PlayError):
         handle_player_stop(self._info_hash)
 
 
-def check_playable(func):
+def check_playable(func, _ctx=ThreadLocal(True)):
     def wrapper(*args, **kwargs):
-        try:
-            func(*args, **kwargs)
-        except Exception as e:
-            if not getattr(e, "%_checked", False):
+        if _ctx.get():
+            _ctx.set(False)
+
+            try:
+                return func(*args, **kwargs)
+            except PlayError as e:
                 setResolvedUrl(plugin.handle, False, ListItem())
-                if isinstance(e, PlayError):
-                    logging.debug(e)
-                    e.handle()
-                    return
-                setattr(e, "%_checked", True)
-            raise e
+                logging.debug(e)
+                e.handle()
+                return None
+            except Exception as e:
+                setResolvedUrl(plugin.handle, False, ListItem())
+                raise e
+            finally:
+                _ctx.set(True)
+        else:
+            return func(*args, **kwargs)
 
     return wrapper
 
