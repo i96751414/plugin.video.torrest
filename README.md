@@ -1,7 +1,9 @@
-# plugin.video.torrest
+![](resources/images/torrest_banner.png)
 
 [![Build Status](https://github.com/i96751414/plugin.video.torrest/workflows/build/badge.svg)](https://github.com/i96751414/plugin.video.torrest/actions?query=workflow%3Abuild)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/02d656339d9e4d8fb3ced0211c34c9b4)](https://www.codacy.com/gh/i96751414/plugin.video.torrest/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=i96751414/plugin.video.torrest&amp;utm_campaign=Badge_Grade)
+
+## What is it
 
 Another torrent streaming engine for Kodi. It uses the [torrest service](https://github.com/i96751414/torrest-cpp), which
 provides an API specially made for streaming.
@@ -30,11 +32,11 @@ won't be resolved unless the repository is installed.
 
 One can call torrest from other addons. To do so, simply use torrest API:
 
-|Url|Description|
-|---|-----------|
-|`plugin://plugin.video.torrest/play_magnet?magnet=<magnet>`|Plays the provided `<magnet>`|
-|`plugin://plugin.video.torrest/play_url?url=<url>`|Plays the provided torrent file `<url>`|
-|`plugin://plugin.video.torrest/play_path?path=<path>`|Plays the provided torrent file path `<path>`|
+| Url                                                         | Description                                   |
+|-------------------------------------------------------------|-----------------------------------------------|
+| `plugin://plugin.video.torrest/play_magnet?magnet=<magnet>` | Plays the provided `<magnet>`                 |
+| `plugin://plugin.video.torrest/play_url?url=<url>`          | Plays the provided torrent file `<url>`       |
+| `plugin://plugin.video.torrest/play_path?path=<path>`       | Plays the provided torrent file path `<path>` |
 
 ## Screenshots
 

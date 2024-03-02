@@ -22,6 +22,7 @@
         </news>
         <assets>
             <icon>icon.png</icon>
+            <banner>resources/images/torrest_banner_thin.png</banner>
             <screenshot>resources/screenshots/screenshot-1.jpg</screenshot>
             <screenshot>resources/screenshots/screenshot-2.jpg</screenshot>
             <screenshot>resources/screenshots/screenshot-3.jpg</screenshot>
