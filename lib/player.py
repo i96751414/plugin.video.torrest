@@ -24,23 +24,22 @@ class PlayerUrlError(Exception):
 
 
 class Player(object):
-    def __init__(self, url=None):
+    def __init__(self):
         super(Player, self).__init__()
         self._monitor = xbmc.Monitor()
         self._player = xbmc.Player()
-        self._url = url
 
-    def handle_events(self, timeout=60):
+    def handle_events(self, url=None, timeout=60, period=0.2):
         start_time = time.time()
         while True:
             if self.is_active():
-                if not self._url:
+                if not url:
                     break
-                playing_file = self._player.getPlayingFile()
-                if playing_file == self._url:
+                playing_file = self.get_playing_file()
+                if playing_file == url:
                     break
                 elif playing_file:
-                    raise PlayerUrlError("Expecting url '%s' but found '%s'. Aborting...", self._url, playing_file)
+                    raise PlayerUrlError("Expecting url '%s' but found '%s'. Aborting...", url, playing_file)
 
             if 0 < timeout < time.time() - start_time:
                 raise PlayerTimeoutError("Player did not start after {} seconds".format(timeout))
@@ -55,16 +54,21 @@ class Player(object):
         ]
 
         _execute_callback(self.on_playback_started)
-        while self.is_active():
+        while self.is_active() and (not url or self.get_playing_file() == url):
             for event, handle, callback in events:
-                if handle() and current_event != event:
-                    current_event = event
-                    _execute_callback(callback)
-            if self._monitor.waitForAbort(0.2):
+                if handle():
+                    if current_event != event:
+                        current_event = event
+                        _execute_callback(callback)
+                    break
+            if self._monitor.waitForAbort(period):
                 _execute_callback(self.on_abort_requested)
                 return
 
         _execute_callback(self.on_playback_stopped)
+
+    def get_playing_file(self):
+        return self._player.getPlayingFile()
 
     def is_active(self):
         return self._player.isPlaying()
@@ -94,8 +98,8 @@ class Player(object):
 
 
 class TorrestPlayer(Player):
-    def __init__(self, url=None, text_handler=None, on_close_handler=None):
-        super(TorrestPlayer, self).__init__(url=url)
+    def __init__(self, text_handler=None, on_close_handler=None):
+        super(TorrestPlayer, self).__init__()
         self._stopped = False
         self._text_handler = text_handler
         self._on_close_handler = on_close_handler
@@ -123,6 +127,9 @@ class TorrestPlayer(Player):
         if self._on_close_handler:
             self._on_close_handler()
 
+    def on_abort_requested(self):
+        self._stopped = True
+
     def _update_overlay_text(self):
         self._overlay.set_text(*self._text_handler())
 
@@ -133,3 +140,13 @@ class TorrestPlayer(Player):
             if self._monitor.waitForAbort(1):
                 break
         self._overlay.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._stopped = True
+        if self._overlay:
+            self._overlay_thread.join()
+            self._overlay.close()
+        return False

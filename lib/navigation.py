@@ -417,11 +417,14 @@ def play(info_hash, file_id):
     name = api.torrent_info(info_hash).name
     setResolvedUrl(plugin.handle, True, ListItem(name, path=serve_url))
 
-    TorrestPlayer(
-        url=serve_url,
-        text_handler=(lambda: get_status_labels(info_hash) + (name,)) if show_status_overlay() else None,
-        on_close_handler=lambda: handle_player_stop(info_hash, name=name),
-    ).handle_events()
+    try:
+        with TorrestPlayer(
+                text_handler=(lambda: get_status_labels(info_hash) + (name,)) if show_status_overlay() else None,
+                on_close_handler=lambda: handle_player_stop(info_hash, name=name),
+        ) as player:
+            player.handle_events(url=serve_url)
+    except Exception as e:
+        logging.error("Caught exception while playing file: %s", e, exc_info=True)
 
 
 @plugin.route("/torrents/<info_hash>/files/<file_id>/<action_str>")

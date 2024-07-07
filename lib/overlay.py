@@ -1,5 +1,6 @@
 import logging
 import os
+from threading import Lock
 
 from xbmcgui import Window, ControlImage, ControlLabel
 
@@ -12,6 +13,8 @@ class OverlayText(object):
         window_width, window_height = get_resolution()
         self._window = Window(WINDOW_FULLSCREEN_VIDEO)
         self._shown = False
+        self._lock = Lock()
+        self._closed = False
 
         logging.debug("Using window width=%d and height=%d", window_width, window_height)
         total_label_h = 3 * label_h
@@ -43,9 +46,10 @@ class OverlayText(object):
         self._background.setHeight(h)
 
     def _set_visible(self, visible):
-        self._shown = visible
-        for c in self._controls:
-            c.setVisible(visible)
+        with self._lock:
+            self._shown = visible
+            for c in self._controls:
+                c.setVisible(visible)
 
     def show(self):
         self._set_visible(True)
@@ -54,12 +58,16 @@ class OverlayText(object):
         self._set_visible(False)
 
     def set_text(self, label1=None, label2=None, label3=None):
-        for label, control in ((label1, self._label1), (label2, self._label2), (label3, self._label3)):
-            if label is not None:
-                control.setLabel(label)
+        with self._lock:
+            for label, control in ((label1, self._label1), (label2, self._label2), (label3, self._label3)):
+                if label is not None:
+                    control.setLabel(label)
 
     def close(self):
-        self._window.removeControls(self._controls)
+        with self._lock:
+            if not self._closed:
+                self._window.removeControls(self._controls)
+                self._closed = True
 
     @property
     def shown(self):
