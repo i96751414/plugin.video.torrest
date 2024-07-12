@@ -14,7 +14,7 @@ provides an API specially made for streaming.
 -   Linux 32/64 bits
 -   Linux ARM (ARMv7 and ARM64)
 -   OS X 64 bits
--   Android (5.x and later) ARM, x86 and x64
+-   Android (7.x and later) ARM, x86 and x64
 
 Minimum supported Kodi version: 16 (Jarvis)
 
