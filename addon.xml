@@ -16,10 +16,8 @@
         <summary lang="en">Torrest on Kodi</summary>
         <description lang="en">Torrest is a service with a rest API which allows torrent streaming.</description>
         <news>
-- Make torrest a static package - remove OS platform checks
-- Improve error handling on Kodi directories
-- Improve handling of nested play errors
-- Improve overlay closing
+- Update torrest binary to v0.0.6
+- Allow passing 'file_id' and 'buffer' query arguments to play methods
         </news>
         <assets>
             <icon>icon.png</icon>

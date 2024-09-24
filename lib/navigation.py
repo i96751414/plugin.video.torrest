@@ -24,6 +24,20 @@ plugin = routing.Plugin()
 api = Torrest(get_service_address(), get_port(), ssl_enabled())
 
 
+class Types:
+    @staticmethod
+    def boolean(s):
+        return s.lower() in ("true", "1", "yes", "on")
+
+    @staticmethod
+    def integer(s):
+        return int(s, 10)
+
+    @staticmethod
+    def string(s):
+        return s
+
+
 class PlayError(Exception):
     def handle(self):
         pass
@@ -93,13 +107,13 @@ def media(func, *args, **kwargs):
     return "PlayMedia({})".format(plugin.url_for(func, *args, **kwargs))
 
 
-def query_arg(name, required=True):
+def query_arg(name, required=True, arg_type=Types.string):
     def decorator(func):
         def wrapper(*args, **kwargs):
             if name not in kwargs:
                 query_list = plugin.args.get(name)
                 if query_list:
-                    kwargs[name] = query_list[0]
+                    kwargs[name] = arg_type(query_list[0])
                 elif required:
                     raise AttributeError("Missing {} required query argument".format(name))
             return func(*args, **kwargs)
@@ -283,54 +297,63 @@ def display_text(info_hash, file_id):
 
 @plugin.route("/play_url")
 @check_playable
-@query_arg("url")
-def play_url(url, buffer=True):
+@query_arg("url", arg_type=Types.string)
+@query_arg("file_id", required=False, arg_type=Types.integer)
+@query_arg("buffer", required=False, arg_type=Types.boolean)
+def play_url(url, file_id=None, buffer=True):
     r = requests.get(url, stream=True)
     info_hash = api.add_torrent_obj(r.raw, ignore_duplicate=True)
-    play_info_hash(info_hash, buffer=buffer)
+    play_info_hash(info_hash, file_id=file_id, buffer=buffer)
 
 
 @plugin.route("/play_magnet")
 @check_playable
-@query_arg("magnet")
-def play_magnet(magnet, buffer=True):
+@query_arg("magnet", arg_type=Types.string)
+@query_arg("file_id", required=False, arg_type=Types.integer)
+@query_arg("buffer", required=False, arg_type=Types.boolean)
+def play_magnet(magnet, file_id=None, buffer=True):
     info_hash = api.add_magnet(magnet, ignore_duplicate=True)
-    play_info_hash(info_hash, buffer=buffer)
+    play_info_hash(info_hash, file_id=file_id, buffer=buffer)
 
 
 @plugin.route("/play_path")
 @check_playable
-@query_arg("path")
-def play_file(path, buffer=True):
+@query_arg("path", arg_type=Types.string)
+@query_arg("file_id", required=False, arg_type=Types.integer)
+@query_arg("buffer", required=False, arg_type=Types.boolean)
+def play_file(path, file_id=None, buffer=True):
     info_hash = api.add_torrent(path, ignore_duplicate=True)
-    play_info_hash(info_hash, buffer=buffer)
+    play_info_hash(info_hash, file_id=file_id, buffer=buffer)
 
 
 @plugin.route("/play_info_hash/<info_hash>")
+@query_arg("buffer", required=False, arg_type=Types.boolean)
+@query_arg("file_id", required=False, arg_type=Types.integer)
 @check_playable
-def play_info_hash(info_hash, buffer=True):
+def play_info_hash(info_hash, file_id=None, buffer=True):
     if not api.torrent_status(info_hash).has_metadata:
         wait_for_metadata(info_hash)
 
-    files = api.files(info_hash, status=False)
-    min_candidate_size = get_min_candidate_size() * 1024 * 1024
-    candidate_files = [f for f in files if is_video(f.path) and f.length >= min_candidate_size]
-    if not candidate_files:
-        notification(translate(30239))
-        raise PlayError("No candidate files found for {}".format(info_hash))
-    elif len(candidate_files) == 1:
-        chosen_file = candidate_files[0]
-    else:
-        sort_files(candidate_files)
-        chosen_index = Dialog().select(translate(30240), [f.name for f in candidate_files])
-        if chosen_index < 0:
-            raise PlayError("User canceled dialog select")
-        chosen_file = candidate_files[chosen_index]
+    if file_id is None:
+        files = api.files(info_hash, status=False)
+        min_candidate_size = get_min_candidate_size() * 1024 * 1024
+        candidate_files = [f for f in files if is_video(f.path) and f.length >= min_candidate_size]
+        if not candidate_files:
+            notification(translate(30239))
+            raise PlayError("No candidate files found for {}".format(info_hash))
+        elif len(candidate_files) == 1:
+            file_id = candidate_files[0].id
+        else:
+            sort_files(candidate_files)
+            chosen_index = Dialog().select(translate(30240), [f.name for f in candidate_files])
+            if chosen_index < 0:
+                raise PlayError("User canceled dialog select")
+            file_id = candidate_files[chosen_index].id
 
     if buffer:
-        buffer_and_play(info_hash, chosen_file.id)
+        buffer_and_play(info_hash, file_id)
     else:
-        play(info_hash, chosen_file.id)
+        play(info_hash, file_id)
 
 
 def wait_for_metadata(info_hash):

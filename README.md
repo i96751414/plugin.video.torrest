@@ -38,6 +38,14 @@ One can call torrest from other addons. To do so, simply use torrest API:
 | `plugin://plugin.video.torrest/play_url?url=<url>`          | Plays the provided torrent file `<url>`       |
 | `plugin://plugin.video.torrest/play_path?path=<path>`       | Plays the provided torrent file path `<path>` |
 
+The above methods support `file_id` (the file index, integer) and `buffer` (enable buffering before playing, boolean)
+as query arguments. By default `file_id` is undefined and `buffer` is set to `true`. Below is an example of a method 
+call using these arguments:
+
+```text
+plugin://plugin.video.torrest/play_magnet?magnet=<magnet>&file_id=1&buffer=false
+```
+
 ## Screenshots
 
 ![screenshots](resources/screenshots/screenshots.gif)
