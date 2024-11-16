@@ -1,7 +1,6 @@
 from collections import namedtuple
 import requests
 
-
 STATUS_QUEUED = 0
 STATUS_CHECKING = 1
 STATUS_FINDING = 2
@@ -66,6 +65,31 @@ File = namedtuple("File", list(FileInfo._fields) + [
     "status",  # type:FileStatus
 ])
 
+FolderInfo = namedtuple("FolderInfo", [
+    "name",  # type:str
+    "path",  # type:str
+    "length",  # type:int
+    "file_count",  # type:int
+])
+
+FolderStatus = namedtuple("FolderStatus", [
+    "total",  # type:int
+    "total_done",  # type:int
+    "total_wanted",  # type:int
+    "total_wanted_done",  # type:int
+    "progress",  # type:float
+    "wanted_count",  # type:int
+])
+
+Folder = namedtuple("Folder", list(FolderInfo._fields) + [
+    "status",  # type:FolderStatus
+])
+
+Items = namedtuple("Items", [
+    "folders",  # type:[Folder]
+    "files",  # type: [File]
+])
+
 
 def from_dict(data, clazz, **converters):
     if data is None:
@@ -87,8 +111,7 @@ class Torrest(object):
 
     def add_magnet(self, magnet, ignore_duplicate=False, download=False):
         r = self._post("/add/magnet", params={
-            "uri": magnet, "ignore_duplicate": self._bool_str(ignore_duplicate),
-            "download": self._bool_str(download)})
+            "uri": magnet, "ignore_duplicate": self._bool_str(ignore_duplicate), "download": self._bool_str(download)})
         return r.json()["info_hash"]
 
     def add_torrent(self, path, ignore_duplicate=False, download=False):
@@ -97,8 +120,7 @@ class Torrest(object):
 
     def add_torrent_obj(self, obj, ignore_duplicate=False, download=False):
         r = self._post("/add/torrent", files={"torrent": obj}, params={
-            "ignore_duplicate": self._bool_str(ignore_duplicate),
-            "download": self._bool_str(download)})
+            "ignore_duplicate": self._bool_str(ignore_duplicate), "download": self._bool_str(download)})
         return r.json()["info_hash"]
 
     def torrents(self, status=True):
@@ -115,11 +137,11 @@ class Torrest(object):
     def resume_torrent(self, info_hash):
         self._put("/torrents/{}/resume".format(info_hash))
 
-    def download_torrent(self, info_hash):
-        self._put("/torrents/{}/download".format(info_hash))
+    def download_torrent(self, info_hash, prefix=""):
+        self._put("/torrents/{}/download".format(info_hash), params={"prefix": prefix})
 
-    def stop_torrent(self, info_hash):
-        self._put("/torrents/{}/stop".format(info_hash))
+    def stop_torrent(self, info_hash, prefix=""):
+        self._put("/torrents/{}/stop".format(info_hash), params={"prefix": prefix})
 
     def remove_torrent(self, info_hash, delete=True):
         self._delete("/torrents/{}".format(info_hash), params={"delete": self._bool_str(delete)})
@@ -138,15 +160,16 @@ class Torrest(object):
         """
         return from_dict(self._get("/torrents/{}/status".format(info_hash)).json(), TorrentStatus)
 
-    def files(self, info_hash, status=True):
+    def files(self, info_hash, prefix="", status=True):
         """
         :type info_hash: str
+        :type prefix: str
         :type status: bool
         :rtype: typing.List[File]
         """
         return [from_dict(f, File, status=lambda v: from_dict(v, FileStatus))
                 for f in self._get("/torrents/{}/files".format(info_hash),
-                                   params={"status": self._bool_str(status)}).json()]
+                                   params={"prefix": prefix, "status": self._bool_str(status)}).json()]
 
     def file_info(self, info_hash, file_id):
         """
@@ -163,6 +186,19 @@ class Torrest(object):
         :rtype: FileStatus
         """
         return from_dict(self._get("/torrents/{}/files/{}/status".format(info_hash, file_id)).json(), FileStatus)
+
+    def items(self, info_hash, folder="", status=True):
+        """
+        :type info_hash: str
+        :type folder: str
+        :type status: bool
+        :rtype: Items
+        """
+        params = {"folder": folder, "status": self._bool_str(status)}
+        return from_dict(
+            self._get("/torrents/{}/items".format(info_hash), params=params).json(), Items,
+            folders=lambda v: [from_dict(i, Folder, status=lambda s: from_dict(s, FolderStatus)) for i in v],
+            files=lambda v: [from_dict(i, File, status=lambda s: from_dict(s, FileStatus)) for i in v])
 
     def download_file(self, info_hash, file_id, buffer=False):
         self._put("/torrents/{}/files/{}/download".format(info_hash, file_id),

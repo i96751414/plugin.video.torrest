@@ -61,6 +61,10 @@ def download_after_insert():
     return get_boolean_setting("download_after_insert")
 
 
+def folder_listing_enabled():
+    return get_boolean_setting("enable_folders")
+
+
 def get_files_order():
     return get_int_setting("files_order")
 

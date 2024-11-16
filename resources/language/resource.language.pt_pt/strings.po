@@ -38,6 +38,10 @@ msgctxt "#30004"
 msgid "Show status overlay"
 msgstr "Mostrar diálogo de status"
 
+msgctxt "#30005"
+msgid "Enable folder listing"
+msgstr "Listar directórios"
+
 msgctxt "#30010"
 msgid "Download path"
 msgstr "Pasta de download"

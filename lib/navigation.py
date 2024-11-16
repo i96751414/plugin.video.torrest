@@ -15,7 +15,7 @@ from lib.kodi_formats import is_music, is_picture, is_video, is_text
 from lib.player import TorrestPlayer
 from lib.settings import get_service_address, get_port, get_buffering_timeout, show_status_overlay, \
     get_min_candidate_size, get_on_playback_stop_action, download_after_insert, get_files_order, get_metadata_timeout, \
-    ssl_enabled, FilesOrder, PlaybackStopAction
+    ssl_enabled, folder_listing_enabled, FilesOrder, PlaybackStopAction
 from lib.torrest.api import Torrest, TorrestError, STATUS_SEEDING, STATUS_PAUSED
 from lib.utils import sizeof_fmt, ThreadLocal
 
@@ -174,7 +174,7 @@ def index():
 @plugin.route("/torrents")
 @check_directory
 def torrents():
-    for torrent in api.torrents():
+    for torrent in api.torrents(status=True):
         context_menu_items = [
             (translate(30235), media(play_info_hash, info_hash=torrent.info_hash))
         ]
@@ -201,13 +201,14 @@ def torrents():
 
 
 @plugin.route("/torrents/<info_hash>/<action_str>")
-def torrent_action(info_hash, action_str):
+@query_arg("prefix", required=False, arg_type=Types.string)
+def torrent_action(info_hash, action_str, prefix=""):
     needs_refresh = True
 
     if action_str == "stop":
-        api.stop_torrent(info_hash)
+        api.stop_torrent(info_hash, prefix=prefix)
     elif action_str == "download":
-        api.download_torrent(info_hash)
+        api.download_torrent(info_hash, prefix=prefix)
     elif action_str == "pause":
         api.pause_torrent(info_hash)
     elif action_str == "resume":
@@ -233,7 +234,7 @@ def torrent_status(info_hash):
                  api.torrent_info(info_hash).name, sound=False)
 
 
-def sort_files(files):
+def sort_items(files):
     order = get_files_order()
     if order == FilesOrder.NAME:
         files.sort(key=lambda k: k.name)
@@ -242,10 +243,29 @@ def sort_files(files):
 
 
 @plugin.route("/torrents/<info_hash>")
+@query_arg("folder", required=False, arg_type=Types.string)
 @check_directory
-def torrent_files(info_hash):
-    files = api.files(info_hash)
-    sort_files(files)
+def torrent_files(info_hash, folder=""):
+    if folder or folder_listing_enabled():
+        items = api.items(info_hash, folder, status=True)
+        folders = items.folders
+        files = items.files
+    else:
+        folders = []
+        files = api.files(info_hash, status=True)
+
+    sort_items(folders)
+    for f in folders:
+        folder_li = list_item(f.name, "folder.png")
+        folder_li.addContextMenuItems([
+            (translate(30208), action(torrent_action, info_hash=info_hash, action_str="stop", prefix=f.path))
+            if f.status.wanted_count == f.file_count else
+            (translate(30209), action(torrent_action, info_hash=info_hash, action_str="download", prefix=f.path))
+        ])
+        url = plugin.url_for(torrent_files, info_hash=info_hash, folder=f.path)
+        addDirectoryItem(plugin.handle, url, folder_li, isFolder=True)
+
+    sort_items(files)
     for f in files:
         serve_url = api.serve_url(info_hash, f.id)
         file_li = list_item(f.name, "download.png")
@@ -302,7 +322,7 @@ def display_text(info_hash, file_id):
 @query_arg("buffer", required=False, arg_type=Types.boolean)
 def play_url(url, file_id=None, buffer=True):
     r = requests.get(url, stream=True)
-    info_hash = api.add_torrent_obj(r.raw, ignore_duplicate=True)
+    info_hash = api.add_torrent_obj(r.raw, ignore_duplicate=True, download=False)
     play_info_hash(info_hash, file_id=file_id, buffer=buffer)
 
 
@@ -312,7 +332,7 @@ def play_url(url, file_id=None, buffer=True):
 @query_arg("file_id", required=False, arg_type=Types.integer)
 @query_arg("buffer", required=False, arg_type=Types.boolean)
 def play_magnet(magnet, file_id=None, buffer=True):
-    info_hash = api.add_magnet(magnet, ignore_duplicate=True)
+    info_hash = api.add_magnet(magnet, ignore_duplicate=True, download=False)
     play_info_hash(info_hash, file_id=file_id, buffer=buffer)
 
 
@@ -322,7 +342,7 @@ def play_magnet(magnet, file_id=None, buffer=True):
 @query_arg("file_id", required=False, arg_type=Types.integer)
 @query_arg("buffer", required=False, arg_type=Types.boolean)
 def play_file(path, file_id=None, buffer=True):
-    info_hash = api.add_torrent(path, ignore_duplicate=True)
+    info_hash = api.add_torrent(path, ignore_duplicate=True, download=False)
     play_info_hash(info_hash, file_id=file_id, buffer=buffer)
 
 
@@ -344,7 +364,7 @@ def play_info_hash(info_hash, file_id=None, buffer=True):
         elif len(candidate_files) == 1:
             file_id = candidate_files[0].id
         else:
-            sort_files(candidate_files)
+            sort_items(candidate_files)
             chosen_index = Dialog().select(translate(30240), [f.name for f in candidate_files])
             if chosen_index < 0:
                 raise PlayError("User canceled dialog select")
@@ -453,7 +473,7 @@ def play(info_hash, file_id):
 @plugin.route("/torrents/<info_hash>/files/<file_id>/<action_str>")
 def file_action(info_hash, file_id, action_str):
     if action_str == "download":
-        api.download_file(info_hash, file_id)
+        api.download_file(info_hash, file_id, buffer=False)
     elif action_str == "stop":
         api.stop_file(info_hash, file_id)
     else:
@@ -467,9 +487,9 @@ def dialog_insert():
     window = DialogInsert("DialogInsert.xml", ADDON_PATH, "Default")
     window.doModal()
     if window.type == DialogInsert.TYPE_PATH:
-        api.add_torrent(window.ret_val, download=download_after_insert())
+        api.add_torrent(window.ret_val, ignore_duplicate=False, download=download_after_insert())
     elif window.type == DialogInsert.TYPE_URL:
-        api.add_magnet(window.ret_val, download=download_after_insert())
+        api.add_magnet(window.ret_val, ignore_duplicate=False, download=download_after_insert())
     else:
         return
     notification(translate(30243), time=2000)
