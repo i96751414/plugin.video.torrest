@@ -91,10 +91,11 @@ Items = namedtuple("Items", [
 ])
 
 
-def from_dict(data, clazz, **converters):
+def from_dict(data, clazz, _required=True, **converters):
     if data is None:
+        if _required:
+            raise ValueError("Null value is not allowed for " + clazz.__name__)
         return None
-    # data = dict(data)
     for k, converter in converters.items():
         data[k] = converter(data.get(k))
     return clazz(**data)
@@ -128,7 +129,7 @@ class Torrest(object):
         :type status: bool
         :rtype: typing.List[Torrent]
         """
-        return [from_dict(t, Torrent, status=lambda v: from_dict(v, TorrentStatus))
+        return [from_dict(t, Torrent, status=lambda v: from_dict(v, TorrentStatus, status))
                 for t in self._get("/torrents", params={"status": self._bool_str(status)}).json()]
 
     def pause_torrent(self, info_hash):
@@ -167,7 +168,7 @@ class Torrest(object):
         :type status: bool
         :rtype: typing.List[File]
         """
-        return [from_dict(f, File, status=lambda v: from_dict(v, FileStatus))
+        return [from_dict(f, File, status=lambda v: from_dict(v, FileStatus, status))
                 for f in self._get("/torrents/{}/files".format(info_hash),
                                    params={"prefix": prefix, "status": self._bool_str(status)}).json()]
 
@@ -197,8 +198,8 @@ class Torrest(object):
         params = {"folder": folder, "status": self._bool_str(status)}
         return from_dict(
             self._get("/torrents/{}/items".format(info_hash), params=params).json(), Items,
-            folders=lambda v: [from_dict(i, Folder, status=lambda s: from_dict(s, FolderStatus)) for i in v],
-            files=lambda v: [from_dict(i, File, status=lambda s: from_dict(s, FileStatus)) for i in v])
+            folders=lambda v: [from_dict(i, Folder, status=lambda s: from_dict(s, FolderStatus, status)) for i in v],
+            files=lambda v: [from_dict(i, File, status=lambda s: from_dict(s, FileStatus, status)) for i in v])
 
     def download_file(self, info_hash, file_id, buffer=False):
         self._put("/torrents/{}/files/{}/download".format(info_hash, file_id),
