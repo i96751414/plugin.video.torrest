@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import time
 
 import requests
@@ -234,10 +235,19 @@ def torrent_status(info_hash):
                  api.torrent_info(info_hash).name, sound=False)
 
 
+def natural_sort_key(key=lambda v: v):
+    digits = re.compile(r"(\d+)")
+
+    def alphanum_key(element):
+        return [c if i % 2 == 0 else int(c) for i, c in enumerate(digits.split(key(element)))]
+
+    return alphanum_key
+
+
 def sort_items(files):
     order = get_files_order()
     if order == FilesOrder.NAME:
-        files.sort(key=lambda k: k.name)
+        files.sort(key=natural_sort_key(lambda k: k.name))
     elif order == FilesOrder.SIZE:
         files.sort(key=lambda k: k.length)
 
