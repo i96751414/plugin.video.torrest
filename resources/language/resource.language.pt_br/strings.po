@@ -40,7 +40,7 @@ msgstr "Mostrar diálogo de status"
 
 msgctxt "#30005"
 msgid "Enable folder listing"
-msgstr "Listar directorias"
+msgstr "Listar directórios"
 
 msgctxt "#30010"
 msgid "Download path"
