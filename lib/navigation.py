@@ -9,20 +9,18 @@ from xbmc import Monitor, executebuiltin, getInfoLabel, getCondVisibility, sleep
 from xbmcgui import ListItem, DialogProgress, Dialog
 from xbmcplugin import addDirectoryItem, endOfDirectory, setResolvedUrl
 
+from lib import settings
 from lib.dialog import DialogInsert
 from lib.kodi import ADDON_PATH, ADDON_NAME, translate, notification, set_logger, refresh, show_picture, \
     close_busy_dialog
 from lib.kodi_formats import is_music, is_picture, is_video, is_text
 from lib.player import TorrestPlayer
-from lib.settings import get_service_address, get_port, get_buffering_timeout, show_status_overlay, \
-    get_min_candidate_size, get_on_playback_stop_action, download_after_insert, get_files_order, get_metadata_timeout, \
-    ssl_enabled, folder_listing_enabled, FilesOrder, PlaybackStopAction
 from lib.torrest.api import Torrest, TorrestError, STATUS_SEEDING, STATUS_PAUSED
 from lib.utils import sizeof_fmt, ThreadLocal
 
 set_logger()
 plugin = routing.Plugin()
-api = Torrest(get_service_address(), get_port(), ssl_enabled())
+api = Torrest(settings.get_service_address(), settings.get_port(), settings.ssl_enabled())
 
 
 class Types:
@@ -140,8 +138,8 @@ def get_status_labels(info_hash):
 
 
 def handle_player_stop(info_hash, name=None, initial_delay=0.5, listing_timeout=10):
-    stop_action = get_on_playback_stop_action()
-    if stop_action == PlaybackStopAction.IGNORE:
+    stop_action = settings.get_on_playback_stop_action()
+    if stop_action == settings.PlaybackStopAction.IGNORE:
         return
     try:
         info = api.torrent_info(info_hash)
@@ -155,7 +153,7 @@ def handle_player_stop(info_hash, name=None, initial_delay=0.5, listing_timeout=
     while getCondVisibility("Window.IsActive(busydialog)") and not 0 < listing_timeout < time.time() - start_time:
         sleep(100)
 
-    if (stop_action == PlaybackStopAction.DELETE
+    if (stop_action == settings.PlaybackStopAction.DELETE
             or Dialog().yesno(ADDON_NAME, name + "\n" + translate(30241))):
         api.remove_torrent(info_hash, delete=True)
         current_folder = getInfoLabel("Container.FolderPath")
@@ -245,10 +243,10 @@ def natural_sort_key(key=lambda v: v):
 
 
 def sort_items(files):
-    order = get_files_order()
-    if order == FilesOrder.NAME:
+    order = settings.get_files_order()
+    if order == settings.FilesOrder.NAME:
         files.sort(key=natural_sort_key(lambda k: k.name))
-    elif order == FilesOrder.SIZE:
+    elif order == settings.FilesOrder.SIZE:
         files.sort(key=lambda k: k.length)
 
 
@@ -256,8 +254,12 @@ def sort_items(files):
 @query_arg("folder", required=False, arg_type=Types.string)
 @check_directory
 def torrent_files(info_hash, folder=""):
-    if folder or folder_listing_enabled():
+    if folder or settings.folder_listing_enabled():
         items = api.items(info_hash, folder, status=True)
+        if not folder and settings.skip_root_folder():
+            while len(items.files) == 0 and len(items.folders) == 1:
+                items = api.items(info_hash, items.folders[0].path, status=True)
+
         folders = items.folders
         files = items.files
     else:
@@ -366,7 +368,7 @@ def play_info_hash(info_hash, file_id=None, buffer=True):
 
     if file_id is None:
         files = api.files(info_hash, status=False)
-        min_candidate_size = get_min_candidate_size() * 1024 * 1024
+        min_candidate_size = settings.get_min_candidate_size() * 1024 * 1024
         candidate_files = [f for f in files if is_video(f.path) and f.length >= min_candidate_size]
         if not candidate_files:
             notification(translate(30239))
@@ -389,7 +391,7 @@ def play_info_hash(info_hash, file_id=None, buffer=True):
 def wait_for_metadata(info_hash):
     close_busy_dialog()
     percent = 0
-    timeout = get_metadata_timeout()
+    timeout = settings.get_metadata_timeout()
     start_time = time.time()
     monitor = Monitor()
     progress = DialogProgress()
@@ -427,7 +429,7 @@ def wait_for_buffering_completion(info_hash, file_id):
     close_busy_dialog()
     info = api.file_info(info_hash, file_id)
     of = translate(30244)
-    timeout = get_buffering_timeout()
+    timeout = settings.get_buffering_timeout()
     last_time = last_done = 0
     start_time = time.time()
 
@@ -472,7 +474,8 @@ def play(info_hash, file_id):
 
     try:
         with TorrestPlayer(
-                text_handler=(lambda: get_status_labels(info_hash) + (name,)) if show_status_overlay() else None,
+                text_handler=(lambda: get_status_labels(info_hash) + (name,))
+                if settings.show_status_overlay() else None,
                 on_close_handler=lambda: handle_player_stop(info_hash, name=name),
         ) as player:
             player.handle_events(url=serve_url)
@@ -497,9 +500,9 @@ def dialog_insert():
     window = DialogInsert("DialogInsert.xml", ADDON_PATH, "Default")
     window.doModal()
     if window.type == DialogInsert.TYPE_PATH:
-        api.add_torrent(window.ret_val, ignore_duplicate=False, download=download_after_insert())
+        api.add_torrent(window.ret_val, ignore_duplicate=False, download=settings.download_after_insert())
     elif window.type == DialogInsert.TYPE_URL:
-        api.add_magnet(window.ret_val, ignore_duplicate=False, download=download_after_insert())
+        api.add_magnet(window.ret_val, ignore_duplicate=False, download=settings.download_after_insert())
     else:
         return
     notification(translate(30243), time=2000)

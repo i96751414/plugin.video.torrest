@@ -9,9 +9,8 @@ import xbmc
 import xbmcgui
 
 from lib import kodi
+from lib import settings
 from lib.constants import PLATFORM, LIB_NAME, EXE_NAME
-from lib.settings import get_port, get_daemon_timeout, service_enabled, set_service_enabled, get_service_address, \
-    show_background_progress, set_has_libtorrest, get_force_torrest, ssl_enabled
 from lib.torrest.api import Torrest, STATUS_FINISHED, STATUS_SEEDING, STATUS_PAUSED
 from lib.torrest_daemon import TorrestLibraryDaemon, TorrestExecutableDaemon, TorrestDaemonNotFoundError
 from lib.utils import sizeof_fmt, assure_unicode
@@ -51,7 +50,7 @@ class DaemonMonitor(xbmc.Monitor):
         kwargs = dict(config=config, dest_dir=os.path.join(kodi.ADDON_DATA, "bin"), work_dir=kodi.ADDON_DATA,
                       android_extra_dirs=(kodi.translatePath("special://xbmcbin"),))
 
-        if os.path.exists(LIB_PATH) and not get_force_torrest():
+        if os.path.exists(LIB_PATH) and not settings.get_force_torrest():
             logging.info("Configuring torrest libray (%s)", LIB_NAME)
             self._daemon = TorrestLibraryDaemon(LIB_NAME, BASE_DIRECTORY, **kwargs)
         else:
@@ -114,12 +113,12 @@ class DaemonMonitor(xbmc.Monitor):
         with self._lock:
             port_changed = enabled_changed = False
 
-            port = get_port()
+            port = settings.get_port()
             if port != self._daemon.get_config("port"):
                 self._daemon.set_config("port", port)
                 port_changed = True
 
-            enabled = service_enabled()
+            enabled = settings.service_enabled()
             if enabled != self._enabled:
                 self._enabled = enabled
                 enabled_changed = True
@@ -129,7 +128,7 @@ class DaemonMonitor(xbmc.Monitor):
                     self._daemon.stop()
                 if port_changed or enabled_changed:
                     self._daemon.start()
-                    self._wait(timeout=get_daemon_timeout(), notification=True)
+                    self._wait(timeout=settings.get_daemon_timeout(), notification=True)
                 self._update_daemon_settings()
             elif enabled_changed:
                 self._daemon.stop()
@@ -174,7 +173,7 @@ class DaemonMonitor(xbmc.Monitor):
                         self._daemon.start()
 
                         try:
-                            self._wait(timeout=get_daemon_timeout(), notification=True)
+                            self._wait(timeout=settings.get_daemon_timeout(), notification=True)
                             self._update_daemon_settings()
                         except DaemonTimeoutError:
                             logging.error("Timed out waiting for daemon")
@@ -261,8 +260,8 @@ class DownloadProgress(xbmc.Monitor, threading.Thread):
             self._dialog = None
 
     def onSettingsChanged(self):
-        self._api = Torrest(get_service_address(), get_port(), ssl_enabled())
-        self._enabled = show_background_progress()
+        self._api = Torrest(settings.get_service_address(), settings.get_port(), settings.ssl_enabled())
+        self._enabled = settings.show_background_progress()
 
     def __enter__(self):
         self.start()
@@ -282,7 +281,7 @@ def handle_first_run():
 
 def run():
     kodi.set_logger()
-    set_has_libtorrest(os.path.exists(LIB_PATH))
+    settings.set_has_libtorrest(os.path.exists(LIB_PATH))
     handle_first_run()
 
     try:
@@ -291,7 +290,7 @@ def run():
                 monitor.handle_crashes()
     except TorrestDaemonNotFoundError as e:
         logging.info("Daemon not found. Aborting service (%s).", e)
-        if service_enabled():
-            set_service_enabled(False)
+        if settings.service_enabled():
+            settings.set_service_enabled(False)
             xbmcgui.Dialog().ok(kodi.ADDON_NAME, kodi.translate(30103))
             kodi.open_settings()

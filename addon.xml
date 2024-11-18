@@ -18,6 +18,8 @@
         <news>
 - Update torrest binary to v0.0.7
 - Add folder listing support
+- Add option to skip root folder listing
+- Add natural sorting on file names
         </news>
         <assets>
             <icon>icon.png</icon>

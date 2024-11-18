@@ -42,6 +42,10 @@ msgctxt "#30005"
 msgid "Enable folder listing"
 msgstr "Habilitar listado de carpetas"
 
+msgctxt "#30006"
+msgid "Skip root folder listing"
+msgstr "Saltar listado de carpeta raíz"
+
 msgctxt "#30010"
 msgid "Download path"
 msgstr "Ruta de descarga"

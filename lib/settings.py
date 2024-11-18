@@ -65,6 +65,10 @@ def folder_listing_enabled():
     return get_boolean_setting("enable_folders")
 
 
+def skip_root_folder():
+    return get_boolean_setting("skip_root_folder")
+
+
 def get_files_order():
     return get_int_setting("files_order")
 

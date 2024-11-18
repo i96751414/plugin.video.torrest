@@ -42,6 +42,10 @@ msgctxt "#30005"
 msgid "Enable folder listing"
 msgstr "Listar directórios"
 
+msgctxt "#30006"
+msgid "Skip root folder listing"
+msgstr "Ignorar listagem da pasta raiz"
+
 msgctxt "#30010"
 msgid "Download path"
 msgstr "Pasta de download"
