@@ -152,7 +152,7 @@ def get_resolution():
     return home.getWidth(), home.getHeight()
 
 
-class KodiLogHandler(logging.StreamHandler):
+class KodiLogHandler(logging.Handler):
     levels = {
         logging.CRITICAL: xbmc.LOGFATAL,
         logging.ERROR: xbmc.LOGERROR,
@@ -168,12 +168,6 @@ class KodiLogHandler(logging.StreamHandler):
 
     def emit(self, record):
         xbmc.log(assure_str(self.format(record)), self.levels[record.levelno])
-
-    def flush(self):
-        pass
-
-    def __repr__(self):
-        return "<{}({})>".format(self.__class__.__name__, logging.getLevelName(self.level))
 
 
 def set_logger(name=None, level=logging.NOTSET):
