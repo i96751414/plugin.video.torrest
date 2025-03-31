@@ -469,8 +469,17 @@ def wait_for_buffering_completion(info_hash, file_id):
 @check_playable
 def play(info_hash, file_id):
     serve_url = api.serve_url(info_hash, file_id)
-    name = api.torrent_info(info_hash).name
-    setResolvedUrl(plugin.handle, True, ListItem(name, path=serve_url))
+    name = api.file_info(info_hash, file_id).name
+
+    file_li = ListItem(name, path=serve_url)
+    info_labels = {"title": name}
+    if is_video(name):
+        file_li.setInfo("video", info_labels)
+    elif is_music(name):
+        file_li.setInfo("music", info_labels)
+    file_li.setProperty("IsPlayable", "true")
+
+    setResolvedUrl(plugin.handle, True, file_li)
 
     try:
         with TorrestPlayer(
