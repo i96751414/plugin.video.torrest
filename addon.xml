@@ -16,10 +16,8 @@
         <summary lang="en">Torrest on Kodi</summary>
         <description lang="en">Torrest is a service with a rest API which allows torrent streaming.</description>
         <news>
-- Update torrest binary to v0.0.7
-- Add folder listing support
-- Add option to skip root folder listing
-- Add natural sorting on file names
+- Update torrest binary to v0.0.8
+- Add proper info to the play list item
         </news>
         <assets>
             <icon>icon.png</icon>
